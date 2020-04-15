@@ -67,6 +67,7 @@ import org.primefaces.component.resetinput.ResetInputActionListener;
 import org.primefaces.component.selectbooleancheckbox.SelectBooleanCheckbox;
 import org.primefaces.component.selectonemenu.SelectOneMenu;
 import org.primefaces.component.spacer.Spacer;
+import org.primefaces.component.tristatecheckbox.TriStateCheckbox;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -508,6 +509,9 @@ public class CRUDComponent extends UINamingContainer {
             }
         } else if (entityField.getType() == Boolean.TYPE) {
             input = (SelectBooleanCheckbox) application.createComponent(SelectBooleanCheckbox.COMPONENT_TYPE);
+        } else if (entityField.getType() == Boolean.class) {
+            input = (TriStateCheckbox) application.createComponent(TriStateCheckbox.COMPONENT_TYPE);
+            input.setConverter(new TriStateBooleanConverter());
         } else if (entityField.getType() == Date.class) {
             input = (Calendar) application.createComponent(Calendar.COMPONENT_TYPE);
             Temporal temporal = entityField.getAnnotation(Temporal.class);

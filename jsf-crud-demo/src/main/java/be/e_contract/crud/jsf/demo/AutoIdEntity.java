@@ -63,6 +63,8 @@ public class AutoIdEntity implements Serializable {
     @ManyToOne
     private DemoEntity demo;
 
+    private Boolean threeValuedLogic;
+
     public AutoIdEntity() {
         super();
     }
@@ -141,6 +143,14 @@ public class AutoIdEntity implements Serializable {
 
     public void setDemo(DemoEntity demo) {
         this.demo = demo;
+    }
+
+    public Boolean getThreeValuedLogic() {
+        return this.threeValuedLogic;
+    }
+
+    public void setThreeValuedLogic(Boolean threeValuedLogic) {
+        this.threeValuedLogic = threeValuedLogic;
     }
 
     @Override
