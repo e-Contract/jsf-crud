@@ -61,5 +61,18 @@
             <type>java.lang.Boolean</type>
         </attribute>
     </tag>
+    
+    <tag>
+        <tag-name>createListener</tag-name>
+        <component>
+            <component-type>crud.createListener</component-type>
+            <handler-class>be.e_contract.crud.jsf.CreateListenerTagHandler</handler-class>
+        </component>
+        <attribute>
+            <name>action</name>
+            <required>true</required>
+            <type>javax.el.MethodExpression</type>
+        </attribute>
+    </tag>
 
 </facelet-taglib>

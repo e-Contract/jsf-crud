@@ -28,6 +28,7 @@ import javax.faces.event.AbortProcessingException;
 import org.primefaces.component.datatable.DataTable;
 import java.util.List;
 import javax.el.ELResolver;
+import javax.el.MethodExpression;
 import javax.el.ValueExpression;
 import javax.faces.application.FacesMessage;
 import javax.faces.application.ResourceDependencies;
@@ -76,7 +77,7 @@ import org.slf4j.LoggerFactory;
 @ResourceDependencies(value = {
     @ResourceDependency(library = "crud", name = "crud.js")
 })
-public class CRUDComponent extends UINamingContainer {
+public class CRUDComponent extends UINamingContainer implements CreateSource {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(CRUDComponent.class);
 
@@ -123,6 +124,10 @@ public class CRUDComponent extends UINamingContainer {
             return;
         }
 
+        Application application = facesContext.getApplication();
+        ExpressionFactory expressionFactory = application.getExpressionFactory();
+        ELContext elContext = facesContext.getELContext();
+
         boolean showCreate = true;
         boolean showDelete = true;
         boolean showUpdate = true;
@@ -151,6 +156,11 @@ public class CRUDComponent extends UINamingContainer {
             } else if (child instanceof ReadComponent) {
                 readComponent = (ReadComponent) child;
                 showView = true;
+            } else if (child instanceof CreateListenerComponent) {
+                CreateListenerComponent createListenerComponent = (CreateListenerComponent) child;
+                MethodExpression methodExpression = createListenerComponent.getAction();
+                CreateAdapter createAdapter = new CreateAdapter(methodExpression);
+                addCreateListener(createAdapter);
             }
         }
 
@@ -165,9 +175,6 @@ public class CRUDComponent extends UINamingContainer {
         }
 
         String entityName = entityInspector.getEntityName();
-
-        Application application = facesContext.getApplication();
-        ExpressionFactory expressionFactory = application.getExpressionFactory();
 
         HtmlForm htmlForm = (HtmlForm) application.createComponent(HtmlForm.COMPONENT_TYPE);
         getChildren().add(htmlForm);
@@ -191,7 +198,6 @@ public class CRUDComponent extends UINamingContainer {
         dataTable.setId("table");
         dataTable.setResizableColumns(true);
         dataTable.setTableStyle("table-layout: auto !important;");
-        ELContext elContext = facesContext.getELContext();
         List entityList = (List) valueExpression.getValue(elContext);
         if (entityList.size() > 20) {
             dataTable.setPaginator(true);
@@ -683,6 +689,9 @@ public class CRUDComponent extends UINamingContainer {
 
             String entityHumanReadable = this.entityInspector.toHumanReadable(entity);
             CRUDComponent.this.addMessage(FacesMessage.SEVERITY_INFO, "Added " + entityHumanReadable);
+
+            CreateEvent createEvent = new CreateEvent(CRUDComponent.this, entity);
+            CRUDComponent.this.queueEvent(createEvent);
         }
     }
 
@@ -812,5 +821,20 @@ public class CRUDComponent extends UINamingContainer {
             this.htmlOutputText.setValue("Do you want to delete: " + entityHumanReadable + " ?");
             CRUDComponent.this.setSelection(entity);
         }
+    }
+
+    @Override
+    public void addCreateListener(CreateListener listener) {
+        addFacesListener(listener);
+    }
+
+    @Override
+    public void removeCreateListener(CreateListener listener) {
+        removeFacesListener(listener);
+    }
+
+    @Override
+    public CreateListener[] getCreateListeners() {
+        return (CreateListener[]) getFacesListeners(CreateListener.class);
     }
 }

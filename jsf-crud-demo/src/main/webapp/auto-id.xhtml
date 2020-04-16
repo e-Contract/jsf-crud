@@ -15,6 +15,7 @@
             <crud:read/>
             <crud:update/>
             <crud:delete deleteAll="true"/>
+            <crud:createListener action="#{demoController.created}"/>
         </crud:crud>
         <h:form>
             <p:commandLink action="/index?faces-redirect=true" value="Back"/>

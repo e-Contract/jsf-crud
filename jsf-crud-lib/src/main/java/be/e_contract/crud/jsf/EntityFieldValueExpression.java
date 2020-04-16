@@ -96,7 +96,7 @@ public class EntityFieldValueExpression extends ValueExpression {
 
     @Override
     public Class<?> getType(ELContext context) {
-        LOGGER.debug("getType");
+        //LOGGER.debug("getType");
         return this.entityField.getType();
     }
 
@@ -126,7 +126,7 @@ public class EntityFieldValueExpression extends ValueExpression {
 
     @Override
     public boolean isLiteralText() {
-        LOGGER.debug("isLiteralText");
+        //LOGGER.debug("isLiteralText");
         return false;
     }
 }
