@@ -74,5 +74,18 @@
             <type>javax.el.MethodExpression</type>
         </attribute>
     </tag>
+    
+    <tag>
+        <tag-name>updateListener</tag-name>
+        <component>
+            <component-type>crud.updateListener</component-type>
+            <handler-class>be.e_contract.crud.jsf.UpdateListenerTagHandler</handler-class>
+        </component>
+        <attribute>
+            <name>action</name>
+            <required>true</required>
+            <type>javax.el.MethodExpression</type>
+        </attribute>
+    </tag>
 
 </facelet-taglib>

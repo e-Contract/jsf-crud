@@ -77,7 +77,7 @@ import org.slf4j.LoggerFactory;
 @ResourceDependencies(value = {
     @ResourceDependency(library = "crud", name = "crud.js")
 })
-public class CRUDComponent extends UINamingContainer implements CreateSource {
+public class CRUDComponent extends UINamingContainer implements CreateSource, UpdateSource {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(CRUDComponent.class);
 
@@ -161,6 +161,11 @@ public class CRUDComponent extends UINamingContainer implements CreateSource {
                 MethodExpression methodExpression = createListenerComponent.getAction();
                 CreateAdapter createAdapter = new CreateAdapter(methodExpression);
                 addCreateListener(createAdapter);
+            } else if (child instanceof UpdateListenerComponent) {
+                UpdateListenerComponent updateListenerComponent = (UpdateListenerComponent) child;
+                MethodExpression methodExpression = updateListenerComponent.getAction();
+                UpdateAdapter updateAdapter = new UpdateAdapter(methodExpression);
+                addUpdateListener(updateAdapter);
             }
         }
 
@@ -596,7 +601,7 @@ public class CRUDComponent extends UINamingContainer implements CreateSource {
 
         @Override
         public void processAction(ActionEvent event) throws AbortProcessingException {
-            LOGGER.debug("processAction add");
+            LOGGER.debug("processAction save");
 
             FacesContext facesContext = FacesContext.getCurrentInstance();
             ELContext context = facesContext.getELContext();
@@ -628,6 +633,9 @@ public class CRUDComponent extends UINamingContainer implements CreateSource {
 
             String entityHumanReadable = this.entityInspector.toHumanReadable(entity);
             CRUDComponent.this.addMessage(FacesMessage.SEVERITY_INFO, "Updated " + entityHumanReadable);
+
+            UpdateEvent updateEvent = new UpdateEvent(CRUDComponent.this, entity);
+            updateEvent.queue();
         }
     }
 
@@ -691,7 +699,7 @@ public class CRUDComponent extends UINamingContainer implements CreateSource {
             CRUDComponent.this.addMessage(FacesMessage.SEVERITY_INFO, "Added " + entityHumanReadable);
 
             CreateEvent createEvent = new CreateEvent(CRUDComponent.this, entity);
-            CRUDComponent.this.queueEvent(createEvent);
+            createEvent.queue();
         }
     }
 
@@ -836,5 +844,20 @@ public class CRUDComponent extends UINamingContainer implements CreateSource {
     @Override
     public CreateListener[] getCreateListeners() {
         return (CreateListener[]) getFacesListeners(CreateListener.class);
+    }
+
+    @Override
+    public void addUpdateListener(UpdateListener listener) {
+        addFacesListener(listener);
+    }
+
+    @Override
+    public void removeUpdateListener(UpdateListener listener) {
+        removeFacesListener(listener);
+    }
+
+    @Override
+    public UpdateListener[] getUpdateListeners() {
+        return (UpdateListener[]) getFacesListeners(UpdateListener.class);
     }
 }

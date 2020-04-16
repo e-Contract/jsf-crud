@@ -15,24 +15,13 @@
  * License along with this software; if not, see
  * http://www.gnu.org/licenses/.
  */
-package be.e_contract.crud.jsf.demo;
+package be.e_contract.crud.jsf;
 
-import be.e_contract.crud.jsf.CreateEvent;
-import be.e_contract.crud.jsf.UpdateEvent;
-import javax.inject.Named;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+public interface UpdateSource {
 
-@Named("demoController")
-public class DemoController {
+    void addUpdateListener(UpdateListener listener);
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(DemoController.class);
+    void removeUpdateListener(UpdateListener listener);
 
-    public void created(CreateEvent createEvent) {
-        LOGGER.debug("created: {}", createEvent.getEntity());
-    }
-
-    public void updated(UpdateEvent updateEvent) {
-        LOGGER.debug("updated: {}", updateEvent.getEntity());
-    }
+    UpdateListener[] getUpdateListeners();
 }
