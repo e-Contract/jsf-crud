@@ -18,6 +18,7 @@
 package be.e_contract.crud.jsf.demo;
 
 import be.e_contract.crud.jsf.CreateEvent;
+import be.e_contract.crud.jsf.DeleteEvent;
 import be.e_contract.crud.jsf.UpdateEvent;
 import javax.inject.Named;
 import org.slf4j.Logger;
@@ -34,5 +35,9 @@ public class DemoController {
 
     public void updated(UpdateEvent updateEvent) {
         LOGGER.debug("updated: {}", updateEvent.getEntity());
+    }
+
+    public void deleted(DeleteEvent deleteEvent) {
+        LOGGER.debug("deleted: {}", deleteEvent.getEntity());
     }
 }

@@ -77,7 +77,7 @@ import org.slf4j.LoggerFactory;
 @ResourceDependencies(value = {
     @ResourceDependency(library = "crud", name = "crud.js")
 })
-public class CRUDComponent extends UINamingContainer implements CreateSource, UpdateSource {
+public class CRUDComponent extends UINamingContainer implements CreateSource, UpdateSource, DeleteSource {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(CRUDComponent.class);
 
@@ -166,6 +166,11 @@ public class CRUDComponent extends UINamingContainer implements CreateSource, Up
                 MethodExpression methodExpression = updateListenerComponent.getAction();
                 UpdateAdapter updateAdapter = new UpdateAdapter(methodExpression);
                 addUpdateListener(updateAdapter);
+            } else if (child instanceof DeleteListenerComponent) {
+                DeleteListenerComponent deleteListenerComponent = (DeleteListenerComponent) child;
+                MethodExpression methodExpresssion = deleteListenerComponent.getAction();
+                DeleteAdapter deleteAdapter = new DeleteAdapter(methodExpresssion);
+                addDeleteListener(deleteAdapter);
             }
         }
 
@@ -791,6 +796,9 @@ public class CRUDComponent extends UINamingContainer implements CreateSource, Up
 
             String entityHumanReadable = this.entityInspector.toHumanReadable(entity);
             CRUDComponent.this.addMessage(FacesMessage.SEVERITY_INFO, "Deleted " + entityHumanReadable);
+
+            DeleteEvent deleteEvent = new DeleteEvent(CRUDComponent.this, entity);
+            deleteEvent.queue();
         }
     }
 
@@ -859,5 +867,20 @@ public class CRUDComponent extends UINamingContainer implements CreateSource, Up
     @Override
     public UpdateListener[] getUpdateListeners() {
         return (UpdateListener[]) getFacesListeners(UpdateListener.class);
+    }
+
+    @Override
+    public void addDeleteListener(DeleteListener listener) {
+        addFacesListener(listener);
+    }
+
+    @Override
+    public void removeDeleteListener(DeleteListener listener) {
+        removeFacesListener(listener);
+    }
+
+    @Override
+    public DeleteListener[] getDeleteListeners() {
+        return (DeleteListener[]) getFacesListeners(DeleteListener.class);
     }
 }

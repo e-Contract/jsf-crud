@@ -23,27 +23,27 @@ import javax.faces.event.FacesListener;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class UpdateEvent extends FacesEvent {
+public class DeleteEvent extends FacesEvent {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(UpdateEvent.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(DeleteEvent.class);
 
     private final Object entity;
 
-    public UpdateEvent(UIComponent component, Object entity) {
+    public DeleteEvent(UIComponent component, Object entity) {
         super(component);
         this.entity = entity;
     }
 
     @Override
     public boolean isAppropriateListener(FacesListener listener) {
-        return (listener instanceof UpdateListener);
+        return (listener instanceof DeleteListener);
     }
 
     @Override
     public void processListener(FacesListener listener) {
         LOGGER.debug("processListener: {}", listener);
-        UpdateListener updateListener = (UpdateListener) listener;
-        updateListener.entityUpdated(this);
+        DeleteListener deleteListener = (DeleteListener) listener;
+        deleteListener.entityDeleted(this);
     }
 
     public Object getEntity() {
