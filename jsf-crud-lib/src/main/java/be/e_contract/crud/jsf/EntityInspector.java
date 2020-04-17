@@ -134,6 +134,9 @@ public class EntityInspector {
             if (Modifier.isStatic(entityField.getModifiers())) {
                 continue;
             }
+            if (Modifier.isTransient(entityField.getModifiers())) {
+                continue;
+            }
             if (entityField.getName().startsWith("_persistence_")) {
                 // payara
                 continue;

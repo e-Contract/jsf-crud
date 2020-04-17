@@ -17,19 +17,37 @@
  */
 package be.e_contract.crud.jsf;
 
+import java.text.DateFormat;
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
+import java.util.Date;
 import javax.faces.component.UIComponent;
+import javax.faces.component.UIInput;
 import javax.faces.context.FacesContext;
 import javax.faces.convert.Converter;
-import javax.persistence.Entity;
+import javax.faces.convert.ConverterException;
 
-public class FieldConverter implements Converter {
+public class CalendarConverter implements Converter {
 
     @Override
     public Object getAsObject(FacesContext context, UIComponent component, String value) {
-        // this converter is only meant to be used as output converter
-        return value;
+        if (value == null) {
+            return null;
+        }
+        if (UIInput.isEmpty(value)) {
+            return null;
+        }
+        DateFormat formatter = new SimpleDateFormat("dd/MM/yyyy");
+        Date date;
+        try {
+            date = (Date) formatter.parse(value);
+        } catch (ParseException ex) {
+            throw new ConverterException(ex);
+        }
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTime(date);
+        return calendar;
     }
 
     @Override
@@ -37,16 +55,8 @@ public class FieldConverter implements Converter {
         if (null == value) {
             return null;
         }
-        Entity entityAnnotation = value.getClass().getAnnotation(Entity.class);
-        if (null != entityAnnotation) {
-            EntityInspector entityInspector = new EntityInspector(value.getClass());
-            return entityInspector.toHumanReadable(value);
-        }
-        if (value instanceof Calendar) {
-            SimpleDateFormat format = new SimpleDateFormat("dd/MM/yyyy");
-            Calendar calendar = (Calendar) value;
-            return format.format(calendar.getTime());
-        }
-        return value.toString();
+        SimpleDateFormat format = new SimpleDateFormat("dd/MM/yyyy");
+        Calendar calendar = (Calendar) value;
+        return format.format(calendar.getTime());
     }
 }

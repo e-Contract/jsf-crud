@@ -18,11 +18,14 @@
 package be.e_contract.crud.jsf.demo;
 
 import java.io.Serializable;
+import java.util.Calendar;
 import java.util.Date;
+import javax.persistence.Basic;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
+import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
@@ -64,6 +67,12 @@ public class AutoIdEntity implements Serializable {
     private DemoEntity demo;
 
     private Boolean threeValuedLogic;
+
+    @Basic(fetch = FetchType.LAZY)
+    private String lazyString;
+
+    @Temporal(TemporalType.DATE)
+    private Calendar dateOfBirth;
 
     public AutoIdEntity() {
         super();
@@ -151,6 +160,22 @@ public class AutoIdEntity implements Serializable {
 
     public void setThreeValuedLogic(Boolean threeValuedLogic) {
         this.threeValuedLogic = threeValuedLogic;
+    }
+
+    public String getLazyString() {
+        return this.lazyString;
+    }
+
+    public void setLazyString(String lazyString) {
+        this.lazyString = lazyString;
+    }
+
+    public Calendar getDateOfBirth() {
+        return this.dateOfBirth;
+    }
+
+    public void setDateOfBirth(Calendar dateOfBirth) {
+        this.dateOfBirth = dateOfBirth;
     }
 
     @Override

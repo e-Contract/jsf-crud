@@ -550,6 +550,11 @@ public class CRUDComponent extends UINamingContainer implements CreateSource, Up
                     }
                 }
             }
+        } else if (entityField.getType() == java.util.Calendar.class) {
+            input = (Calendar) application.createComponent(Calendar.COMPONENT_TYPE);
+            input.setConverter(new CalendarConverter());
+            Calendar calendar = (Calendar) input;
+            calendar.setPattern("dd/MM/yyyy");
         } else if (entityField.getType().isEnum()) {
             input = (SelectOneMenu) application.createComponent(SelectOneMenu.COMPONENT_TYPE);
             UISelectItem emptySelectItem = (UISelectItem) application.createComponent(UISelectItem.COMPONENT_TYPE);
