@@ -6,6 +6,7 @@ The component has been tested on the following application servers:
 * JBoss EAP 6.4.22
 * WildFly 19.0.0
 * Payara 5.201
+* Open Liberty 20.0.0.4
 
 The component has been tested with PrimeFaces versions:
 * 7.0
@@ -75,3 +76,20 @@ Undeploy the demo web application via:
 ```
 ./asadmin undeploy jsf-crud-demo-1.0.0-SNAPSHOT
 ```
+
+## Open Liberty
+
+Build the project via Maven:
+```
+cd jsf-crud
+mvn clean install
+```
+
+Run the demo web application on Open Liberty via:
+```
+cd jsf-crud-demo
+mvn clean test -Pliberty
+```
+
+Navigate your web browser to:
+http://localhost:9080/jsf-crud-demo/

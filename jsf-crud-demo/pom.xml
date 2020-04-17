@@ -30,6 +30,60 @@
         </resources>
     </build>
     
+    <profiles>
+        <profile>
+            <id>liberty</id>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>io.openliberty.tools</groupId>
+                        <artifactId>liberty-maven-plugin</artifactId>
+                        <executions>
+                            <execution>
+                                <id>prepare-liberty</id>
+                                <phase>generate-test-resources</phase>
+                                <goals>
+                                    <goal>create</goal>
+                                    <goal>install-feature</goal>
+                                </goals>
+                            </execution>
+                            <execution>
+                                <id>run-liberty</id>
+                                <phase>test</phase>
+                                <goals>
+                                    <goal>run</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                    </plugin>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-dependency-plugin</artifactId>
+                        <executions>
+                            <execution>
+                                <id>copy-h2</id>
+                                <phase>generate-test-resources</phase>
+                                <goals>
+                                    <goal>copy</goal>
+                                </goals>
+                                <configuration>
+                                    <artifactItems>
+                                        <artifactItem>
+                                            <groupId>com.h2database</groupId>
+                                            <artifactId>h2</artifactId>
+                                            <version>1.4.200</version>
+                                            <outputDirectory>${project.build.directory}/liberty/wlp/usr/servers/defaultServer</outputDirectory>
+                                        </artifactItem>
+                                    </artifactItems>
+                                </configuration>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+    </profiles>
+    
     <dependencies>
         <dependency>
             <groupId>org.slf4j</groupId>

@@ -96,6 +96,11 @@
                     <artifactId>wildfly-maven-plugin</artifactId>
                     <version>2.0.2.Final</version>
                 </plugin>
+                <plugin>
+                    <groupId>io.openliberty.tools</groupId>
+                    <artifactId>liberty-maven-plugin</artifactId>
+                    <version>3.2</version>
+                </plugin>
             </plugins>
         </pluginManagement>
         <plugins>
@@ -191,6 +196,12 @@
             <id>glassfish</id>
             <properties>
                 <jta-data-source>jdbc/__default</jta-data-source>
+            </properties>
+        </profile>
+        <profile>
+            <id>liberty</id>
+            <properties>
+                <jta-data-source>jdbc/h2</jta-data-source>
             </properties>
         </profile>
     </profiles>
