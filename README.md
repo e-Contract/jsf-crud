@@ -8,8 +8,9 @@ The component has been tested on the following application servers:
 * Payara 5.201
 
 The component has been tested with PrimeFaces versions:
-* 7.0.12
 * 7.0
+* 7.0.12
+* 8.0
 
 # Usage
 
@@ -23,6 +24,8 @@ xmlns:crud="urn:be:e-contract:crud:jsf"
 ```
 
 # Demo
+
+## WildFly
 
 Start a WildFly via:
 ```
@@ -44,3 +47,31 @@ mvn wildfly:deploy
 
 Navigate your web browser to:
 http://localhost:8080/jsf-crud-demo/
+
+
+## Payara
+
+Start Payara via:
+```
+cd payara5/bin/
+./asadmin start-domain --verbose
+```
+
+Build the project via Maven:
+```
+cd jsf-crud
+mvn clean install -Pglassfish
+```
+
+Deploy the demo web application to the local running Payara via:
+```
+./asadmin deploy ~/jsf-crud/jsf-crud-demo/target/jsf-crud-demo-1.0.0-SNAPSHOT.war
+```
+
+Navigate your web browser to:
+http://localhost:8080/jsf-crud-demo/
+
+Undeploy the demo web application via:
+```
+./asadmin undeploy jsf-crud-demo-1.0.0-SNAPSHOT
+```

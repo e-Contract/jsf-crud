@@ -47,6 +47,7 @@ import javax.faces.event.ComponentSystemEvent;
 import javax.faces.event.ListenerFor;
 import javax.faces.event.PostAddToViewEvent;
 import javax.faces.validator.LengthValidator;
+import javax.persistence.Basic;
 import javax.persistence.EntityManager;
 import javax.persistence.GeneratedValue;
 import javax.persistence.ManyToOne;
@@ -575,13 +576,19 @@ public class CRUDComponent extends UINamingContainer implements CreateSource, Up
         htmlPanelGrid.getChildren().add(input);
         input.setId(entityField.getName());
         input.setValueExpression("value", new EntityFieldValueExpression(this, entityField, addNotUpdate));
-        javax.persistence.Column column = entityField.getAnnotation(javax.persistence.Column.class);
-        if (null != column) {
-            if (!column.nullable()) {
+        javax.persistence.Column columnAnnotation = entityField.getAnnotation(javax.persistence.Column.class);
+        if (null != columnAnnotation) {
+            if (!columnAnnotation.nullable()) {
                 input.setRequired(true);
             }
-            if (column.length() != 255) {
-                input.addValidator(new LengthValidator(column.length()));
+            if (columnAnnotation.length() != 255) {
+                input.addValidator(new LengthValidator(columnAnnotation.length()));
+            }
+        }
+        Basic basicAnnotation = entityField.getAnnotation(Basic.class);
+        if (null != basicAnnotation) {
+            if (!basicAnnotation.optional()) {
+                input.setRequired(true);
             }
         }
 
