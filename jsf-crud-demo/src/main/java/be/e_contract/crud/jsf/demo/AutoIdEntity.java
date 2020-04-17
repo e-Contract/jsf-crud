@@ -58,6 +58,7 @@ public class AutoIdEntity implements Serializable {
     private Date timeOnly;
 
     @Temporal(TemporalType.DATE)
+    @Column(updatable = false)
     private Date dateOnly;
 
     @Enumerated(EnumType.STRING)

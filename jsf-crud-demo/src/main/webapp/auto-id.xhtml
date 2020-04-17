@@ -13,7 +13,7 @@
         <crud:crud entity="be.e_contract.crud.jsf.demo.AutoIdEntity" title="A fancy title!">
             <crud:create/>
             <crud:read/>
-            <crud:update/>
+            <crud:update disabled="false"/>
             <crud:delete deleteAll="true"/>
             <crud:createListener action="#{demoController.created}"/>
             <crud:updateListener action="#{demoController.updated}"/>
