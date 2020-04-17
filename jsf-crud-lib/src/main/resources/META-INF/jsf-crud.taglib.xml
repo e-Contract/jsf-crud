@@ -115,6 +115,10 @@
             <name>label</name>
             <type>java.lang.String</type>
         </attribute>
+        <attribute>
+            <name>hide</name>
+            <type>java.lang.Boolean</type>
+        </attribute>
     </tag>
 
 </facelet-taglib>

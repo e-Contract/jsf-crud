@@ -510,6 +510,14 @@ public class CRUDComponent extends UINamingContainer implements CreateSource, Up
         return entityInspector.toHumanReadable(entityField);
     }
 
+    private boolean isHideField(Field entityField, Map<String, FieldComponent> fields) {
+        FieldComponent fieldComponent = fields.get(entityField.getName());
+        if (null == fieldComponent) {
+            return false;
+        }
+        return fieldComponent.isHide();
+    }
+
     private void addInputComponent(Field entityField, boolean addNotUpdate, EntityInspector entityInspector, Map<String, FieldComponent> fields, HtmlPanelGrid htmlPanelGrid) {
         FacesContext facesContext = FacesContext.getCurrentInstance();
         Application application = facesContext.getApplication();
@@ -617,6 +625,9 @@ public class CRUDComponent extends UINamingContainer implements CreateSource, Up
     }
 
     private void addColumn(DataTable dataTable, Field field, EntityInspector entityInspector, Map<String, FieldComponent> fields) {
+        if (isHideField(field, fields)) {
+            return;
+        }
         FacesContext facesContext = FacesContext.getCurrentInstance();
         Application application = facesContext.getApplication();
         ExpressionFactory expressionFactory = application.getExpressionFactory();

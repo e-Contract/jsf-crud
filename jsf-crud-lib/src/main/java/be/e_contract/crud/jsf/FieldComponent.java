@@ -25,7 +25,8 @@ public class FieldComponent extends UIComponentBase {
 
     public enum PropertyKeys {
         name,
-        label
+        label,
+        hide,
     }
 
     @Override
@@ -47,5 +48,17 @@ public class FieldComponent extends UIComponentBase {
 
     public void setLabel(String label) {
         getStateHelper().put(PropertyKeys.label, label);
+    }
+
+    public boolean isHide() {
+        Boolean hide = (Boolean) getStateHelper().get(PropertyKeys.hide);
+        if (null == hide) {
+            return false;
+        }
+        return hide;
+    }
+
+    public void setHide(boolean disabled) {
+        getStateHelper().put(PropertyKeys.hide, disabled);
     }
 }
