@@ -19,6 +19,7 @@ package be.e_contract.crud.jsf;
 
 import java.lang.reflect.Field;
 import java.util.Date;
+import java.util.HashMap;
 import javax.el.ELContext;
 import javax.el.ExpressionFactory;
 import javax.faces.application.Application;
@@ -27,6 +28,7 @@ import javax.faces.context.FacesContext;
 import javax.faces.event.AbortProcessingException;
 import org.primefaces.component.datatable.DataTable;
 import java.util.List;
+import java.util.Map;
 import javax.el.ELResolver;
 import javax.el.MethodExpression;
 import javax.el.ValueExpression;
@@ -138,6 +140,7 @@ public class CRUDComponent extends UINamingContainer implements CreateSource, Up
         DeleteComponent deleteComponent = null;
         UpdateComponent updateComponent = null;
         ReadComponent readComponent = null;
+        Map<String, FieldComponent> fields = new HashMap<>();
         List<UIComponent> children = getChildren();
         for (UIComponent child : children) {
             if (child instanceof CreateComponent) {
@@ -173,6 +176,9 @@ public class CRUDComponent extends UINamingContainer implements CreateSource, Up
                 MethodExpression methodExpresssion = deleteListenerComponent.getAction();
                 DeleteAdapter deleteAdapter = new DeleteAdapter(methodExpresssion);
                 addDeleteListener(deleteAdapter);
+            } else if (child instanceof FieldComponent) {
+                FieldComponent fieldComponent = (FieldComponent) child;
+                fields.put(fieldComponent.getName(), fieldComponent);
             }
         }
 
@@ -218,11 +224,11 @@ public class CRUDComponent extends UINamingContainer implements CreateSource, Up
 
         // first column is the @Id column
         Field idField = entityInspector.getIdField();
-        addColumn(dataTable, idField, entityInspector);
+        addColumn(dataTable, idField, entityInspector, fields);
 
         // next we add all the others
         for (Field entityField : entityInspector.getOtherFields()) {
-            addColumn(dataTable, entityField, entityInspector);
+            addColumn(dataTable, entityField, entityInspector, fields);
         }
 
         if (showDelete || showUpdate || showView) {
@@ -260,9 +266,10 @@ public class CRUDComponent extends UINamingContainer implements CreateSource, Up
                 identifierOutputText.setValueExpression("value", new EntityFieldValueExpression(this, idField, false));
 
                 for (Field entityField : entityInspector.getOtherFields()) {
+                    String fieldLabel = getFieldLabel(entityField, entityInspector, fields);
                     OutputLabel outputLabel = (OutputLabel) application.createComponent(OutputLabel.COMPONENT_TYPE);
                     htmlPanelGrid.getChildren().add(outputLabel);
-                    outputLabel.setValue(entityInspector.toHumanReadable(entityField));
+                    outputLabel.setValue(fieldLabel);
 
                     HtmlOutputText outputText = (HtmlOutputText) application.createComponent(HtmlOutputText.COMPONENT_TYPE);
                     htmlPanelGrid.getChildren().add(outputText);
@@ -318,7 +325,7 @@ public class CRUDComponent extends UINamingContainer implements CreateSource, Up
                 htmlPanelGrid.getChildren().add(voidOutputText);
 
                 for (Field entityField : entityInspector.getOtherFields()) {
-                    addInputComponent(entityField, false, entityInspector, htmlPanelGrid);
+                    addInputComponent(entityField, false, entityInspector, fields, htmlPanelGrid);
                 }
 
                 HtmlPanelGrid buttonHtmlPanelGrid = (HtmlPanelGrid) application.createComponent(HtmlPanelGrid.COMPONENT_TYPE);
@@ -430,7 +437,7 @@ public class CRUDComponent extends UINamingContainer implements CreateSource, Up
             }
 
             for (Field entityField : entityInspector.getOtherFields()) {
-                addInputComponent(entityField, true, entityInspector, htmlPanelGrid);
+                addInputComponent(entityField, true, entityInspector, fields, htmlPanelGrid);
             }
 
             HtmlPanelGrid buttonHtmlPanelGrid = (HtmlPanelGrid) application.createComponent(HtmlPanelGrid.COMPONENT_TYPE);
@@ -493,14 +500,26 @@ public class CRUDComponent extends UINamingContainer implements CreateSource, Up
         }
     }
 
-    private void addInputComponent(Field entityField, boolean addNotUpdate, EntityInspector entityInspector, HtmlPanelGrid htmlPanelGrid) {
+    private String getFieldLabel(Field entityField, EntityInspector entityInspector, Map<String, FieldComponent> fields) {
+        FieldComponent fieldComponent = fields.get(entityField.getName());
+        if (null != fieldComponent) {
+            if (!UIInput.isEmpty(fieldComponent.getLabel())) {
+                return fieldComponent.getLabel();
+            }
+        }
+        return entityInspector.toHumanReadable(entityField);
+    }
+
+    private void addInputComponent(Field entityField, boolean addNotUpdate, EntityInspector entityInspector, Map<String, FieldComponent> fields, HtmlPanelGrid htmlPanelGrid) {
         FacesContext facesContext = FacesContext.getCurrentInstance();
         Application application = facesContext.getApplication();
         ExpressionFactory expressionFactory = application.getExpressionFactory();
 
+        String fieldLabel = getFieldLabel(entityField, entityInspector, fields);
+
         OutputLabel outputLabel = (OutputLabel) application.createComponent(OutputLabel.COMPONENT_TYPE);
         htmlPanelGrid.getChildren().add(outputLabel);
-        outputLabel.setValue(entityInspector.toHumanReadable(entityField));
+        outputLabel.setValue(fieldLabel);
         outputLabel.setFor(entityField.getName());
 
         UIInput input;
@@ -597,7 +616,7 @@ public class CRUDComponent extends UINamingContainer implements CreateSource, Up
         inputTextMessage.setFor(entityField.getName());
     }
 
-    private void addColumn(DataTable dataTable, Field field, EntityInspector entityInspector) {
+    private void addColumn(DataTable dataTable, Field field, EntityInspector entityInspector, Map<String, FieldComponent> fields) {
         FacesContext facesContext = FacesContext.getCurrentInstance();
         Application application = facesContext.getApplication();
         ExpressionFactory expressionFactory = application.getExpressionFactory();
@@ -605,7 +624,9 @@ public class CRUDComponent extends UINamingContainer implements CreateSource, Up
 
         Column column = new Column();
         dataTable.getChildren().add(column);
-        column.setHeaderText(entityInspector.toHumanReadable(field));
+
+        String fieldLabel = getFieldLabel(field, entityInspector, fields);
+        column.setHeaderText(fieldLabel);
 
         HtmlOutputText outputText = (HtmlOutputText) application.createComponent(HtmlOutputText.COMPONENT_TYPE);
         column.getChildren().add(outputText);

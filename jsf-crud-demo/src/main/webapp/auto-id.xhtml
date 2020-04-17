@@ -18,6 +18,7 @@
             <crud:createListener action="#{demoController.created}"/>
             <crud:updateListener action="#{demoController.updated}"/>
             <crud:deleteListener action="#{demoController.deleted}"/>
+            <crud:field name="created" label="Creation Date"/>
         </crud:crud>
         <h:form>
             <p:commandLink action="/index?faces-redirect=true" value="Back"/>

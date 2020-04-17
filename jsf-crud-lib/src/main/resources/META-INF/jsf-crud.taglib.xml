@@ -100,5 +100,21 @@
             <type>javax.el.MethodExpression</type>
         </attribute>
     </tag>
+    
+    <tag>
+        <tag-name>field</tag-name>
+        <component>
+            <component-type>crud.field</component-type>
+        </component>
+        <attribute>
+            <name>name</name>
+            <required>true</required>
+            <type>java.lang.String</type>
+        </attribute>
+        <attribute>
+            <name>label</name>
+            <type>java.lang.String</type>
+        </attribute>
+    </tag>
 
 </facelet-taglib>
