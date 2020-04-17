@@ -89,6 +89,7 @@ public class CRUDComponent extends UINamingContainer implements CreateSource, Up
         entity,
         selection,
         newEntity,
+        title,
     }
 
     public void setEntity(String entity) {
@@ -98,6 +99,14 @@ public class CRUDComponent extends UINamingContainer implements CreateSource, Up
 
     public String getEntity() {
         return (String) getStateHelper().eval(PropertyKeys.entity);
+    }
+
+    public void setTitle(String title) {
+        getStateHelper().put(PropertyKeys.title, title);
+    }
+
+    public String getTitle() {
+        return (String) getStateHelper().eval(PropertyKeys.title);
     }
 
     void setSelection(Object entity) {
@@ -220,6 +229,12 @@ public class CRUDComponent extends UINamingContainer implements CreateSource, Up
         if (entityList.size() > 20) {
             dataTable.setPaginator(true);
             dataTable.setRows(20);
+        }
+
+        if (!UIInput.isEmpty(getTitle())) {
+            HtmlOutputText headerOutputText = (HtmlOutputText) application.createComponent(HtmlOutputText.COMPONENT_TYPE);
+            dataTable.getFacets().put("header", headerOutputText);
+            headerOutputText.setValue(getTitle());
         }
 
         // first column is the @Id column

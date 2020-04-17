@@ -16,6 +16,10 @@
             <required>true</required>
             <type>java.lang.String</type>
         </attribute>
+        <attribute>
+            <name>title</name>
+            <type>java.lang.String</type>
+        </attribute>
     </tag>
 
     <tag>
