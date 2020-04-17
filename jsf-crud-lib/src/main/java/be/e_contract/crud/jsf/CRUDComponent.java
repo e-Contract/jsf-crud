@@ -46,6 +46,7 @@ import javax.faces.event.ActionListener;
 import javax.faces.event.ComponentSystemEvent;
 import javax.faces.event.ListenerFor;
 import javax.faces.event.PostAddToViewEvent;
+import javax.faces.validator.LengthValidator;
 import javax.persistence.EntityManager;
 import javax.persistence.GeneratedValue;
 import javax.persistence.ManyToOne;
@@ -569,6 +570,7 @@ public class CRUDComponent extends UINamingContainer implements CreateSource, Up
             }
         } else {
             input = (InputText) application.createComponent(InputText.COMPONENT_TYPE);
+            input.addValidator(new LengthValidator(255));
         }
         htmlPanelGrid.getChildren().add(input);
         input.setId(entityField.getName());
@@ -577,6 +579,9 @@ public class CRUDComponent extends UINamingContainer implements CreateSource, Up
         if (null != column) {
             if (!column.nullable()) {
                 input.setRequired(true);
+            }
+            if (column.length() != 255) {
+                input.addValidator(new LengthValidator(column.length()));
             }
         }
 

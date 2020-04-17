@@ -69,6 +69,7 @@ public class AutoIdEntity implements Serializable {
     private Boolean threeValuedLogic;
 
     @Basic(fetch = FetchType.LAZY)
+    @Column(length = 10)
     private String lazyString;
 
     @Temporal(TemporalType.DATE)
