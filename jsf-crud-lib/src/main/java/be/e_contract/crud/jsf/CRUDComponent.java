@@ -563,10 +563,10 @@ public class CRUDComponent extends UINamingContainer implements CreateSource, Up
         outputLabel.setValue(fieldLabel);
         outputLabel.setFor(entityField.getName());
 
-        boolean editable = true;
+        boolean disabled = false;
         javax.persistence.Column columnAnnotation = entityField.getAnnotation(javax.persistence.Column.class);
         if (null != columnAnnotation && !addNotUpdate) {
-            editable = columnAnnotation.updatable();
+            disabled = !columnAnnotation.updatable();
         }
 
         UIInput input;
@@ -574,8 +574,7 @@ public class CRUDComponent extends UINamingContainer implements CreateSource, Up
         if (null != manyToOne) {
             input = (SelectOneMenu) application.createComponent(SelectOneMenu.COMPONENT_TYPE);
             SelectOneMenu selectOneMenu = (SelectOneMenu) input;
-            selectOneMenu.setDisabled(!editable);
-            //selectOneMenu.setEditable(editable);
+            selectOneMenu.setDisabled(disabled);
             UISelectItem emptySelectItem = (UISelectItem) application.createComponent(UISelectItem.COMPONENT_TYPE);
             input.getChildren().add(emptySelectItem);
             input.setConverter(new EntityConverter(entityField.getType()));
@@ -597,16 +596,16 @@ public class CRUDComponent extends UINamingContainer implements CreateSource, Up
         } else if (entityField.getType() == Boolean.TYPE) {
             input = (SelectBooleanCheckbox) application.createComponent(SelectBooleanCheckbox.COMPONENT_TYPE);
             SelectBooleanCheckbox selectBooleanCheckbox = (SelectBooleanCheckbox) input;
-            selectBooleanCheckbox.setDisabled(!editable);
+            selectBooleanCheckbox.setDisabled(disabled);
         } else if (entityField.getType() == Boolean.class) {
             input = (TriStateCheckbox) application.createComponent(TriStateCheckbox.COMPONENT_TYPE);
             input.setConverter(new TriStateBooleanConverter());
             TriStateCheckbox triStateCheckbox = (TriStateCheckbox) input;
-            triStateCheckbox.setDisabled(!editable);
+            triStateCheckbox.setDisabled(disabled);
         } else if (entityField.getType() == Date.class) {
             input = (Calendar) application.createComponent(Calendar.COMPONENT_TYPE);
             Calendar calendarComponent = (Calendar) input;
-            calendarComponent.setDisabled(!editable);
+            calendarComponent.setDisabled(disabled);
             Temporal temporal = entityField.getAnnotation(Temporal.class);
             if (null != temporal) {
                 Calendar calendar = (Calendar) input;
@@ -630,15 +629,14 @@ public class CRUDComponent extends UINamingContainer implements CreateSource, Up
         } else if (entityField.getType() == java.util.Calendar.class) {
             input = (Calendar) application.createComponent(Calendar.COMPONENT_TYPE);
             Calendar calendarComponent = (Calendar) input;
-            calendarComponent.setDisabled(!editable);
+            calendarComponent.setDisabled(disabled);
             input.setConverter(new CalendarConverter());
             Calendar calendar = (Calendar) input;
             calendar.setPattern("dd/MM/yyyy");
         } else if (entityField.getType().isEnum()) {
             input = (SelectOneMenu) application.createComponent(SelectOneMenu.COMPONENT_TYPE);
             SelectOneMenu selectOneMenu = (SelectOneMenu) input;
-            selectOneMenu.setDisabled(!editable);
-            //selectOneMenu.setEditable(editable);
+            selectOneMenu.setDisabled(disabled);
             UISelectItem emptySelectItem = (UISelectItem) application.createComponent(UISelectItem.COMPONENT_TYPE);
             input.getChildren().add(emptySelectItem);
             Object[] enumConstants = entityField.getType().getEnumConstants();
@@ -653,7 +651,7 @@ public class CRUDComponent extends UINamingContainer implements CreateSource, Up
             input = (InputText) application.createComponent(InputText.COMPONENT_TYPE);
             input.addValidator(new LengthValidator(255));
             InputText inputText = (InputText) input;
-            inputText.setDisabled(!editable);
+            inputText.setDisabled(disabled);
         }
         htmlPanelGrid.getChildren().add(input);
         input.setId(entityField.getName());
