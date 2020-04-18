@@ -20,6 +20,7 @@ package be.e_contract.crud.jsf.demo;
 import be.e_contract.crud.jsf.CreateEvent;
 import be.e_contract.crud.jsf.DeleteEvent;
 import be.e_contract.crud.jsf.UpdateEvent;
+import javax.faces.application.FacesMessage;
 import javax.inject.Named;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -47,5 +48,11 @@ public class DemoController {
             AutoIdEntity autoIdEntity = (AutoIdEntity) entity;
             LOGGER.debug("entity identifier: {}", autoIdEntity.getId());
         }
+    }
+
+    public FacesMessage messagingAction(Object entity) {
+        AutoIdEntity autoIdEntity = (AutoIdEntity) entity;
+        FacesMessage facesMessage = new FacesMessage(FacesMessage.SEVERITY_INFO, "Custom action on " + autoIdEntity.getId(), null);
+        return facesMessage;
     }
 }

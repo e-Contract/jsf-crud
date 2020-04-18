@@ -21,6 +21,7 @@
             <crud:field name="created" label="Creation Date"/>
             <crud:field name="threeValuedLogic" hide="true"/>
             <crud:action value="Custom Action" action="#{demoController.action}"/>
+            <crud:action value="Action 2" action="#{demoController.messagingAction}"/>
         </crud:crud>
         <h:form>
             <p:commandLink action="/index?faces-redirect=true" value="Back"/>

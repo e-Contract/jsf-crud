@@ -20,11 +20,14 @@ package be.e_contract.crud.jsf;
 import javax.el.ELContext;
 import javax.el.ELResolver;
 import javax.el.MethodExpression;
+import javax.faces.application.FacesMessage;
 import javax.faces.component.StateHolder;
+import javax.faces.component.UIComponent;
 import javax.faces.context.FacesContext;
 import javax.faces.event.AbortProcessingException;
 import javax.faces.event.ActionEvent;
 import javax.faces.event.ActionListener;
+import org.primefaces.component.datatable.DataTable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -81,6 +84,27 @@ public class ActionAdapter implements ActionListener, StateHolder {
         ELContext elContext = facesContext.getELContext();
         ELResolver elResolver = elContext.getELResolver();
         Object entity = elResolver.getValue(elContext, null, "row");
-        this.methodExpression.invoke(elContext, new Object[]{entity});
+        Object result = this.methodExpression.invoke(elContext, new Object[]{entity});
+        if (null == result) {
+            return;
+        }
+        if (result instanceof FacesMessage) {
+            FacesMessage facesMessage = (FacesMessage) result;
+            UIComponent component = event.getComponent();
+            String dataTableClientId = getParentDataTableClientId(component);
+            facesContext.addMessage(dataTableClientId, facesMessage);
+        } else {
+            LOGGER.warn("unsupported return type: {}", result.getClass().getName());
+        }
+    }
+
+    private String getParentDataTableClientId(UIComponent component) {
+        while (component.getParent() != null) {
+            component = component.getParent();
+            if (component instanceof DataTable) {
+                return component.getClientId();
+            }
+        }
+        throw new AbortProcessingException();
     }
 }
