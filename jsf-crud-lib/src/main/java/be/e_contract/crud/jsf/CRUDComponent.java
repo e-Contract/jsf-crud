@@ -416,7 +416,7 @@ public class CRUDComponent extends UINamingContainer implements CreateSource, Up
                 commandButton.setValue(action.getValue());
                 commandButton.setId("Action" + actionIdx);
                 actionIdx++;
-                commandButton.setUpdate(message.getClientId());
+                commandButton.setUpdate(dataTable.getClientId() + "," + message.getClientId());
                 commandButton.addActionListener(new ActionAdapter(action.getAction()));
                 commandButton.setOncomplete(action.getOncomplete());
             }

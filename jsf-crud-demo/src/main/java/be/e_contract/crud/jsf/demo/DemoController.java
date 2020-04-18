@@ -55,4 +55,12 @@ public class DemoController {
         FacesMessage facesMessage = new FacesMessage(FacesMessage.SEVERITY_INFO, "Custom action on " + autoIdEntity.getId(), null);
         return facesMessage;
     }
+
+    public AutoIdEntity increateAmount(AutoIdEntity entity) {
+        long amount = entity.getAmount();
+        amount += 100;
+        entity.setAmount(amount);
+        // return to get merged
+        return entity;
+    }
 }

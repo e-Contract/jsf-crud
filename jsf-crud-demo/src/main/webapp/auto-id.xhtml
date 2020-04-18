@@ -24,6 +24,7 @@
             <crud:action value="Custom Action" action="#{demoController.action}"/>
             <crud:action value="Action 2" action="#{demoController.messagingAction}"
                          oncomplete="PF('growl').renderMessage({'summary':'hello world'})"/>
+            <crud:action value="Increate amount" action="#{demoController.increateAmount}"/>
         </crud:crud>
         <h:form>
             <p:commandLink action="/index?faces-redirect=true" value="Back"/>
