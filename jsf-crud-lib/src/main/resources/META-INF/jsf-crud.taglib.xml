@@ -141,6 +141,10 @@
             <required>true</required>
             <type>javax.el.MethodExpression</type>
         </attribute>
+        <attribute>
+            <name>oncomplete</name>
+            <type>java.lang.String</type>
+        </attribute>
     </tag>
 
 </facelet-taglib>

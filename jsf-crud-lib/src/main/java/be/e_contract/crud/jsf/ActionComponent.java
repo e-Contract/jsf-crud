@@ -31,6 +31,7 @@ public class ActionComponent extends UIComponentBase {
     public enum PropertyKeys {
         value,
         action,
+        oncomplete,
     }
 
     @Override
@@ -53,5 +54,13 @@ public class ActionComponent extends UIComponentBase {
 
     public String getValue() {
         return (String) getStateHelper().eval(PropertyKeys.value);
+    }
+
+    public void setOncomplete(String oncomplete) {
+        getStateHelper().put(PropertyKeys.oncomplete, oncomplete);
+    }
+
+    public String getOncomplete() {
+        return (String) getStateHelper().eval(PropertyKeys.oncomplete);
     }
 }

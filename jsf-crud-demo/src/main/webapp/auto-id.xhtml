@@ -10,6 +10,7 @@
 
     <h:body>
         <h1>JSF CRUD Demo</h1>
+        <p:growl widgetVar="growl"/>
         <crud:crud entity="be.e_contract.crud.jsf.demo.AutoIdEntity" title="A fancy title!">
             <crud:create/>
             <crud:read/>
@@ -21,7 +22,8 @@
             <crud:field name="created" label="Creation Date"/>
             <crud:field name="threeValuedLogic" hide="true"/>
             <crud:action value="Custom Action" action="#{demoController.action}"/>
-            <crud:action value="Action 2" action="#{demoController.messagingAction}"/>
+            <crud:action value="Action 2" action="#{demoController.messagingAction}"
+                         oncomplete="PF('growl').renderMessage({'summary':'hello world'})"/>
         </crud:crud>
         <h:form>
             <p:commandLink action="/index?faces-redirect=true" value="Back"/>
