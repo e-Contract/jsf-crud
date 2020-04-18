@@ -124,5 +124,23 @@
             <type>java.lang.Boolean</type>
         </attribute>
     </tag>
+    
+    <tag>
+        <tag-name>action</tag-name>
+        <component>
+            <component-type>crud.action</component-type>
+            <handler-class>be.e_contract.crud.jsf.ActionTagHandler</handler-class>
+        </component>
+        <attribute>
+            <name>value</name>
+            <required>true</required>
+            <type>java.lang.String</type>
+        </attribute>
+        <attribute>
+            <name>action</name>
+            <required>true</required>
+            <type>javax.el.MethodExpression</type>
+        </attribute>
+    </tag>
 
 </facelet-taglib>

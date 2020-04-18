@@ -40,4 +40,12 @@ public class DemoController {
     public void deleted(DeleteEvent deleteEvent) {
         LOGGER.debug("deleted: {}", deleteEvent.getEntity());
     }
+
+    public void action(Object entity) {
+        LOGGER.debug("custom action: {}", entity);
+        if (entity instanceof AutoIdEntity) {
+            AutoIdEntity autoIdEntity = (AutoIdEntity) entity;
+            LOGGER.debug("entity identifier: {}", autoIdEntity.getId());
+        }
+    }
 }

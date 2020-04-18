@@ -20,6 +20,7 @@ package be.e_contract.crud.jsf;
 import java.lang.reflect.Field;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.LinkedList;
 import javax.el.ELContext;
 import javax.el.ExpressionFactory;
 import javax.faces.application.Application;
@@ -127,7 +128,6 @@ public class CRUDComponent extends UINamingContainer implements CreateSource, Up
 
     @Override
     public void processEvent(ComponentSystemEvent event) throws AbortProcessingException {
-        LOGGER.debug("processEvent: {}", event);
         if (!(event instanceof PostAddToViewEvent)) {
             return;
         }
@@ -136,6 +136,8 @@ public class CRUDComponent extends UINamingContainer implements CreateSource, Up
         if (facesContext.isValidationFailed()) {
             return;
         }
+
+        LOGGER.debug("constructing component");
 
         Application application = facesContext.getApplication();
         ExpressionFactory expressionFactory = application.getExpressionFactory();
@@ -150,6 +152,7 @@ public class CRUDComponent extends UINamingContainer implements CreateSource, Up
         UpdateComponent updateComponent = null;
         ReadComponent readComponent = null;
         Map<String, FieldComponent> fields = new HashMap<>();
+        List<ActionComponent> actions = new LinkedList<>();
         List<UIComponent> children = getChildren();
         for (UIComponent child : children) {
             if (child instanceof CreateComponent) {
@@ -188,6 +191,9 @@ public class CRUDComponent extends UINamingContainer implements CreateSource, Up
             } else if (child instanceof FieldComponent) {
                 FieldComponent fieldComponent = (FieldComponent) child;
                 fields.put(fieldComponent.getName(), fieldComponent);
+            } else if (child instanceof ActionComponent) {
+                ActionComponent action = (ActionComponent) child;
+                actions.add(action);
             }
         }
 
@@ -246,7 +252,7 @@ public class CRUDComponent extends UINamingContainer implements CreateSource, Up
             addColumn(dataTable, entityField, entityInspector, fields);
         }
 
-        if (showDelete || showUpdate || showView) {
+        if (showDelete || showUpdate || showView || !actions.isEmpty()) {
             Column column = new Column();
             dataTable.getChildren().add(column);
             column.setHeaderText("Actions");
@@ -401,6 +407,17 @@ public class CRUDComponent extends UINamingContainer implements CreateSource, Up
 
                 commandButton.setUpdate(deleteDialog.getClientId() + "," + message.getClientId());
                 commandButton.addActionListener(new UpdateDeleteDialogText(entityInspector, htmlOutputText));
+            }
+
+            int actionIdx = 0;
+            for (ActionComponent action : actions) {
+                CommandButton commandButton = (CommandButton) application.createComponent(CommandButton.COMPONENT_TYPE);
+                column.getChildren().add(commandButton);
+                commandButton.setValue(action.getValue());
+                commandButton.setId("Action" + actionIdx);
+                actionIdx++;
+                commandButton.setUpdate(message.getClientId());
+                commandButton.addActionListener(new ActionAdapter(action.getAction()));
             }
         }
 
