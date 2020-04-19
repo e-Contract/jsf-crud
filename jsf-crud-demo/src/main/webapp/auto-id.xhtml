@@ -31,12 +31,16 @@
 
         <p:dialog id="customDialog" widgetVar="customDialog" header="Custom Dialog">
             <crud:entity var="entity">
-                <h:panelGrid columns="1">
-                    <h:outputText value='Entity #{entity.id} selected.'/>
-                    <h:form>
+                <h:form>
+                    <h:panelGrid columns="1">
+                        <h:outputText value='Custom action on #{entity.id} ?'/>
+                    </h:panelGrid>
+                    <h:panelGrid columns="2">
+                        <p:commandButton value="Action" action="#{demoController.action(entity)}"
+                                         oncomplete="PF('customDialog').hide()"/>
                         <p:commandButton value="Dismiss" onclick="PF('customDialog').hide()"/>
-                    </h:form>
-                </h:panelGrid>
+                    </h:panelGrid>
+                </h:form>
             </crud:entity>
         </p:dialog>
 

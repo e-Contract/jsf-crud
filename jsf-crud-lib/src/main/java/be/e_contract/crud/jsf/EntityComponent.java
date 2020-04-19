@@ -77,10 +77,10 @@ public class EntityComponent extends UIComponentBase {
     }
 
     private void removeLocalVariable(Object oldVar) {
-        String var = getVar();
         FacesContext facesContext = FacesContext.getCurrentInstance();
-        Map<String, Object> requestMap
-                = facesContext.getExternalContext().getRequestMap();
+        ExternalContext externalContext = facesContext.getExternalContext();
+        Map<String, Object> requestMap = externalContext.getRequestMap();
+        String var = getVar();
         requestMap.remove(var);
         if (null != oldVar) {
             requestMap.put(var, oldVar);
@@ -97,5 +97,13 @@ public class EntityComponent extends UIComponentBase {
     @Override
     public boolean getRendersChildren() {
         return true;
+    }
+
+    @Override
+    public void processUpdates(FacesContext context) {
+        Object oldVar = setLocalVariable();
+        super.processUpdates(context);
+        // without removeLocalVariable it works
+        //removeLocalVariable(oldVar);
     }
 }
