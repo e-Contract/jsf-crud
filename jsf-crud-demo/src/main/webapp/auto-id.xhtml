@@ -26,11 +26,11 @@
                          oncomplete="PF('growl').renderMessage({'summary':'hello world'})"/>
             <crud:action value="Increase amount" action="#{demoController.increaseAmount}"/>
             <crud:action value="Custom Dialog" oncomplete="PF('customDialog').show()"
-                         update=":customEntity"/>
+                         update=":customDialog"/>
         </crud:crud>
 
-        <p:dialog id="customDialog" widgetVar="customDialog" header="Custom Dialog" dynamic="true">
-            <crud:entity id="customEntity" var="entity">
+        <p:dialog id="customDialog" widgetVar="customDialog" header="Custom Dialog">
+            <crud:entity var="entity">
                 <h:panelGrid columns="1">
                     <h:outputText value='Entity #{entity.id} selected.'/>
                     <h:form>

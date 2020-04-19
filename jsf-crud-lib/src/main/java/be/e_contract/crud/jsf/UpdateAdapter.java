@@ -50,7 +50,6 @@ public class UpdateAdapter implements UpdateListener, StateHolder {
 
     @Override
     public Object saveState(FacesContext context) {
-        LOGGER.debug("saveState: {}", this.methodExpression);
         if (context == null) {
             throw new NullPointerException();
         }
@@ -59,7 +58,6 @@ public class UpdateAdapter implements UpdateListener, StateHolder {
 
     @Override
     public void restoreState(FacesContext context, Object state) {
-        LOGGER.debug("restoreState");
         if (context == null) {
             throw new NullPointerException();
         }

@@ -427,7 +427,6 @@ public class CRUDComponent extends UINamingContainer implements CreateSource, Up
                 if (null != update) {
                     UIViewRoot view = facesContext.getViewRoot();
                     UIComponent component = view.findComponent(update);
-                    LOGGER.debug("update component found: {}", component);
                     commandButton.setUpdate(dataTable.getClientId() + "," + message.getClientId() + "," + component.getClientId());
                 }
             }
@@ -651,7 +650,6 @@ public class CRUDComponent extends UINamingContainer implements CreateSource, Up
             UISelectItem emptySelectItem = (UISelectItem) application.createComponent(UISelectItem.COMPONENT_TYPE);
             input.getChildren().add(emptySelectItem);
             Object[] enumConstants = entityField.getType().getEnumConstants();
-            LOGGER.debug("enum constants: {}", enumConstants);
             for (Object enumConstant : enumConstants) {
                 UISelectItem selectItem = (UISelectItem) application.createComponent(UISelectItem.COMPONENT_TYPE);
                 selectItem.setItemValue(enumConstant);

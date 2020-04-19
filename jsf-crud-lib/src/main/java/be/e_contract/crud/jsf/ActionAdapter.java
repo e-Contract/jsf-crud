@@ -63,7 +63,6 @@ public class ActionAdapter implements ActionListener, StateHolder {
 
     @Override
     public Object saveState(FacesContext context) {
-        LOGGER.debug("saveState: {}", this.methodExpression);
         if (context == null) {
             throw new NullPointerException();
         }
@@ -72,7 +71,6 @@ public class ActionAdapter implements ActionListener, StateHolder {
 
     @Override
     public void restoreState(FacesContext context, Object state) {
-        LOGGER.debug("restoreState");
         if (context == null) {
             throw new NullPointerException();
         }
@@ -93,6 +91,16 @@ public class ActionAdapter implements ActionListener, StateHolder {
         this._transient = newTransientValue;
     }
 
+    private void setEntity(Object entity, UIComponent component) {
+        if (component instanceof EntityComponent) {
+            EntityComponent entityComponent = (EntityComponent) component;
+            entityComponent.setEntity(entity);
+        }
+        for (UIComponent child : component.getChildren()) {
+            setEntity(entity, child);
+        }
+    }
+
     @Override
     public void processAction(ActionEvent event) throws AbortProcessingException {
         FacesContext facesContext = FacesContext.getCurrentInstance();
@@ -102,10 +110,7 @@ public class ActionAdapter implements ActionListener, StateHolder {
         if (null != this.update) {
             UIViewRoot view = facesContext.getViewRoot();
             UIComponent component = view.findComponent(this.update);
-            if (component instanceof EntityComponent) {
-                EntityComponent entityComponent = (EntityComponent) component;
-                entityComponent.setEntity(entity);
-            }
+            setEntity(entity, component);
         }
         if (null == this.methodExpression) {
             return;

@@ -19,15 +19,10 @@ package be.e_contract.crud.jsf;
 
 import java.io.IOException;
 import java.util.Map;
-import javax.faces.FacesException;
-import javax.faces.component.ContextCallback;
 import javax.faces.component.FacesComponent;
 import javax.faces.component.UIComponentBase;
-import javax.faces.component.visit.VisitCallback;
-import javax.faces.component.visit.VisitContext;
+import javax.faces.context.ExternalContext;
 import javax.faces.context.FacesContext;
-import javax.faces.event.AbortProcessingException;
-import javax.faces.event.FacesEvent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -49,7 +44,6 @@ public class EntityComponent extends UIComponentBase {
     }
 
     public void setVar(String var) {
-        LOGGER.debug("setVar: {}", var);
         getStateHelper().put(PropertyKeys.var, var);
     }
 
@@ -58,7 +52,8 @@ public class EntityComponent extends UIComponentBase {
     }
 
     public void setEntity(Object entity) {
-        LOGGER.debug("setEntity: {}", entity);
+        EntityInspector entityInspector = new EntityInspector(entity);
+        LOGGER.debug("setEntity: {}", entityInspector.toHumanReadable(entity));
         getStateHelper().put(PropertyKeys.entity, entity);
     }
 
@@ -66,55 +61,41 @@ public class EntityComponent extends UIComponentBase {
         return getStateHelper().eval(PropertyKeys.entity);
     }
 
-    private void setLocalVariable() {
+    private Object setLocalVariable() {
         String var = getVar();
         FacesContext facesContext = FacesContext.getCurrentInstance();
-        Map<String, Object> requestMap
-                = facesContext.getExternalContext().getRequestMap();
+        ExternalContext externalContext = facesContext.getExternalContext();
+        Map<String, Object> requestMap = externalContext.getRequestMap();
         Object entity = getEntity();
-        LOGGER.debug("var: {} = {}", var, entity);
+        if (null != entity) {
+            EntityInspector entityInspector = new EntityInspector(entity);
+            LOGGER.debug("setting variable: {} = {}", var, entityInspector.toHumanReadable(entity));
+        }
+        Object oldVar = requestMap.get(var);
         requestMap.put(var, entity);
+        return oldVar;
     }
 
-    private void removeLocalVariable() {
+    private void removeLocalVariable(Object oldVar) {
         String var = getVar();
         FacesContext facesContext = FacesContext.getCurrentInstance();
         Map<String, Object> requestMap
                 = facesContext.getExternalContext().getRequestMap();
         requestMap.remove(var);
+        if (null != oldVar) {
+            requestMap.put(var, oldVar);
+        }
     }
 
     @Override
-    public void encodeBegin(FacesContext context) throws IOException {
-        LOGGER.debug("encodeBegin");
-        setLocalVariable();
-        super.encodeBegin(context);
+    public void encodeChildren(FacesContext context) throws IOException {
+        Object oldVar = setLocalVariable();
+        super.encodeChildren(context);
+        removeLocalVariable(oldVar);
     }
 
     @Override
-    public void broadcast(FacesEvent event) throws AbortProcessingException {
-        LOGGER.debug("broadcast: {}", event);
-        super.broadcast(event);
-    }
-
-    @Override
-    public boolean invokeOnComponent(FacesContext context, String clientId, ContextCallback callback) throws FacesException {
-        LOGGER.debug("invokeOnComponent");
-        boolean result = super.invokeOnComponent(context, clientId, callback);
-        return result;
-    }
-
-    @Override
-    public boolean visitTree(VisitContext context, VisitCallback callback) {
-        LOGGER.debug("visitTree");
-        boolean result = super.visitTree(context, callback);
-        return result;
-    }
-
-    @Override
-    public void processUpdates(FacesContext context) {
-        LOGGER.debug("processUpdates");
-        setLocalVariable();
-        super.processUpdates(context);
+    public boolean getRendersChildren() {
+        return true;
     }
 }

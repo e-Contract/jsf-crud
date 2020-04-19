@@ -40,7 +40,6 @@ public class DeleteListenerComponent extends UIComponentBase {
     }
 
     public void setAction(MethodExpression methodExpression) {
-        LOGGER.debug("setAction: {}", methodExpression);
         getStateHelper().put(PropertyKeys.action, methodExpression);
     }
 
