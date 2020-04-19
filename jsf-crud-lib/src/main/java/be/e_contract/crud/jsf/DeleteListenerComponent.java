@@ -23,8 +23,10 @@ import javax.faces.component.UIComponentBase;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-@FacesComponent(value = "crud.deleteListener")
+@FacesComponent(DeleteListenerComponent.COMPONENT_TYPE)
 public class DeleteListenerComponent extends UIComponentBase {
+
+    public static final String COMPONENT_TYPE = "crud.deleteListener";
 
     private static final Logger LOGGER = LoggerFactory.getLogger(DeleteListenerComponent.class);
 

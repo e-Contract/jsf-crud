@@ -56,7 +56,7 @@ public class DemoController {
         return facesMessage;
     }
 
-    public AutoIdEntity increateAmount(AutoIdEntity entity) {
+    public AutoIdEntity increaseAmount(AutoIdEntity entity) {
         long amount = entity.getAmount();
         amount += 100;
         entity.setAmount(amount);

@@ -20,8 +20,10 @@ package be.e_contract.crud.jsf;
 import javax.faces.component.FacesComponent;
 import javax.faces.component.UIComponentBase;
 
-@FacesComponent(value = "crud.read")
+@FacesComponent(ReadComponent.COMPONENT_TYPE)
 public class ReadComponent extends UIComponentBase {
+
+    public static final String COMPONENT_TYPE = "crud.read";
 
     @Override
     public String getFamily() {

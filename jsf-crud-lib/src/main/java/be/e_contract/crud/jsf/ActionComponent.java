@@ -23,8 +23,10 @@ import javax.faces.component.UIComponentBase;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-@FacesComponent(value = "crud.action")
+@FacesComponent(ActionComponent.COMPONENT_TYPE)
 public class ActionComponent extends UIComponentBase {
+
+    public static final String COMPONENT_TYPE = "crud.action";
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ActionComponent.class);
 
@@ -32,6 +34,7 @@ public class ActionComponent extends UIComponentBase {
         value,
         action,
         oncomplete,
+        update,
     }
 
     @Override
@@ -62,5 +65,13 @@ public class ActionComponent extends UIComponentBase {
 
     public String getOncomplete() {
         return (String) getStateHelper().eval(PropertyKeys.oncomplete);
+    }
+
+    public String getUpdate() {
+        return (String) getStateHelper().eval(PropertyKeys.update, null);
+    }
+
+    public void setUpdate(String update) {
+        getStateHelper().put(PropertyKeys.update, update);
     }
 }

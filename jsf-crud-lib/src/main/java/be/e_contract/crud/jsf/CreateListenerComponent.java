@@ -23,8 +23,10 @@ import javax.faces.component.UIComponentBase;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-@FacesComponent(value = "crud.createListener")
+@FacesComponent(CreateListenerComponent.COMPONENT_TYPE)
 public class CreateListenerComponent extends UIComponentBase {
+
+    public static final String COMPONENT_TYPE = "crud.createListener";
 
     private static final Logger LOGGER = LoggerFactory.getLogger(CreateListenerComponent.class);
 

@@ -40,6 +40,7 @@ import javax.faces.component.UIComponent;
 import javax.faces.component.UIInput;
 import javax.faces.component.UINamingContainer;
 import javax.faces.component.UISelectItem;
+import javax.faces.component.UIViewRoot;
 import javax.faces.component.html.HtmlForm;
 import javax.faces.component.html.HtmlOutputText;
 import javax.faces.component.html.HtmlPanelGrid;
@@ -77,12 +78,14 @@ import org.primefaces.component.tristatecheckbox.TriStateCheckbox;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-@FacesComponent("crud.crud")
+@FacesComponent(CRUDComponent.COMPONENT_TYPE)
 @ListenerFor(systemEventClass = PostAddToViewEvent.class)
 @ResourceDependencies(value = {
     @ResourceDependency(library = "crud", name = "crud.js")
 })
 public class CRUDComponent extends UINamingContainer implements CreateSource, UpdateSource, DeleteSource {
+
+    public static final String COMPONENT_TYPE = "crud.crud";
 
     private static final Logger LOGGER = LoggerFactory.getLogger(CRUDComponent.class);
 
@@ -417,8 +420,16 @@ public class CRUDComponent extends UINamingContainer implements CreateSource, Up
                 commandButton.setId("Action" + actionIdx);
                 actionIdx++;
                 commandButton.setUpdate(dataTable.getClientId() + "," + message.getClientId());
-                commandButton.addActionListener(new ActionAdapter(action.getAction()));
+                commandButton.addActionListener(new ActionAdapter(action.getAction(), action.getUpdate()));
                 commandButton.setOncomplete(action.getOncomplete());
+
+                String update = action.getUpdate();
+                if (null != update) {
+                    UIViewRoot view = facesContext.getViewRoot();
+                    UIComponent component = view.findComponent(update);
+                    LOGGER.debug("update component found: {}", component);
+                    commandButton.setUpdate(dataTable.getClientId() + "," + message.getClientId() + "," + component.getClientId());
+                }
             }
         }
 

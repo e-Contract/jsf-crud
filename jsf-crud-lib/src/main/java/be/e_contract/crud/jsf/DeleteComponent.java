@@ -20,8 +20,10 @@ package be.e_contract.crud.jsf;
 import javax.faces.component.FacesComponent;
 import javax.faces.component.UIComponentBase;
 
-@FacesComponent(value = "crud.delete")
+@FacesComponent(DeleteComponent.COMPONENT_TYPE)
 public class DeleteComponent extends UIComponentBase {
+
+    public static final String COMPONENT_TYPE = "crud.delete";
 
     public enum PropertyKeys {
         disabled,

@@ -20,8 +20,10 @@ package be.e_contract.crud.jsf;
 import javax.faces.component.FacesComponent;
 import javax.faces.component.UIComponentBase;
 
-@FacesComponent(value = "crud.update")
+@FacesComponent(UpdateComponent.COMPONENT_TYPE)
 public class UpdateComponent extends UIComponentBase {
+
+    public static final String COMPONENT_TYPE = "crud.update";
 
     public enum PropertyKeys {
         disabled,

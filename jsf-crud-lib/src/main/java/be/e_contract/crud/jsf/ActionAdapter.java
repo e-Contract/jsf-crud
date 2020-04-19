@@ -26,6 +26,7 @@ import javax.faces.application.Application;
 import javax.faces.application.FacesMessage;
 import javax.faces.component.StateHolder;
 import javax.faces.component.UIComponent;
+import javax.faces.component.UIViewRoot;
 import javax.faces.context.FacesContext;
 import javax.faces.event.AbortProcessingException;
 import javax.faces.event.ActionEvent;
@@ -47,14 +48,17 @@ public class ActionAdapter implements ActionListener, StateHolder {
 
     private MethodExpression methodExpression;
 
+    private String update;
+
     private boolean _transient;
 
     public ActionAdapter() {
         // empty
     }
 
-    public ActionAdapter(MethodExpression methodExpression) {
+    public ActionAdapter(MethodExpression methodExpression, String update) {
         this.methodExpression = methodExpression;
+        this.update = update;
     }
 
     @Override
@@ -63,7 +67,7 @@ public class ActionAdapter implements ActionListener, StateHolder {
         if (context == null) {
             throw new NullPointerException();
         }
-        return new Object[]{this.methodExpression};
+        return new Object[]{this.methodExpression, this.update};
     }
 
     @Override
@@ -76,6 +80,7 @@ public class ActionAdapter implements ActionListener, StateHolder {
             return;
         }
         this.methodExpression = (MethodExpression) ((Object[]) state)[0];
+        this.update = (String) ((Object[]) state)[1];
     }
 
     @Override
@@ -94,6 +99,17 @@ public class ActionAdapter implements ActionListener, StateHolder {
         ELContext elContext = facesContext.getELContext();
         ELResolver elResolver = elContext.getELResolver();
         Object entity = elResolver.getValue(elContext, null, "row");
+        if (null != this.update) {
+            UIViewRoot view = facesContext.getViewRoot();
+            UIComponent component = view.findComponent(this.update);
+            if (component instanceof EntityComponent) {
+                EntityComponent entityComponent = (EntityComponent) component;
+                entityComponent.setEntity(entity);
+            }
+        }
+        if (null == this.methodExpression) {
+            return;
+        }
         Object result = this.methodExpression.invoke(elContext, new Object[]{entity});
         if (null == result) {
             return;

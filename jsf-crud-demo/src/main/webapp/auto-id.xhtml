@@ -24,8 +24,22 @@
             <crud:action value="Custom Action" action="#{demoController.action}"/>
             <crud:action value="Action 2" action="#{demoController.messagingAction}"
                          oncomplete="PF('growl').renderMessage({'summary':'hello world'})"/>
-            <crud:action value="Increate amount" action="#{demoController.increateAmount}"/>
+            <crud:action value="Increase amount" action="#{demoController.increaseAmount}"/>
+            <crud:action value="Custom Dialog" oncomplete="PF('customDialog').show()"
+                         update=":customEntity"/>
         </crud:crud>
+
+        <p:dialog id="customDialog" widgetVar="customDialog" header="Custom Dialog" dynamic="true">
+            <crud:entity id="customEntity" var="entity">
+                <h:panelGrid columns="1">
+                    <h:outputText value='Entity #{entity.id} selected.'/>
+                    <h:form>
+                        <p:commandButton value="Dismiss" onclick="PF('customDialog').hide()"/>
+                    </h:form>
+                </h:panelGrid>
+            </crud:entity>
+        </p:dialog>
+
         <h:form>
             <p:commandLink action="/index?faces-redirect=true" value="Back"/>
         </h:form>

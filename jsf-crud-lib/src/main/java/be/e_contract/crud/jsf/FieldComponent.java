@@ -20,8 +20,10 @@ package be.e_contract.crud.jsf;
 import javax.faces.component.FacesComponent;
 import javax.faces.component.UIComponentBase;
 
-@FacesComponent(value = "crud.field")
+@FacesComponent(FieldComponent.COMPONENT_TYPE)
 public class FieldComponent extends UIComponentBase {
+
+    public static final String COMPONENT_TYPE = "crud.field";
 
     public enum PropertyKeys {
         name,

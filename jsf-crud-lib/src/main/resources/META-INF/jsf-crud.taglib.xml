@@ -138,11 +138,26 @@
         </attribute>
         <attribute>
             <name>action</name>
-            <required>true</required>
             <type>javax.el.MethodExpression</type>
         </attribute>
         <attribute>
             <name>oncomplete</name>
+            <type>java.lang.String</type>
+        </attribute>
+        <attribute>
+            <name>update</name>
+            <type>java.lang.String</type>
+        </attribute>
+    </tag>
+    
+    <tag>
+        <tag-name>entity</tag-name>
+        <component>
+            <component-type>crud.entity</component-type>
+        </component>
+        <attribute>
+            <name>var</name>
+            <required>true</required>
             <type>java.lang.String</type>
         </attribute>
     </tag>
