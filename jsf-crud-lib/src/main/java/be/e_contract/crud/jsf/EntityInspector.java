@@ -51,7 +51,6 @@ public class EntityInspector {
         try {
             this.entityClass = Class.forName(entityClassName);
         } catch (ClassNotFoundException ex) {
-            LOGGER.error("entity class not found: " + entityClassName);
             FacesContext facesContext = FacesContext.getCurrentInstance();
             Application application = facesContext.getApplication();
             ExpressionFactory expressionFactory = application.getExpressionFactory();
@@ -63,12 +62,13 @@ public class EntityInspector {
             Set<EntityType<?>> entities = metamodel.getEntities();
             for (EntityType<?> entity : entities) {
                 String entityName = entity.getName();
-                LOGGER.debug("entity name: {}", entityName);
                 if (entityClassName.equals(entityName)) {
                     this.entityClass = entity.getJavaType();
+                    break;
                 }
             }
             if (null == this.entityClass) {
+                LOGGER.error("entity class not found: " + entityClassName);
                 throw new IllegalArgumentException("entity class not found: " + entityClassName);
             }
         }
