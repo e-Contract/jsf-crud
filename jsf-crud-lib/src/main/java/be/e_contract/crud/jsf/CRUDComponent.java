@@ -102,6 +102,16 @@ public class CRUDComponent extends UINamingContainer implements CreateSource, Up
         getStateHelper().put(PropertyKeys.entity, entity);
     }
 
+    private void updateEntityComponents(Object entity, UIComponent component) {
+        if (component instanceof EntityComponent) {
+            EntityComponent entityComponent = (EntityComponent) component;
+            entityComponent.setEntity(entity);
+        }
+        for (UIComponent child : component.getChildren()) {
+            updateEntityComponents(entity, child);
+        }
+    }
+
     public String getEntity() {
         return (String) getStateHelper().eval(PropertyKeys.entity);
     }
@@ -116,6 +126,7 @@ public class CRUDComponent extends UINamingContainer implements CreateSource, Up
 
     void setSelection(Object entity) {
         getStateHelper().put(PropertyKeys.selection, entity);
+        updateEntityComponents(entity, this);
     }
 
     Object getSelection() {
@@ -395,8 +406,15 @@ public class CRUDComponent extends UINamingContainer implements CreateSource, Up
                 deleteDialog.setId("deleteDialog");
                 deleteDialog.setModal(true);
 
-                HtmlOutputText htmlOutputText = (HtmlOutputText) application.createComponent(HtmlOutputText.COMPONENT_TYPE);
-                deleteDialog.getChildren().add(htmlOutputText);
+                {
+                    EntityComponent entityComponent = (EntityComponent) application.createComponent(EntityComponent.COMPONENT_TYPE);
+                    deleteDialog.getChildren().add(entityComponent);
+                    entityComponent.setVar("entity");
+                    HtmlOutputText htmlOutputText = (HtmlOutputText) application.createComponent(HtmlOutputText.COMPONENT_TYPE);
+                    ValueExpression deleteOutputTextValueExpression = expressionFactory.createValueExpression(elContext, "Do you want to delete #{crud:toHumanReadable(entity)} ?", String.class);
+                    htmlOutputText.setValueExpression("value", deleteOutputTextValueExpression);
+                    entityComponent.getChildren().add(htmlOutputText);
+                }
 
                 HtmlForm deleteDialogHtmlForm = (HtmlForm) application.createComponent(HtmlForm.COMPONENT_TYPE);
                 deleteDialog.getChildren().add(deleteDialogHtmlForm);
@@ -420,7 +438,7 @@ public class CRUDComponent extends UINamingContainer implements CreateSource, Up
                 dismissCommandButton.setOncomplete("PF('deleteDialog').hide()");
 
                 commandButton.setUpdate(deleteDialog.getClientId() + "," + message.getClientId());
-                commandButton.addActionListener(new UpdateDeleteDialogText(entityInspector, htmlOutputText));
+                commandButton.addActionListener(new SelectRowActionListener());
             }
 
             int actionIdx = 0;
@@ -955,30 +973,6 @@ public class CRUDComponent extends UINamingContainer implements CreateSource, Up
             ELContext elContext = facesContext.getELContext();
             ELResolver elResolver = elContext.getELResolver();
             Object entity = elResolver.getValue(elContext, null, "row");
-            CRUDComponent.this.setSelection(entity);
-        }
-    }
-
-    public class UpdateDeleteDialogText implements ActionListener {
-
-        private final HtmlOutputText htmlOutputText;
-
-        private final EntityInspector entityInspector;
-
-        public UpdateDeleteDialogText(EntityInspector entityInspector, HtmlOutputText htmlOutputText) {
-            this.htmlOutputText = htmlOutputText;
-            this.entityInspector = entityInspector;
-        }
-
-        @Override
-        public void processAction(ActionEvent event) throws AbortProcessingException {
-            LOGGER.debug("processAction");
-            FacesContext facesContext = FacesContext.getCurrentInstance();
-            ELContext elContext = facesContext.getELContext();
-            ELResolver elResolver = elContext.getELResolver();
-            Object entity = elResolver.getValue(elContext, null, "row");
-            String entityHumanReadable = this.entityInspector.toHumanReadable(entity);
-            this.htmlOutputText.setValue("Do you want to delete: " + entityHumanReadable + " ?");
             CRUDComponent.this.setSelection(entity);
         }
     }

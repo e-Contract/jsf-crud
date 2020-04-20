@@ -17,8 +17,10 @@
  */
 package be.e_contract.crud.jsf;
 
+import java.io.IOException;
 import javax.faces.component.FacesComponent;
 import javax.faces.component.UIComponentBase;
+import javax.faces.context.FacesContext;
 
 @FacesComponent(DeleteComponent.COMPONENT_TYPE)
 public class DeleteComponent extends UIComponentBase {
@@ -57,5 +59,15 @@ public class DeleteComponent extends UIComponentBase {
 
     public void setDeleteAll(boolean deleteAll) {
         getStateHelper().put(PropertyKeys.deleteAll, deleteAll);
+    }
+
+    @Override
+    public void encodeChildren(FacesContext context) throws IOException {
+        // empty
+    }
+
+    @Override
+    public boolean getRendersChildren() {
+        return true;
     }
 }

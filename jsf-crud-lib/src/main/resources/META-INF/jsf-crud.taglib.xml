@@ -216,4 +216,10 @@
         </attribute>
     </tag>
 
+    <function>
+        <function-name>toHumanReadable</function-name>
+        <function-class>be.e_contract.crud.jsf.CRUDFunctions</function-class>
+        <function-signature>java.lang.String toHumanReadable(java.lang.Object)</function-signature>
+    </function>
+
 </facelet-taglib>

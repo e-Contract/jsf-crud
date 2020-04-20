@@ -52,8 +52,6 @@ public class EntityComponent extends UIComponentBase {
     }
 
     public void setEntity(Object entity) {
-        EntityInspector entityInspector = new EntityInspector(entity);
-        LOGGER.debug("setEntity: {}", entityInspector.toHumanReadable(entity));
         getStateHelper().put(PropertyKeys.entity, entity);
     }
 
@@ -89,9 +87,11 @@ public class EntityComponent extends UIComponentBase {
 
     @Override
     public void encodeChildren(FacesContext context) throws IOException {
+        LOGGER.debug("encodeChildren begin");
         Object oldVar = setLocalVariable();
         super.encodeChildren(context);
         removeLocalVariable(oldVar);
+        LOGGER.debug("encodeChildren end");
     }
 
     @Override
