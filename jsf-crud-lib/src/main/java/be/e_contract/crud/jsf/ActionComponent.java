@@ -18,6 +18,7 @@
 package be.e_contract.crud.jsf;
 
 import javax.el.MethodExpression;
+import javax.el.ValueExpression;
 import javax.faces.component.FacesComponent;
 import javax.faces.component.UIComponentBase;
 import org.slf4j.Logger;
@@ -35,6 +36,7 @@ public class ActionComponent extends UIComponentBase {
         action,
         oncomplete,
         update,
+        renderedValueExpression,
     }
 
     @Override
@@ -72,5 +74,13 @@ public class ActionComponent extends UIComponentBase {
 
     public void setUpdate(String update) {
         getStateHelper().put(PropertyKeys.update, update);
+    }
+
+    public void setRenderedValueExpression(ValueExpression valueExpression) {
+        getStateHelper().put(PropertyKeys.renderedValueExpression, valueExpression);
+    }
+
+    public ValueExpression getRenderedValueExpression() {
+        return (ValueExpression) getStateHelper().get(PropertyKeys.renderedValueExpression);
     }
 }

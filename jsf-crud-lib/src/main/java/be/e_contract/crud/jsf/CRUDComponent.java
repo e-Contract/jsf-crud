@@ -414,7 +414,7 @@ public class CRUDComponent extends UINamingContainer implements CreateSource, Up
 
             int actionIdx = 0;
             for (ActionComponent action : actions) {
-                CommandButton commandButton = (CommandButton) application.createComponent(CommandButton.COMPONENT_TYPE);
+                CRUDCommandButton commandButton = (CRUDCommandButton) application.createComponent(CRUDCommandButton.COMPONENT_TYPE);
                 column.getChildren().add(commandButton);
                 commandButton.setValue(action.getValue());
                 commandButton.setId("Action" + actionIdx);
@@ -422,6 +422,9 @@ public class CRUDComponent extends UINamingContainer implements CreateSource, Up
                 commandButton.setUpdate(dataTable.getClientId() + "," + message.getClientId());
                 commandButton.addActionListener(new ActionAdapter(action.getAction(), action.getUpdate()));
                 commandButton.setOncomplete(action.getOncomplete());
+
+                ValueExpression renderedValueExpression = action.getRenderedValueExpression();
+                commandButton.setRenderedValueExpression(renderedValueExpression);
 
                 String update = action.getUpdate();
                 if (null != update) {

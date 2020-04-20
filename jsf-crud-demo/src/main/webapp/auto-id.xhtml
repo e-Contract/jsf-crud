@@ -24,7 +24,7 @@
             <crud:action value="Custom Action" action="#{demoController.action}"/>
             <crud:action value="Action 2" action="#{demoController.messagingAction}"
                          oncomplete="PF('growl').renderMessage({'summary':'hello world'})"/>
-            <crud:action value="Increase amount" action="#{demoController.increaseAmount}"/>
+            <crud:action value="Increase amount" action="#{demoController.increaseAmount}" rendered="#{row.amount lt 500}"/>
             <crud:action value="Custom Dialog" oncomplete="PF('customDialog').show()"
                          update=":customDialog"/>
         </crud:crud>
