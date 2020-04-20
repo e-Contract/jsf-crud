@@ -202,13 +202,7 @@ public class CRUDComponent extends UINamingContainer implements CreateSource, Up
 
         String entityClassName = getEntity();
         EntityInspector entityInspector = new EntityInspector(entityClassName);
-        Class<?> entityClass;
-        try {
-            entityClass = Class.forName(entityClassName);
-        } catch (ClassNotFoundException ex) {
-            LOGGER.error("entity class not found: " + entityClassName);
-            throw new AbortProcessingException("entity class not found: " + entityClassName);
-        }
+        Class<?> entityClass = entityInspector.getEntityClass();
 
         String entityName = entityInspector.getEntityName();
 

@@ -15,7 +15,7 @@
             <component-type>crud.crud</component-type>
         </component>
         <attribute>
-            <description>The class name of the JPA entity.</description>
+            <description>The class name or entity name of the JPA entity.</description>
             <name>entity</name>
             <required>true</required>
             <type>java.lang.String</type>

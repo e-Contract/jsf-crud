@@ -22,9 +22,18 @@ import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Set;
 import java.util.regex.Pattern;
+import javax.el.ELContext;
+import javax.el.ExpressionFactory;
+import javax.el.ValueExpression;
+import javax.faces.application.Application;
+import javax.faces.context.FacesContext;
 import javax.persistence.Entity;
+import javax.persistence.EntityManager;
 import javax.persistence.Id;
+import javax.persistence.metamodel.EntityType;
+import javax.persistence.metamodel.Metamodel;
 import org.apache.commons.text.WordUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -33,7 +42,7 @@ public class EntityInspector {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(EntityInspector.class);
 
-    private final Class<?> entityClass;
+    private Class<?> entityClass;
 
     public EntityInspector(String entityClassName) {
         if (entityClassName.endsWith(".class")) {
@@ -43,13 +52,35 @@ public class EntityInspector {
             this.entityClass = Class.forName(entityClassName);
         } catch (ClassNotFoundException ex) {
             LOGGER.error("entity class not found: " + entityClassName);
-            throw new IllegalArgumentException("entity class not found: " + entityClassName);
+            FacesContext facesContext = FacesContext.getCurrentInstance();
+            Application application = facesContext.getApplication();
+            ExpressionFactory expressionFactory = application.getExpressionFactory();
+            ELContext elContext = facesContext.getELContext();
+            ValueExpression valueExpression = expressionFactory.createValueExpression(elContext, "#{crudController}", CRUDController.class);
+            CRUDController crudController = (CRUDController) valueExpression.getValue(elContext);
+            EntityManager entityManager = crudController.getEntityManager();
+            Metamodel metamodel = entityManager.getMetamodel();
+            Set<EntityType<?>> entities = metamodel.getEntities();
+            for (EntityType<?> entity : entities) {
+                String entityName = entity.getName();
+                LOGGER.debug("entity name: {}", entityName);
+                if (entityClassName.equals(entityName)) {
+                    this.entityClass = entity.getJavaType();
+                }
+            }
+            if (null == this.entityClass) {
+                throw new IllegalArgumentException("entity class not found: " + entityClassName);
+            }
         }
         Entity entityAnnotation = this.entityClass.getAnnotation(Entity.class);
         if (null == entityAnnotation) {
             LOGGER.error("class is not a JPA entity: {}", entityClassName);
             throw new IllegalArgumentException("class is not a JPA entity: " + entityClassName);
         }
+    }
+
+    public Class<?> getEntityClass() {
+        return this.entityClass;
     }
 
     public EntityInspector(Class<?> entityClass) {
