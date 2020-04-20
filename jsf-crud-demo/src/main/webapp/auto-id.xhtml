@@ -11,6 +11,9 @@
     <h:body>
         <h1>JSF CRUD Demo</h1>
         <p:growl widgetVar="growl"/>
+        <p>
+            Add two entities, then click the "Id" sort to get the NPE.
+        </p>
         <crud:crud entity="AutoIdEntity" title="A fancy title!" orderBy="amount">
             <crud:create/>
             <crud:read/>
@@ -19,7 +22,8 @@
             <crud:createListener action="#{demoController.created}"/>
             <crud:updateListener action="#{demoController.updated}"/>
             <crud:deleteListener action="#{demoController.deleted}"/>
-            <crud:field name="created" label="Creation Date" sort="true"/>
+            <crud:field name="id" sort="true"/>
+            <crud:field name="created" label="Creation Date"/>
             <crud:field name="threeValuedLogic" hide="true"/>
             <crud:property name="myProperty"/>
             <crud:action value="Custom Action" action="#{demoController.action}"/>

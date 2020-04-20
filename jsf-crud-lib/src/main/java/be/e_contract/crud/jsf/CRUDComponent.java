@@ -625,6 +625,8 @@ public class CRUDComponent extends UINamingContainer implements CreateSource, Up
             input = (SelectOneMenu) application.createComponent(SelectOneMenu.COMPONENT_TYPE);
             SelectOneMenu selectOneMenu = (SelectOneMenu) input;
             selectOneMenu.setDisabled(disabled);
+            // https://github.com/primefaces/primefaces/issues/5809
+            //selectOneMenu.setEditable(true);
             UISelectItem emptySelectItem = (UISelectItem) application.createComponent(UISelectItem.COMPONENT_TYPE);
             input.getChildren().add(emptySelectItem);
             input.setConverter(new EntityConverter(entityField.getType()));
@@ -738,8 +740,8 @@ public class CRUDComponent extends UINamingContainer implements CreateSource, Up
         dataTable.getChildren().add(column);
         if (isSortField(field, fields)) {
             LOGGER.debug("setting sortBy");
-            // does not work
-            column.setSortBy(expressionFactory.createValueExpression(elContext, "#{row." + field.getName() + "}", Object.class));
+            // gives a nasty NPE
+            column.setValueExpression("sortBy", expressionFactory.createValueExpression(elContext, "#{row." + field.getName() + "}", String.class));
         }
 
         String fieldLabel = getFieldLabel(field, entityInspector, fields);
@@ -747,7 +749,7 @@ public class CRUDComponent extends UINamingContainer implements CreateSource, Up
 
         HtmlOutputText outputText = (HtmlOutputText) application.createComponent(HtmlOutputText.COMPONENT_TYPE);
         column.getChildren().add(outputText);
-        outputText.setValueExpression("value", expressionFactory.createValueExpression(elContext, "#{row." + field.getName() + "}", Object.class));
+        outputText.setValueExpression("value", expressionFactory.createValueExpression(elContext, "#{row." + field.getName() + "}", field.getType()));
         outputText.setConverter(new FieldConverter());
     }
 
