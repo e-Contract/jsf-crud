@@ -3,37 +3,45 @@
                 xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
                 xsi:schemaLocation="http://java.sun.com/xml/ns/javaee http://java.sun.com/xml/ns/javaee/web-facelettaglibrary_2_0.xsd"
                 version="2.0">
+    
+    <description>JSF CRUD tag library.</description>
 
     <namespace>urn:be:e-contract:crud:jsf</namespace>
 
     <tag>
+        <description>Provides CRUD operations on a JPA entity.</description>
         <tag-name>crud</tag-name>
         <component>
             <component-type>crud.crud</component-type>
         </component>
         <attribute>
+            <description>The class name of the JPA entity.</description>
             <name>entity</name>
             <required>true</required>
             <type>java.lang.String</type>
         </attribute>
         <attribute>
+            <description>The optional title of the CRUD table.</description>
             <name>title</name>
             <type>java.lang.String</type>
         </attribute>
     </tag>
 
     <tag>
+        <description>Adds the create operation to the CRUD table.</description>
         <tag-name>create</tag-name>
         <component>
             <component-type>crud.create</component-type>
         </component>
         <attribute>
+            <description>Set to true to disable the create operation.</description>
             <name>disabled</name>
             <type>java.lang.Boolean</type>
         </attribute>
     </tag>
 
     <tag>
+        <description>Adds the read operation to the CRUD table.</description>
         <tag-name>read</tag-name>
         <component>
             <component-type>crud.read</component-type>
@@ -41,38 +49,45 @@
     </tag>
 
     <tag>
+        <description>Adds the update operation to the CRUD table.</description>
         <tag-name>update</tag-name>
         <component>
             <component-type>crud.update</component-type>
         </component>
         <attribute>
+            <description>Set to true to disable the update operation.</description>
             <name>disabled</name>
             <type>java.lang.Boolean</type>
         </attribute>
     </tag>
 
     <tag>
+        <description>Adds the delete operation to the CRUD table.</description>
         <tag-name>delete</tag-name>
         <component>
             <component-type>crud.delete</component-type>
         </component>
         <attribute>
+            <description>Set to true to disable the delete operation.</description>
             <name>disabled</name>
             <type>java.lang.Boolean</type>
         </attribute>
         <attribute>
+            <description>Set to true to add a delete all operation to the CRUD table.</description>
             <name>deleteAll</name>
             <type>java.lang.Boolean</type>
         </attribute>
     </tag>
     
     <tag>
+        <description>Adds a listener for be.e_contract.crud.jsf.CreateEvent JSF events.</description>
         <tag-name>createListener</tag-name>
         <component>
             <component-type>crud.createListener</component-type>
             <handler-class>be.e_contract.crud.jsf.CreateListenerTagHandler</handler-class>
         </component>
         <attribute>
+            <description>The listener method to invoke.</description>
             <name>action</name>
             <required>true</required>
             <type>javax.el.MethodExpression</type>
@@ -80,12 +95,14 @@
     </tag>
     
     <tag>
+        <description>Adds a listener for be.e_contract.crud.jsf.UpdateEvent JSF events.</description>
         <tag-name>updateListener</tag-name>
         <component>
             <component-type>crud.updateListener</component-type>
             <handler-class>be.e_contract.crud.jsf.UpdateListenerTagHandler</handler-class>
         </component>
         <attribute>
+            <description>The listener method to invoke.</description>
             <name>action</name>
             <required>true</required>
             <type>javax.el.MethodExpression</type>
@@ -93,12 +110,14 @@
     </tag>
     
     <tag>
+        <description>Adds a listener for be.e_contract.crud.jsf.DeleteEvent JSF events.</description>
         <tag-name>deleteListener</tag-name>
         <component>
             <component-type>crud.deleteListener</component-type>
             <handler-class>be.e_contract.crud.jsf.DeleteListenerTagHandler</handler-class>
         </component>
         <attribute>
+            <description>The listener method to invoke.</description>
             <name>action</name>
             <required>true</required>
             <type>javax.el.MethodExpression</type>
@@ -106,56 +125,67 @@
     </tag>
     
     <tag>
+        <description>Specifies field customizations.</description>
         <tag-name>field</tag-name>
         <component>
             <component-type>crud.field</component-type>
         </component>
         <attribute>
+            <description>The name of the JPA entity field.</description>
             <name>name</name>
             <required>true</required>
             <type>java.lang.String</type>
         </attribute>
         <attribute>
+            <description>An alternative label for the field.</description>
             <name>label</name>
             <type>java.lang.String</type>
         </attribute>
         <attribute>
+            <description>Set to true to hide the field within the CRUD table.</description>
             <name>hide</name>
             <type>java.lang.Boolean</type>
         </attribute>
     </tag>
     
     <tag>
+        <description>Specifies a custom action within the CRUD table.</description>
         <tag-name>action</tag-name>
         <component>
             <component-type>crud.action</component-type>
             <handler-class>be.e_contract.crud.jsf.ActionTagHandler</handler-class>
         </component>
         <attribute>
+            <description>The action button text.</description>
             <name>value</name>
             <required>true</required>
             <type>java.lang.String</type>
         </attribute>
         <attribute>
+            <description>The optional action method to invoke.</description>
             <name>action</name>
             <type>javax.el.MethodExpression</type>
         </attribute>
         <attribute>
+            <description>Client-side oncomplete event.</description>
             <name>oncomplete</name>
             <type>java.lang.String</type>
         </attribute>
         <attribute>
+            <description>Specifies which component should get updated.</description>
             <name>update</name>
             <type>java.lang.String</type>
         </attribute>
     </tag>
     
     <tag>
+        <description>Provides access to the entity for custom actions.</description>
         <tag-name>entity</tag-name>
         <component>
             <component-type>crud.entity</component-type>
         </component>
         <attribute>
+            <description>The EL name used to access the entity.</description>
             <name>var</name>
             <required>true</required>
             <type>java.lang.String</type>
