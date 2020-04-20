@@ -43,12 +43,12 @@
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-jar-plugin</artifactId>
-                    <version>3.1.2</version>
+                    <version>3.2.0</version>
                 </plugin>
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-site-plugin</artifactId>
-                    <version>3.8.2</version>
+                    <version>3.9.0</version>
                 </plugin>
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
@@ -58,7 +58,7 @@
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-source-plugin</artifactId>
-                    <version>3.1.0</version>
+                    <version>3.2.1</version>
                 </plugin>
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
@@ -71,7 +71,7 @@
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-javadoc-plugin</artifactId>
-                    <version>3.1.1</version>
+                    <version>3.2.0</version>
                     <configuration>
                         <doclint>none</doclint>
                     </configuration>
@@ -118,7 +118,6 @@
                 <artifactId>maven-release-plugin</artifactId>
                 <configuration>
                     <autoVersionSubmodules>true</autoVersionSubmodules>
-                    <goals>install</goals>
                 </configuration>
             </plugin>
         </plugins>
@@ -126,19 +125,30 @@
             <extension>
                 <groupId>org.apache.maven.wagon</groupId>
                 <artifactId>wagon-ssh</artifactId>
-                <version>3.3.3</version>
+                <version>3.3.4</version>
             </extension>
         </extensions>
     </build>
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <slf4j.version>1.7.28</slf4j.version>
-        <log4j.version>2.12.1</log4j.version>
+        <slf4j.version>1.7.30</slf4j.version>
+        <log4j.version>2.13.1</log4j.version>
     </properties>
     <scm>
         <connection>scm:git:e-contract.be:git/jsf-crud.git</connection>
         <tag>HEAD</tag>
     </scm>
+    <distributionManagement>
+        <downloadUrl>https://www.e-contract.be/maven2/be/e-contract/jsf-crud/</downloadUrl>
+        <repository>
+            <id>e-contract-deploy</id>
+            <url>sftp://192.168.100.1/maven2</url>
+            <uniqueVersion>false</uniqueVersion>
+        </repository>
+    </distributionManagement>
+    <issueManagement>
+        <url>https://github.com/e-Contract/jsf-crud/issues</url>
+    </issueManagement>
     <modules>
         <module>jsf-crud-lib</module>
         <module>jsf-crud-demo</module>
