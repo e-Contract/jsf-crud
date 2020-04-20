@@ -25,6 +25,11 @@
             <name>title</name>
             <type>java.lang.String</type>
         </attribute>
+        <attribute>
+            <description>The optional field on which to sort the entities.</description>
+            <name>orderBy</name>
+            <type>java.lang.String</type>
+        </attribute>
     </tag>
 
     <tag>

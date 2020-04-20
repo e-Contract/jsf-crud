@@ -22,6 +22,7 @@ import javax.el.ELContext;
 import javax.el.ExpressionFactory;
 import javax.el.ValueExpression;
 import javax.faces.application.Application;
+import javax.faces.component.UIInput;
 import javax.faces.context.FacesContext;
 import javax.persistence.EntityManager;
 import javax.persistence.Query;
@@ -40,8 +41,11 @@ public class EntityValueExpression extends ValueExpression {
 
     private final Class<?> entityClass;
 
-    public EntityValueExpression(Class<?> entityClass) {
+    private final String orderBy;
+
+    public EntityValueExpression(Class<?> entityClass, String orderBy) {
         this.entityClass = entityClass;
+        this.orderBy = orderBy;
     }
 
     @Override
@@ -60,7 +64,11 @@ public class EntityValueExpression extends ValueExpression {
             LOGGER.error("error: " + ex.getMessage(), ex);
             return null;
         }
-        Query query = entityManager.createQuery("SELECT entity FROM " + this.entityClass.getSimpleName() + " AS entity");
+        String queryString = "SELECT entity FROM " + this.entityClass.getSimpleName() + " AS entity";
+        if (!UIInput.isEmpty(this.orderBy)) {
+            queryString += " ORDER BY entity." + this.orderBy;
+        }
+        Query query = entityManager.createQuery(queryString);
         List resultList = query.getResultList();
         try {
             userTransaction.commit();

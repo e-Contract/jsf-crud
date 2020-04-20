@@ -94,6 +94,7 @@ public class CRUDComponent extends UINamingContainer implements CreateSource, Up
         selection,
         newEntity,
         title,
+        orderBy,
     }
 
     public void setEntity(String entity) {
@@ -127,6 +128,14 @@ public class CRUDComponent extends UINamingContainer implements CreateSource, Up
 
     void setNewEntity(Object entity) {
         getStateHelper().put(PropertyKeys.newEntity, entity);
+    }
+
+    public String getOrderBy() {
+        return (String) getStateHelper().get(PropertyKeys.orderBy);
+    }
+
+    public void setOrderBy(String orderBy) {
+        getStateHelper().put(PropertyKeys.orderBy, orderBy);
     }
 
     @Override
@@ -222,7 +231,7 @@ public class CRUDComponent extends UINamingContainer implements CreateSource, Up
         DataTable dataTable = (DataTable) application.createComponent(DataTable.COMPONENT_TYPE);
         htmlForm.getChildren().add(dataTable);
 
-        ValueExpression valueExpression = new EntityValueExpression(entityClass);
+        ValueExpression valueExpression = new EntityValueExpression(entityClass, getOrderBy());
         dataTable.setValueExpression("value", valueExpression);
         dataTable.setVar("row");
         dataTable.setId("table");
