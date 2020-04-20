@@ -29,6 +29,7 @@ public class FieldComponent extends UIComponentBase {
         name,
         label,
         hide,
+        sort,
     }
 
     @Override
@@ -60,7 +61,19 @@ public class FieldComponent extends UIComponentBase {
         return hide;
     }
 
-    public void setHide(boolean disabled) {
-        getStateHelper().put(PropertyKeys.hide, disabled);
+    public void setHide(boolean hide) {
+        getStateHelper().put(PropertyKeys.hide, hide);
+    }
+
+    public boolean isSort() {
+        Boolean sort = (Boolean) getStateHelper().get(PropertyKeys.sort);
+        if (null == sort) {
+            return false;
+        }
+        return sort;
+    }
+
+    public void setSort(boolean sort) {
+        getStateHelper().put(PropertyKeys.sort, sort);
     }
 }

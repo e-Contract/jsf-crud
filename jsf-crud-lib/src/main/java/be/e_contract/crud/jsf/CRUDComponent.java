@@ -593,6 +593,14 @@ public class CRUDComponent extends UINamingContainer implements CreateSource, Up
         return fieldComponent.isHide();
     }
 
+    private boolean isSortField(Field entityField, Map<String, FieldComponent> fields) {
+        FieldComponent fieldComponent = fields.get(entityField.getName());
+        if (null == fieldComponent) {
+            return false;
+        }
+        return fieldComponent.isSort();
+    }
+
     private void addInputComponent(Field entityField, boolean addNotUpdate, EntityInspector entityInspector, Map<String, FieldComponent> fields, HtmlPanelGrid htmlPanelGrid) {
         FacesContext facesContext = FacesContext.getCurrentInstance();
         Application application = facesContext.getApplication();
@@ -726,15 +734,20 @@ public class CRUDComponent extends UINamingContainer implements CreateSource, Up
         ExpressionFactory expressionFactory = application.getExpressionFactory();
         ELContext elContext = facesContext.getELContext();
 
-        Column column = new Column();
+        Column column = (Column) application.createComponent(Column.COMPONENT_TYPE);
         dataTable.getChildren().add(column);
+        if (isSortField(field, fields)) {
+            LOGGER.debug("setting sortBy");
+            // does not work
+            column.setSortBy(expressionFactory.createValueExpression(elContext, "#{row." + field.getName() + "}", Object.class));
+        }
 
         String fieldLabel = getFieldLabel(field, entityInspector, fields);
         column.setHeaderText(fieldLabel);
 
         HtmlOutputText outputText = (HtmlOutputText) application.createComponent(HtmlOutputText.COMPONENT_TYPE);
         column.getChildren().add(outputText);
-        outputText.setValueExpression("value", expressionFactory.createValueExpression(elContext, "#{row. " + field.getName() + "}", Object.class));
+        outputText.setValueExpression("value", expressionFactory.createValueExpression(elContext, "#{row." + field.getName() + "}", Object.class));
         outputText.setConverter(new FieldConverter());
     }
 
@@ -744,7 +757,7 @@ public class CRUDComponent extends UINamingContainer implements CreateSource, Up
         ExpressionFactory expressionFactory = application.getExpressionFactory();
         ELContext elContext = facesContext.getELContext();
 
-        Column column = new Column();
+        Column column = (Column) application.createComponent(Column.COMPONENT_TYPE);
         dataTable.getChildren().add(column);
 
         String propertyLabel = property.getLabel();
@@ -755,7 +768,7 @@ public class CRUDComponent extends UINamingContainer implements CreateSource, Up
 
         HtmlOutputText outputText = (HtmlOutputText) application.createComponent(HtmlOutputText.COMPONENT_TYPE);
         column.getChildren().add(outputText);
-        outputText.setValueExpression("value", expressionFactory.createValueExpression(elContext, "#{row. " + property.getName() + "}", Object.class));
+        outputText.setValueExpression("value", expressionFactory.createValueExpression(elContext, "#{row." + property.getName() + "}", Object.class));
     }
 
     public class SaveActionListener implements ActionListener {

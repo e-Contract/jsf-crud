@@ -151,6 +151,11 @@
             <name>hide</name>
             <type>java.lang.Boolean</type>
         </attribute>
+        <attribute>
+            <description>Set to true to sort the field within the CRUD table.</description>
+            <name>sort</name>
+            <type>java.lang.Boolean</type>
+        </attribute>
     </tag>
     
     <tag>
