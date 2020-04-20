@@ -15,7 +15,24 @@ The component has been tested with PrimeFaces versions:
 
 # Usage
 
-Include the JAR `jsf-crud-lib` within your WAR.
+If you use Maven, refer to the e-contract.be Maven repository via:
+```
+<repository>
+    <id>e-contract</id>
+    <url>https://www.e-contract.be/maven2/</url>
+    <releases>
+        <enabled>true</enabled>
+    </releases>
+</repository>
+```
+Include the `jsf-crud-lib` JSF library within your WAR (JPA, CDI, and JSF enabled) as follows:
+```
+<dependency>
+    <groupId>be.e-contract.jsf-crud</groupId>
+    <artifactId>jsf-crud-lib</artifactId>
+    <version>0.1.0</version>
+</dependency>
+```
 
 Within a JSF page you can now add the following:
 ```
@@ -23,8 +40,14 @@ xmlns:crud="urn:be:e-contract:crud:jsf"
 ...
 <crud:crud entity="the.full.class.name.of.YourEntity"/>
 ```
+It cannot get easier than this.
 
 # Demo
+
+Checkout the source code via:
+```
+git clone https://github.com/e-Contract/jsf-crud.git
+```
 
 ## WildFly
 
