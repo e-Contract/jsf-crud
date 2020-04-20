@@ -4,7 +4,7 @@
     <name>JSF CRUD Project</name>
     <groupId>be.e-contract</groupId>
     <artifactId>jsf-crud</artifactId>
-    <version>0.1.0</version>
+    <version>0.1.1-SNAPSHOT</version>
     <packaging>pom</packaging>
     <inceptionYear>2020</inceptionYear>
     <organization>
@@ -136,7 +136,7 @@
     </properties>
     <scm>
         <connection>scm:git:e-contract.be:git/jsf-crud.git</connection>
-        <tag>jsf-crud-0.1.0</tag>
+        <tag>HEAD</tag>
     </scm>
     <distributionManagement>
         <downloadUrl>https://www.e-contract.be/maven2/be/e-contract/jsf-crud/</downloadUrl>
