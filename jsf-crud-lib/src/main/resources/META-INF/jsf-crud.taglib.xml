@@ -196,5 +196,24 @@
             <type>java.lang.String</type>
         </attribute>
     </tag>
+    
+    <tag>
+        <description>Specifies property customizations.</description>
+        <tag-name>property</tag-name>
+        <component>
+            <component-type>crud.property</component-type>
+        </component>
+        <attribute>
+            <description>The name of the JPA entity field.</description>
+            <name>name</name>
+            <required>true</required>
+            <type>java.lang.String</type>
+        </attribute>
+        <attribute>
+            <description>An optional alternative label for the field.</description>
+            <name>label</name>
+            <type>java.lang.String</type>
+        </attribute>
+    </tag>
 
 </facelet-taglib>

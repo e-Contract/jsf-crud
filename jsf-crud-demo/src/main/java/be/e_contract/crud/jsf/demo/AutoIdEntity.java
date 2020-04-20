@@ -180,6 +180,10 @@ public class AutoIdEntity implements Serializable {
         this.dateOfBirth = dateOfBirth;
     }
 
+    public String getMyProperty() {
+        return "My property " + this.id;
+    }
+
     @Override
     public int hashCode() {
         return new HashCodeBuilder().append(this.id).toHashCode();

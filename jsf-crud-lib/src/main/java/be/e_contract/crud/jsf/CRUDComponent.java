@@ -165,6 +165,7 @@ public class CRUDComponent extends UINamingContainer implements CreateSource, Up
         ReadComponent readComponent = null;
         Map<String, FieldComponent> fields = new HashMap<>();
         List<ActionComponent> actions = new LinkedList<>();
+        List<PropertyComponent> properties = new LinkedList<>();
         List<UIComponent> children = getChildren();
         for (UIComponent child : children) {
             if (child instanceof CreateComponent) {
@@ -206,6 +207,9 @@ public class CRUDComponent extends UINamingContainer implements CreateSource, Up
             } else if (child instanceof ActionComponent) {
                 ActionComponent action = (ActionComponent) child;
                 actions.add(action);
+            } else if (child instanceof PropertyComponent) {
+                PropertyComponent propertyComponent = (PropertyComponent) child;
+                properties.add(propertyComponent);
             }
         }
 
@@ -256,6 +260,10 @@ public class CRUDComponent extends UINamingContainer implements CreateSource, Up
         // next we add all the others
         for (Field entityField : entityInspector.getOtherFields()) {
             addColumn(dataTable, entityField, entityInspector, fields);
+        }
+
+        for (PropertyComponent property : properties) {
+            addColumn(dataTable, property);
         }
 
         if (showDelete || showUpdate || showView || !actions.isEmpty()) {
@@ -710,6 +718,26 @@ public class CRUDComponent extends UINamingContainer implements CreateSource, Up
         column.getChildren().add(outputText);
         outputText.setValueExpression("value", expressionFactory.createValueExpression(elContext, "#{row. " + field.getName() + "}", Object.class));
         outputText.setConverter(new FieldConverter());
+    }
+
+    private void addColumn(DataTable dataTable, PropertyComponent property) {
+        FacesContext facesContext = FacesContext.getCurrentInstance();
+        Application application = facesContext.getApplication();
+        ExpressionFactory expressionFactory = application.getExpressionFactory();
+        ELContext elContext = facesContext.getELContext();
+
+        Column column = new Column();
+        dataTable.getChildren().add(column);
+
+        String propertyLabel = property.getLabel();
+        if (UIInput.isEmpty(propertyLabel)) {
+            propertyLabel = EntityInspector.toHumanReadable(property.getName());
+        }
+        column.setHeaderText(propertyLabel);
+
+        HtmlOutputText outputText = (HtmlOutputText) application.createComponent(HtmlOutputText.COMPONENT_TYPE);
+        column.getChildren().add(outputText);
+        outputText.setValueExpression("value", expressionFactory.createValueExpression(elContext, "#{row. " + property.getName() + "}", Object.class));
     }
 
     public class SaveActionListener implements ActionListener {

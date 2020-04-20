@@ -142,9 +142,12 @@ public class EntityInspector {
     }
 
     public String toHumanReadable(Field field) {
-        String str = WordUtils.capitalize(field.getName());
+        return toHumanReadable(field.getName());
+    }
+
+    public static String toHumanReadable(String label) {
         Pattern pattern = Pattern.compile("(?=\\p{Lu})");
-        String[] splits = pattern.split(str);
+        String[] splits = pattern.split(WordUtils.capitalize(label));
         StringBuilder result = new StringBuilder();
         result.append(splits[0]);
         for (int idx = 1; idx < splits.length; idx++) {
