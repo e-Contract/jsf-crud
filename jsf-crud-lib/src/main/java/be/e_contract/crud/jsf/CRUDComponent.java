@@ -18,6 +18,8 @@
 package be.e_contract.crud.jsf;
 
 import java.lang.reflect.Field;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.LinkedList;
@@ -31,6 +33,7 @@ import org.primefaces.component.datatable.DataTable;
 import java.util.List;
 import java.util.Map;
 import javax.el.ELResolver;
+import javax.el.FunctionMapper;
 import javax.el.MethodExpression;
 import javax.el.ValueExpression;
 import javax.faces.application.FacesMessage;
@@ -431,6 +434,14 @@ public class CRUDComponent extends UINamingContainer implements SystemEventListe
                     deleteDialog.getChildren().add(entityComponent);
                     entityComponent.setVar("entity");
                     HtmlOutputText htmlOutputText = (HtmlOutputText) application.createComponent(HtmlOutputText.COMPONENT_TYPE);
+
+                    try {
+                        registerToHumanReadableFunction(elContext);
+                    } catch (NoSuchMethodException | IllegalAccessException | IllegalArgumentException | InvocationTargetException ex) {
+                        LOGGER.error("reflection error: " + ex.getMessage(), ex);
+                        throw new AbortProcessingException();
+                    }
+
                     ValueExpression deleteOutputTextValueExpression = expressionFactory.createValueExpression(elContext, "Do you want to delete #{crud:toHumanReadable(entity)} ?", String.class);
                     htmlOutputText.setValueExpression("value", deleteOutputTextValueExpression);
                     entityComponent.getChildren().add(htmlOutputText);
@@ -594,6 +605,30 @@ public class CRUDComponent extends UINamingContainer implements SystemEventListe
             dismissCommandButton.setValue("Dismiss");
             dismissCommandButton.setOncomplete("PF('deleteAllDialog').hide()");
         }
+    }
+
+    private void registerToHumanReadableFunction(ELContext elContext) throws NoSuchMethodException, IllegalAccessException, IllegalArgumentException, InvocationTargetException {
+        Method mapFunctionMethod = null;
+        Method[] methods = FunctionMapper.class.getMethods();
+        for (Method method : methods) {
+            if (method.getName().equals("mapFunction")) {
+                mapFunctionMethod = method;
+                break;
+            }
+        }
+        if (null == mapFunctionMethod) {
+            // not available on JBoss EAP 6.4.22
+            return;
+        }
+
+        Method toHumanReadableMethod = CRUDFunctions.class.getMethod("toHumanReadable", new Class[]{Object.class});
+        FunctionMapper functionMapper = elContext.getFunctionMapper();
+        if (null == functionMapper) {
+            // open liberty
+            LOGGER.warn("missing FunctionMapper");
+            return;
+        }
+        mapFunctionMethod.invoke(functionMapper, "crud", "toHumanReadable", toHumanReadableMethod);
     }
 
     private void reloadId(UIComponent component) {

@@ -18,7 +18,7 @@
         </dependency>
         <dependency>
             <groupId>org.jboss.spec</groupId>
-            <artifactId>jboss-javaee-all-6.0</artifactId>
+            <artifactId>jboss-javaee-all-7.0</artifactId>
             <optional>true</optional>
         </dependency>
         <dependency>
