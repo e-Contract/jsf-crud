@@ -219,6 +219,11 @@
             <name>label</name>
             <type>java.lang.String</type>
         </attribute>
+        <attribute>
+            <description>Set to true to sort the property within the CRUD table.</description>
+            <name>sort</name>
+            <type>java.lang.Boolean</type>
+        </attribute>
     </tag>
 
     <function>

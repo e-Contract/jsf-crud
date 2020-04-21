@@ -760,12 +760,16 @@ public class CRUDComponent extends UINamingContainer implements CreateSource, Up
 
         Column column = (Column) application.createComponent(Column.COMPONENT_TYPE);
         dataTable.getChildren().add(column);
+        column.setId(property.getName() + "Column");
 
         String propertyLabel = property.getLabel();
         if (UIInput.isEmpty(propertyLabel)) {
             propertyLabel = EntityInspector.toHumanReadable(property.getName());
         }
         column.setHeaderText(propertyLabel);
+        if (property.isSort()) {
+            column.setValueExpression("sortBy", expressionFactory.createValueExpression(elContext, "#{row." + property.getName() + "}", String.class));
+        }
 
         HtmlOutputText outputText = (HtmlOutputText) application.createComponent(HtmlOutputText.COMPONENT_TYPE);
         column.getChildren().add(outputText);

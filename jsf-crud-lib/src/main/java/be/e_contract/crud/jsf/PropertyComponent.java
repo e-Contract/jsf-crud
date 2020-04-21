@@ -28,6 +28,7 @@ public class PropertyComponent extends UIComponentBase {
     public enum PropertyKeys {
         name,
         label,
+        sort,
     }
 
     @Override
@@ -49,5 +50,17 @@ public class PropertyComponent extends UIComponentBase {
 
     public void setLabel(String label) {
         getStateHelper().put(PropertyKeys.label, label);
+    }
+
+    public boolean isSort() {
+        Boolean sort = (Boolean) getStateHelper().get(PropertyKeys.sort);
+        if (null == sort) {
+            return false;
+        }
+        return sort;
+    }
+
+    public void setSort(boolean sort) {
+        getStateHelper().put(PropertyKeys.sort, sort);
     }
 }
