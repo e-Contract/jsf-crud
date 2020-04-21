@@ -4,9 +4,10 @@ JSF CRUD Project
 The JSF CRUD Project delivers a JSF component, based on PrimeFaces, to perform simple CRUD operations on JPA entities.
 The component has been tested on the following application servers:
 * JBoss EAP 6.4.22
+* JBoss EAP 7.3.0
 * WildFly 19.0.0
 * Payara 5.201
-* Open Liberty 20.0.0.4
+* Open Liberty 20.0.0.4 (EL FunctionMapper not available)
 
 The component has been tested with PrimeFaces versions:
 * 7.0
