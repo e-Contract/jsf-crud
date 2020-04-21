@@ -738,9 +738,8 @@ public class CRUDComponent extends UINamingContainer implements CreateSource, Up
 
         Column column = (Column) application.createComponent(Column.COMPONENT_TYPE);
         dataTable.getChildren().add(column);
+        column.setId(field.getName() + "Column");
         if (isSortField(field, fields)) {
-            LOGGER.debug("setting sortBy");
-            // gives a nasty NPE
             column.setValueExpression("sortBy", expressionFactory.createValueExpression(elContext, "#{row." + field.getName() + "}", String.class));
         }
 
@@ -837,6 +836,21 @@ public class CRUDComponent extends UINamingContainer implements CreateSource, Up
         facesContext.addMessage(dataTableClientId, new FacesMessage(severity, message, null));
     }
 
+    public void resetCache() {
+        resetCache(this);
+    }
+
+    public void resetCache(UIComponent component) {
+        for (UIComponent child : component.getChildren()) {
+            if (child instanceof DataTable) {
+                ValueExpression valueExpression = child.getValueExpression("value");
+                EntityValueExpression entityValueExpression = (EntityValueExpression) valueExpression;
+                entityValueExpression.resetCache();
+            }
+            resetCache(child);
+        }
+    }
+
     public class AddActionListener implements ActionListener {
 
         private final EntityInspector entityInspector;
@@ -882,6 +896,7 @@ public class CRUDComponent extends UINamingContainer implements CreateSource, Up
 
             CreateEvent createEvent = new CreateEvent(CRUDComponent.this, entity);
             createEvent.queue();
+            CRUDComponent.this.resetCache();
         }
     }
 
@@ -923,6 +938,7 @@ public class CRUDComponent extends UINamingContainer implements CreateSource, Up
             }
 
             CRUDComponent.this.addMessage(FacesMessage.SEVERITY_INFO, "Deleted " + count + " entries.");
+            CRUDComponent.this.resetCache();
         }
     }
 
@@ -976,6 +992,7 @@ public class CRUDComponent extends UINamingContainer implements CreateSource, Up
 
             DeleteEvent deleteEvent = new DeleteEvent(CRUDComponent.this, entity);
             deleteEvent.queue();
+            CRUDComponent.this.resetCache();
         }
     }
 

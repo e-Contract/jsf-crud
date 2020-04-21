@@ -11,9 +11,6 @@
     <h:body>
         <h1>JSF CRUD Demo</h1>
         <p:growl widgetVar="growl"/>
-        <p>
-            Add two entities, then click the "Id" sort to get the NPE.
-        </p>
         <crud:crud entity="AutoIdEntity" title="A fancy title!" orderBy="amount">
             <crud:create/>
             <crud:read/>

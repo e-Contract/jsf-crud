@@ -18,11 +18,13 @@
 package be.e_contract.crud.jsf;
 
 import java.util.List;
+import java.util.Map;
 import javax.el.ELContext;
 import javax.el.ExpressionFactory;
 import javax.el.ValueExpression;
 import javax.faces.application.Application;
 import javax.faces.component.UIInput;
+import javax.faces.component.UIViewRoot;
 import javax.faces.context.FacesContext;
 import javax.persistence.EntityManager;
 import javax.persistence.Query;
@@ -50,7 +52,16 @@ public class EntityValueExpression extends ValueExpression {
 
     @Override
     public Object getValue(ELContext context) {
+        LOGGER.debug("getValue");
         FacesContext facesContext = FacesContext.getCurrentInstance();
+        UIViewRoot viewRoot = facesContext.getViewRoot();
+        Map<String, Object> viewMap = viewRoot.getViewMap();
+        String key = EntityValueExpression.class.getName();
+        Object cachedObject = viewMap.get(key);
+        if (null != cachedObject) {
+            return cachedObject;
+        }
+
         Application application = facesContext.getApplication();
         ExpressionFactory expressionFactory = application.getExpressionFactory();
         ValueExpression valueExpression = expressionFactory.createValueExpression(context, "#{crudController}", CRUDController.class);
@@ -76,7 +87,18 @@ public class EntityValueExpression extends ValueExpression {
             LOGGER.error("error: " + ex.getMessage(), ex);
             return null;
         }
+
+        viewMap.put(key, resultList);
         return resultList;
+    }
+
+    public void resetCache() {
+        LOGGER.debug("resetCache");
+        FacesContext facesContext = FacesContext.getCurrentInstance();
+        UIViewRoot viewRoot = facesContext.getViewRoot();
+        Map<String, Object> viewMap = viewRoot.getViewMap();
+        String key = EntityValueExpression.class.getName();
+        viewMap.remove(key);
     }
 
     @Override
