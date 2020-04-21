@@ -29,6 +29,7 @@ public class PropertyComponent extends UIComponentBase {
         name,
         label,
         sort,
+        filter,
     }
 
     @Override
@@ -62,5 +63,17 @@ public class PropertyComponent extends UIComponentBase {
 
     public void setSort(boolean sort) {
         getStateHelper().put(PropertyKeys.sort, sort);
+    }
+
+    public boolean isFilter() {
+        Boolean filter = (Boolean) getStateHelper().get(PropertyKeys.filter);
+        if (null == filter) {
+            return false;
+        }
+        return filter;
+    }
+
+    public void setFilter(boolean filter) {
+        getStateHelper().put(PropertyKeys.filter, filter);
     }
 }

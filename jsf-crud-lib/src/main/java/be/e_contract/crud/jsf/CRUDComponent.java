@@ -601,6 +601,14 @@ public class CRUDComponent extends UINamingContainer implements CreateSource, Up
         return fieldComponent.isSort();
     }
 
+    private boolean isFilterField(Field entityField, Map<String, FieldComponent> fields) {
+        FieldComponent fieldComponent = fields.get(entityField.getName());
+        if (null == fieldComponent) {
+            return false;
+        }
+        return fieldComponent.isFilter();
+    }
+
     private void addInputComponent(Field entityField, boolean addNotUpdate, EntityInspector entityInspector, Map<String, FieldComponent> fields, HtmlPanelGrid htmlPanelGrid) {
         FacesContext facesContext = FacesContext.getCurrentInstance();
         Application application = facesContext.getApplication();
@@ -742,6 +750,10 @@ public class CRUDComponent extends UINamingContainer implements CreateSource, Up
         if (isSortField(field, fields)) {
             column.setValueExpression("sortBy", expressionFactory.createValueExpression(elContext, "#{row." + field.getName() + "}", String.class));
         }
+        if (isFilterField(field, fields)) {
+            column.setValueExpression("filterBy", expressionFactory.createValueExpression(elContext, "#{row." + field.getName() + "}", String.class));
+            column.setFilterMatchMode("contains");
+        }
 
         String fieldLabel = getFieldLabel(field, entityInspector, fields);
         column.setHeaderText(fieldLabel);
@@ -769,6 +781,10 @@ public class CRUDComponent extends UINamingContainer implements CreateSource, Up
         column.setHeaderText(propertyLabel);
         if (property.isSort()) {
             column.setValueExpression("sortBy", expressionFactory.createValueExpression(elContext, "#{row." + property.getName() + "}", String.class));
+        }
+        if (property.isFilter()) {
+            column.setValueExpression("filterBy", expressionFactory.createValueExpression(elContext, "#{row." + property.getName() + "}", String.class));
+            column.setFilterMatchMode("contains");
         }
 
         HtmlOutputText outputText = (HtmlOutputText) application.createComponent(HtmlOutputText.COMPONENT_TYPE);

@@ -22,7 +22,8 @@
             <crud:field name="id" sort="true"/>
             <crud:field name="created" label="Creation Date"/>
             <crud:field name="threeValuedLogic" hide="true"/>
-            <crud:property name="myProperty" sort="true"/>
+            <crud:field name="description" filter="true"/>
+            <crud:property name="myProperty" sort="true" filter="true"/>
             <crud:action value="Custom Action" action="#{demoController.action}"/>
             <crud:action value="Action 2" action="#{demoController.messagingAction}"
                          oncomplete="PF('growl').renderMessage({'summary':'hello world'})"/>
