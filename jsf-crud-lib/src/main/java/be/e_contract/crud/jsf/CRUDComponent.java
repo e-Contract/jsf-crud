@@ -47,9 +47,9 @@ import javax.faces.component.html.HtmlPanelGrid;
 import javax.faces.component.html.HtmlPanelGroup;
 import javax.faces.event.ActionEvent;
 import javax.faces.event.ActionListener;
-import javax.faces.event.ComponentSystemEvent;
-import javax.faces.event.ListenerFor;
 import javax.faces.event.PostAddToViewEvent;
+import javax.faces.event.SystemEvent;
+import javax.faces.event.SystemEventListener;
 import javax.faces.validator.LengthValidator;
 import javax.persistence.Basic;
 import javax.persistence.EntityManager;
@@ -79,15 +79,25 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 @FacesComponent(CRUDComponent.COMPONENT_TYPE)
-@ListenerFor(systemEventClass = PostAddToViewEvent.class)
 @ResourceDependencies(value = {
     @ResourceDependency(library = "crud", name = "crud.js")
 })
-public class CRUDComponent extends UINamingContainer implements CreateSource, UpdateSource, DeleteSource {
+public class CRUDComponent extends UINamingContainer implements SystemEventListener, CreateSource, UpdateSource, DeleteSource {
 
     public static final String COMPONENT_TYPE = "crud.crud";
 
     private static final Logger LOGGER = LoggerFactory.getLogger(CRUDComponent.class);
+
+    public CRUDComponent() {
+        FacesContext facesContext = FacesContext.getCurrentInstance();
+        UIViewRoot viewRoot = facesContext.getViewRoot();
+        viewRoot.subscribeToViewEvent(PostAddToViewEvent.class, this);
+    }
+
+    @Override
+    public boolean isListenerForSource(Object source) {
+        return (source instanceof UIViewRoot);
+    }
 
     public enum PropertyKeys {
         entity,
@@ -150,7 +160,7 @@ public class CRUDComponent extends UINamingContainer implements CreateSource, Up
     }
 
     @Override
-    public void processEvent(ComponentSystemEvent event) throws AbortProcessingException {
+    public void processEvent(SystemEvent event) throws AbortProcessingException {
         if (!(event instanceof PostAddToViewEvent)) {
             return;
         }
