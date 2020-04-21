@@ -214,5 +214,11 @@
                 <jta-data-source>jdbc/h2</jta-data-source>
             </properties>
         </profile>
+        <profile>
+            <id>weblogic</id>
+            <properties>
+                <jta-data-source>java:comp/DefaultDataSource</jta-data-source>
+            </properties>
+        </profile>
     </profiles>
 </project>

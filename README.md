@@ -7,6 +7,7 @@ The component has been tested on the following application servers:
 * JBoss EAP 7.3.0
 * WildFly 19.0.0
 * Payara 5.201
+* Oracle WebLogic Server 14.1.1
 * Open Liberty 20.0.0.4 (EL FunctionMapper not available)
 
 The component has been tested with PrimeFaces versions:
@@ -39,7 +40,7 @@ Within a JSF page you can now add the following:
 ```
 xmlns:crud="urn:be:e-contract:crud:jsf"
 ...
-<crud:crud entity="the.full.class.name.of.YourEntity"/>
+<crud:crud entity="YourEntity"/>
 ```
 It cannot get easier than this.
 
