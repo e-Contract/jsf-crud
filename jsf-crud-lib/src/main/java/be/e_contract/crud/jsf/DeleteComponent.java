@@ -30,6 +30,7 @@ public class DeleteComponent extends UIComponentBase {
     public enum PropertyKeys {
         disabled,
         deleteAll,
+        title,
     }
 
     @Override
@@ -59,6 +60,14 @@ public class DeleteComponent extends UIComponentBase {
 
     public void setDeleteAll(boolean deleteAll) {
         getStateHelper().put(PropertyKeys.deleteAll, deleteAll);
+    }
+
+    public void setTitle(String title) {
+        getStateHelper().put(PropertyKeys.title, title);
+    }
+
+    public String getTitle() {
+        return (String) getStateHelper().eval(PropertyKeys.title);
     }
 
     @Override

@@ -15,7 +15,11 @@
             <crud:create/>
             <crud:read/>
             <crud:update disabled="false"/>
-            <crud:delete deleteAll="true"/>
+            <crud:delete deleteAll="true" title="Custom delete title">
+                <crud:entity var="entity">
+                    <h:outputText value="Custom delete message for #{crud:toHumanReadable(entity)}"/>
+                </crud:entity>
+            </crud:delete>
             <crud:createListener action="#{demoController.created}"/>
             <crud:updateListener action="#{demoController.updated}"/>
             <crud:deleteListener action="#{demoController.deleted}"/>

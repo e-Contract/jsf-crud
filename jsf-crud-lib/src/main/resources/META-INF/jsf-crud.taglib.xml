@@ -82,6 +82,11 @@
             <name>deleteAll</name>
             <type>java.lang.Boolean</type>
         </attribute>
+        <attribute>
+            <description>Optional title of the delete dialog.</description>
+            <name>title</name>
+            <type>java.lang.String</type>
+        </attribute>
     </tag>
     
     <tag>

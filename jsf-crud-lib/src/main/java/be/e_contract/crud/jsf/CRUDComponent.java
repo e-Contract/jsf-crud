@@ -161,17 +161,8 @@ public class CRUDComponent extends UINamingContainer implements SystemEventListe
 
     @Override
     public void processEvent(SystemEvent event) throws AbortProcessingException {
-        if (!(event instanceof PostAddToViewEvent)) {
-            return;
-        }
-
         FacesContext facesContext = FacesContext.getCurrentInstance();
-        if (facesContext.isValidationFailed()) {
-            return;
-        }
-
         LOGGER.debug("constructing component");
-
         Application application = facesContext.getApplication();
         ExpressionFactory expressionFactory = application.getExpressionFactory();
         ELContext elContext = facesContext.getELContext();
@@ -251,15 +242,16 @@ public class CRUDComponent extends UINamingContainer implements SystemEventListe
 
         Spacer spacer = (Spacer) application.createComponent(Spacer.COMPONENT_TYPE);
         htmlForm.getChildren().add(spacer);
+        spacer.setId("spacer");
         spacer.setHeight("5px");
 
         DataTable dataTable = (DataTable) application.createComponent(DataTable.COMPONENT_TYPE);
         htmlForm.getChildren().add(dataTable);
+        dataTable.setId("table");
 
         ValueExpression valueExpression = new EntityValueExpression(entityClass, getOrderBy());
         dataTable.setValueExpression("value", valueExpression);
         dataTable.setVar("row");
-        dataTable.setId("table");
         dataTable.setResizableColumns(true);
         dataTable.setTableStyle("table-layout: auto !important;");
         List entityList = (List) valueExpression.getValue(elContext);
@@ -271,6 +263,7 @@ public class CRUDComponent extends UINamingContainer implements SystemEventListe
         if (!UIInput.isEmpty(getTitle())) {
             HtmlOutputText headerOutputText = (HtmlOutputText) application.createComponent(HtmlOutputText.COMPONENT_TYPE);
             dataTable.getFacets().put("header", headerOutputText);
+            headerOutputText.setId("title");
             headerOutputText.setValue(getTitle());
         }
 
@@ -412,11 +405,28 @@ public class CRUDComponent extends UINamingContainer implements SystemEventListe
                 Dialog deleteDialog = (Dialog) application.createComponent(Dialog.COMPONENT_TYPE);
                 getChildren().add(deleteDialog);
                 deleteDialog.setWidgetVar("deleteDialog");
-                deleteDialog.setHeader("Delete " + entityName);
+                String deleteDialogHeader = null;
+                if (null != deleteComponent) {
+                    deleteDialogHeader = deleteComponent.getTitle();
+                }
+                if (null == deleteDialogHeader) {
+                    deleteDialogHeader = "Delete " + entityName;
+                }
+                deleteDialog.setHeader(deleteDialogHeader);
                 deleteDialog.setId("deleteDialog");
                 deleteDialog.setModal(true);
 
-                {
+                if (null != deleteComponent && deleteComponent.getChildCount() > 0) {
+                    List<UIComponent> deleteChildren = new LinkedList<>(deleteComponent.getChildren());
+                    deleteComponent.getChildren().clear();
+                    ContainerComponent containerComponent = (ContainerComponent) application.createComponent(ContainerComponent.COMPONENT_TYPE);
+                    containerComponent.setId("container");
+                    deleteDialog.getChildren().add(containerComponent);
+                    for (UIComponent deleteChild : deleteChildren) {
+                        containerComponent.getChildren().add(deleteChild);
+                        reloadId(deleteChild);
+                    }
+                } else {
                     EntityComponent entityComponent = (EntityComponent) application.createComponent(EntityComponent.COMPONENT_TYPE);
                     deleteDialog.getChildren().add(entityComponent);
                     entityComponent.setVar("entity");
@@ -445,6 +455,7 @@ public class CRUDComponent extends UINamingContainer implements SystemEventListe
                 CommandButton dismissCommandButton = (CommandButton) application.createComponent(CommandButton.COMPONENT_TYPE);
                 htmlPanelGrid.getChildren().add(dismissCommandButton);
                 dismissCommandButton.setValue("Dismiss");
+                dismissCommandButton.setId("dismissButton");
                 dismissCommandButton.setOncomplete("PF('deleteDialog').hide()");
 
                 commandButton.setUpdate(deleteDialog.getClientId() + "," + message.getClientId());
@@ -585,6 +596,13 @@ public class CRUDComponent extends UINamingContainer implements SystemEventListe
         }
     }
 
+    private void reloadId(UIComponent component) {
+        component.setId(component.getId());
+        for (UIComponent child : component.getChildren()) {
+            reloadId(child);
+        }
+    }
+
     private String getFieldLabel(Field entityField, EntityInspector entityInspector, Map<String, FieldComponent> fields) {
         FieldComponent fieldComponent = fields.get(entityField.getName());
         if (null != fieldComponent) {
@@ -643,8 +661,6 @@ public class CRUDComponent extends UINamingContainer implements SystemEventListe
             input = (SelectOneMenu) application.createComponent(SelectOneMenu.COMPONENT_TYPE);
             SelectOneMenu selectOneMenu = (SelectOneMenu) input;
             selectOneMenu.setDisabled(disabled);
-            // https://github.com/primefaces/primefaces/issues/5809
-            //selectOneMenu.setEditable(true);
             UISelectItem emptySelectItem = (UISelectItem) application.createComponent(UISelectItem.COMPONENT_TYPE);
             input.getChildren().add(emptySelectItem);
             input.setConverter(new EntityConverter(entityField.getType()));
