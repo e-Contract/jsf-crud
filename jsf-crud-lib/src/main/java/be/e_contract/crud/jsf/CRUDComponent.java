@@ -704,7 +704,6 @@ public class CRUDComponent extends UINamingContainer implements SystemEventListe
     private void addInputComponent(Field entityField, boolean addNotUpdate, EntityInspector entityInspector, Map<String, FieldComponent> fields, HtmlPanelGrid htmlPanelGrid) {
         FacesContext facesContext = FacesContext.getCurrentInstance();
         Application application = facesContext.getApplication();
-        ExpressionFactory expressionFactory = application.getExpressionFactory();
 
         String fieldLabel = getFieldLabel(entityField, entityInspector, fields);
 
@@ -729,9 +728,7 @@ public class CRUDComponent extends UINamingContainer implements SystemEventListe
             input.getChildren().add(emptySelectItem);
             input.setConverter(new EntityConverter(entityField.getType()));
 
-            ELContext context = facesContext.getELContext();
-            ValueExpression valueExpression = expressionFactory.createValueExpression(context, "#{crudController}", CRUDController.class);
-            CRUDController crudController = (CRUDController) valueExpression.getValue(context);
+            CRUDController crudController = CRUDController.getCRUDController();
             EntityManager entityManager = crudController.getEntityManager();
 
             EntityInspector otherEntityInspector = new EntityInspector(entityField.getType());
@@ -894,12 +891,7 @@ public class CRUDComponent extends UINamingContainer implements SystemEventListe
         public void processAction(ActionEvent event) throws AbortProcessingException {
             LOGGER.debug("processAction save");
 
-            FacesContext facesContext = FacesContext.getCurrentInstance();
-            ELContext context = facesContext.getELContext();
-            Application application = facesContext.getApplication();
-            ExpressionFactory expressionFactory = application.getExpressionFactory();
-            ValueExpression valueExpression = expressionFactory.createValueExpression(context, "#{crudController}", CRUDController.class);
-            CRUDController crudController = (CRUDController) valueExpression.getValue(context);
+            CRUDController crudController = CRUDController.getCRUDController();
             EntityManager entityManager = crudController.getEntityManager();
             UserTransaction userTransaction = crudController.getUserTransaction();
 
@@ -980,12 +972,7 @@ public class CRUDComponent extends UINamingContainer implements SystemEventListe
         public void processAction(ActionEvent event) throws AbortProcessingException {
             LOGGER.debug("processAction add");
 
-            FacesContext facesContext = FacesContext.getCurrentInstance();
-            ELContext context = facesContext.getELContext();
-            Application application = facesContext.getApplication();
-            ExpressionFactory expressionFactory = application.getExpressionFactory();
-            ValueExpression valueExpression = expressionFactory.createValueExpression(context, "#{crudController}", CRUDController.class);
-            CRUDController crudController = (CRUDController) valueExpression.getValue(context);
+            CRUDController crudController = CRUDController.getCRUDController();
             EntityManager entityManager = crudController.getEntityManager();
             UserTransaction userTransaction = crudController.getUserTransaction();
 
@@ -1026,12 +1013,8 @@ public class CRUDComponent extends UINamingContainer implements SystemEventListe
 
         @Override
         public void processAction(ActionEvent event) throws AbortProcessingException {
-            FacesContext facesContext = FacesContext.getCurrentInstance();
-            ELContext context = facesContext.getELContext();
-            Application application = facesContext.getApplication();
-            ExpressionFactory expressionFactory = application.getExpressionFactory();
-            ValueExpression valueExpression = expressionFactory.createValueExpression(context, "#{crudController}", CRUDController.class);
-            CRUDController crudController = (CRUDController) valueExpression.getValue(context);
+
+            CRUDController crudController = CRUDController.getCRUDController();
             EntityManager entityManager = crudController.getEntityManager();
             UserTransaction userTransaction = crudController.getUserTransaction();
 
@@ -1071,12 +1054,7 @@ public class CRUDComponent extends UINamingContainer implements SystemEventListe
             LOGGER.debug("processAction DeleteActionListener");
             LOGGER.debug("delete: {}", CRUDComponent.this.getSelection());
 
-            FacesContext facesContext = FacesContext.getCurrentInstance();
-            ELContext context = facesContext.getELContext();
-            Application application = facesContext.getApplication();
-            ExpressionFactory expressionFactory = application.getExpressionFactory();
-            ValueExpression valueExpression = expressionFactory.createValueExpression(context, "#{crudController}", CRUDController.class);
-            CRUDController crudController = (CRUDController) valueExpression.getValue(context);
+            CRUDController crudController = CRUDController.getCRUDController();
             EntityManager entityManager = crudController.getEntityManager();
             UserTransaction userTransaction = crudController.getUserTransaction();
 

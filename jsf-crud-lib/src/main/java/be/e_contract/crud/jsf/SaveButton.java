@@ -18,9 +18,7 @@
 package be.e_contract.crud.jsf;
 
 import javax.el.ELContext;
-import javax.el.ExpressionFactory;
 import javax.el.MethodExpression;
-import javax.el.ValueExpression;
 import javax.faces.application.Application;
 import javax.faces.component.FacesComponent;
 import javax.faces.component.StateHolder;
@@ -147,10 +145,7 @@ public class SaveButton extends UIComponentBase implements SystemEventListener {
 
             }
 
-            Application application = facesContext.getApplication();
-            ExpressionFactory expressionFactory = application.getExpressionFactory();
-            ValueExpression valueExpression = expressionFactory.createValueExpression(elContext, "#{crudController}", CRUDController.class);
-            CRUDController crudController = (CRUDController) valueExpression.getValue(elContext);
+            CRUDController crudController = CRUDController.getCRUDController();
             EntityManager entityManager = crudController.getEntityManager();
             UserTransaction userTransaction = crudController.getUserTransaction();
 

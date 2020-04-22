@@ -21,9 +21,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import javax.el.ELContext;
-import javax.el.ExpressionFactory;
 import javax.el.ValueExpression;
-import javax.faces.application.Application;
 import javax.faces.component.UIInput;
 import javax.faces.component.UIViewRoot;
 import javax.faces.context.FacesContext;
@@ -72,10 +70,7 @@ public class EntityValueExpression extends ValueExpression {
             viewMap.put(key, entityViewMap);
         }
 
-        Application application = facesContext.getApplication();
-        ExpressionFactory expressionFactory = application.getExpressionFactory();
-        ValueExpression valueExpression = expressionFactory.createValueExpression(context, "#{crudController}", CRUDController.class);
-        CRUDController crudController = (CRUDController) valueExpression.getValue(context);
+        CRUDController crudController = CRUDController.getCRUDController();
         EntityManager entityManager = crudController.getEntityManager();
         UserTransaction userTransaction = crudController.getUserTransaction();
 
