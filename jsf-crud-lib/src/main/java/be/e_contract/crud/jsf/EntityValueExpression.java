@@ -17,6 +17,7 @@
  */
 package be.e_contract.crud.jsf;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import javax.el.ELContext;
@@ -45,8 +46,11 @@ public class EntityValueExpression extends ValueExpression {
 
     private final String orderBy;
 
-    public EntityValueExpression(Class<?> entityClass, String orderBy) {
+    private final String id;
+
+    public EntityValueExpression(Class<?> entityClass, String id, String orderBy) {
         this.entityClass = entityClass;
+        this.id = id;
         this.orderBy = orderBy;
     }
 
@@ -57,9 +61,15 @@ public class EntityValueExpression extends ValueExpression {
         UIViewRoot viewRoot = facesContext.getViewRoot();
         Map<String, Object> viewMap = viewRoot.getViewMap();
         String key = EntityValueExpression.class.getName();
-        Object cachedObject = viewMap.get(key);
-        if (null != cachedObject) {
-            return cachedObject;
+        Map<String, Object> entityViewMap = (Map<String, Object>) viewMap.get(key);
+        if (null != entityViewMap) {
+            Object cachedObject = entityViewMap.get(this.id);
+            if (null != cachedObject) {
+                return cachedObject;
+            }
+        } else {
+            entityViewMap = new HashMap<>();
+            viewMap.put(key, entityViewMap);
         }
 
         Application application = facesContext.getApplication();
@@ -88,7 +98,7 @@ public class EntityValueExpression extends ValueExpression {
             return null;
         }
 
-        viewMap.put(key, resultList);
+        entityViewMap.put(this.id, resultList);
         return resultList;
     }
 
@@ -98,7 +108,13 @@ public class EntityValueExpression extends ValueExpression {
         UIViewRoot viewRoot = facesContext.getViewRoot();
         Map<String, Object> viewMap = viewRoot.getViewMap();
         String key = EntityValueExpression.class.getName();
-        viewMap.remove(key);
+        Map<String, Object> entityViewMap = (Map<String, Object>) viewMap.get(key);
+        if (null != entityViewMap) {
+            entityViewMap.remove(this.id);
+            if (entityViewMap.isEmpty()) {
+                viewMap.remove(key);
+            }
+        }
     }
 
     @Override

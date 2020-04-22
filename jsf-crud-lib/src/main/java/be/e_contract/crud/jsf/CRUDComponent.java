@@ -252,7 +252,7 @@ public class CRUDComponent extends UINamingContainer implements SystemEventListe
         htmlForm.getChildren().add(dataTable);
         dataTable.setId("table");
 
-        ValueExpression valueExpression = new EntityValueExpression(entityClass, getOrderBy());
+        ValueExpression valueExpression = new EntityValueExpression(entityClass, getId(), getOrderBy());
         dataTable.setValueExpression("value", valueExpression);
         dataTable.setVar("row");
         dataTable.setResizableColumns(true);
