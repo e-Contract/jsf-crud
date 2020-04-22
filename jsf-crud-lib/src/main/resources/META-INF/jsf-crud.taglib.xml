@@ -248,6 +248,20 @@
             <component-type>crud.dismissButton</component-type>
         </component>
     </tag>
+    
+    <tag>
+        <description>A dialog entity save button.</description>
+        <tag-name>saveButton</tag-name>
+        <component>
+            <component-type>crud.saveButton</component-type>
+            <handler-class>be.e_contract.crud.jsf.SaveTagHandler</handler-class>
+        </component>
+        <attribute>
+            <description>The optional action method to invoke.</description>
+            <name>action</name>
+            <type>javax.el.MethodExpression</type>
+        </attribute>
+    </tag>
 
     <function>
         <function-name>toHumanReadable</function-name>

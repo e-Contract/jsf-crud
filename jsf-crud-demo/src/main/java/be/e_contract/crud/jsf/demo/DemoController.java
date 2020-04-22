@@ -20,15 +20,20 @@ package be.e_contract.crud.jsf.demo;
 import be.e_contract.crud.jsf.CreateEvent;
 import be.e_contract.crud.jsf.DeleteEvent;
 import be.e_contract.crud.jsf.UpdateEvent;
+import java.io.Serializable;
+import javax.enterprise.context.SessionScoped;
 import javax.faces.application.FacesMessage;
 import javax.inject.Named;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 @Named("demoController")
-public class DemoController {
+@SessionScoped
+public class DemoController implements Serializable {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(DemoController.class);
+
+    private int amount;
 
     public void created(CreateEvent createEvent) {
         LOGGER.debug("created: {}", createEvent.getEntity());
@@ -67,5 +72,18 @@ public class DemoController {
     public String navigationAction(DemoEntity entity) {
         LOGGER.debug("entity: {}", entity.getName());
         return "/demo";
+    }
+
+    public int getAmount() {
+        return this.amount;
+    }
+
+    public void setAmount(int amount) {
+        this.amount = amount;
+    }
+
+    public void addAmount(AutoIdEntity entity) {
+        LOGGER.debug("add amount: {}", this.amount);
+        entity.setAmount(entity.getAmount() + this.amount);
     }
 }

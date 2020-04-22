@@ -39,12 +39,15 @@
         <p:dialog id="customDialog" widgetVar="customDialog" header="Custom Dialog">
             <crud:entity var="entity">
                 <h:form>
-                    <h:panelGrid columns="1">
-                        <h:outputText value='Custom action on #{entity.id} ?'/>
+                    <h:panelGrid columns="2">
+                        <h:outputText value="Entity"/>
+                        <h:outputText value='#{entity.id}'/>
+
+                        <h:outputText value="Add amount"/>
+                        <p:inputText value="#{demoController.amount}"/>
                     </h:panelGrid>
                     <h:panelGrid columns="2">
-                        <p:commandButton value="Action" action="#{demoController.action(entity)}"
-                                         oncomplete="PF('customDialog').hide()"/>
+                        <crud:saveButton action="#{demoController.addAmount}"/>
                         <crud:dismissButton/>
                     </h:panelGrid>
                 </h:form>
