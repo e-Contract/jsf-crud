@@ -26,6 +26,7 @@ import javax.faces.component.FacesComponent;
 import javax.faces.component.StateHolder;
 import javax.faces.component.UIComponent;
 import javax.faces.component.UIComponentBase;
+import javax.faces.component.UIInput;
 import javax.faces.component.UIViewRoot;
 import javax.faces.context.FacesContext;
 import javax.faces.event.AbortProcessingException;
@@ -55,6 +56,7 @@ public class SaveButton extends UIComponentBase implements SystemEventListener {
 
     public enum PropertyKeys {
         action,
+        value,
     }
 
     public SaveButton() {
@@ -76,6 +78,14 @@ public class SaveButton extends UIComponentBase implements SystemEventListener {
         return (MethodExpression) getStateHelper().eval(PropertyKeys.action);
     }
 
+    public void setValue(String value) {
+        getStateHelper().put(PropertyKeys.value, value);
+    }
+
+    public String getValue() {
+        return (String) getStateHelper().eval(PropertyKeys.value);
+    }
+
     @Override
     public boolean isListenerForSource(Object source) {
         return (source instanceof UIViewRoot);
@@ -89,7 +99,11 @@ public class SaveButton extends UIComponentBase implements SystemEventListener {
         CommandButton commandButton = (CommandButton) application.createComponent(CommandButton.COMPONENT_TYPE);
         getChildren().add(commandButton);
         commandButton.setId("saveButton");
-        commandButton.setValue("Save");
+        String commandButtonValue = getValue();
+        if (UIInput.isEmpty(commandButtonValue)) {
+            commandButtonValue = "Save";
+        }
+        commandButton.setValue(commandButtonValue);
         commandButton.addActionListener(new SaveActionListener(getAction()));
         String dialogWidgetVar = getDialogWidgetVar();
         commandButton.setOncomplete("PF('" + dialogWidgetVar + "').hide()");

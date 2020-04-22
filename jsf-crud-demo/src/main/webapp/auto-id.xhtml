@@ -47,8 +47,8 @@
                         <p:inputText value="#{demoController.amount}"/>
                     </h:panelGrid>
                     <h:panelGrid columns="2">
-                        <crud:saveButton action="#{demoController.addAmount}"/>
-                        <crud:dismissButton/>
+                        <crud:saveButton action="#{demoController.addAmount}" value="Add amount"/>
+                        <crud:dismissButton value="Close"/>
                     </h:panelGrid>
                 </h:form>
             </crud:entity>

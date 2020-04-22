@@ -247,6 +247,11 @@
         <component>
             <component-type>crud.dismissButton</component-type>
         </component>
+        <attribute>
+            <description>The optional dismiss button text.</description>
+            <name>value</name>
+            <type>java.lang.String</type>
+        </attribute>
     </tag>
     
     <tag>
@@ -260,6 +265,11 @@
             <description>The optional action method to invoke.</description>
             <name>action</name>
             <type>javax.el.MethodExpression</type>
+        </attribute>
+        <attribute>
+            <description>The optional save button text.</description>
+            <name>value</name>
+            <type>java.lang.String</type>
         </attribute>
     </tag>
 

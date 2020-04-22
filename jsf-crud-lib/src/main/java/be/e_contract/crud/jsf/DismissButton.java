@@ -20,6 +20,7 @@ package be.e_contract.crud.jsf;
 import java.io.IOException;
 import javax.faces.component.FacesComponent;
 import javax.faces.component.UIComponent;
+import javax.faces.component.UIInput;
 import javax.faces.context.FacesContext;
 import javax.faces.event.AbortProcessingException;
 import org.primefaces.component.commandbutton.CommandButton;
@@ -32,7 +33,9 @@ public class DismissButton extends CommandButton {
 
     @Override
     public void encodeBegin(FacesContext context) throws IOException {
-        setValue("Dismiss");
+        if (UIInput.isEmpty(getValue())) {
+            setValue("Dismiss");
+        }
         String dialogWidgetVar = getDialogWidgetVar();
         setOncomplete("PF('" + dialogWidgetVar + "').hide()");
         super.encodeBegin(context);
