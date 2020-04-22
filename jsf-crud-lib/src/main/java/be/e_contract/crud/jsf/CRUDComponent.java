@@ -67,6 +67,7 @@ import javax.transaction.NotSupportedException;
 import javax.transaction.RollbackException;
 import javax.transaction.SystemException;
 import javax.transaction.UserTransaction;
+import org.primefaces.PrimeFaces;
 import org.primefaces.component.calendar.Calendar;
 import org.primefaces.component.column.Column;
 import org.primefaces.component.commandbutton.CommandButton;
@@ -253,6 +254,11 @@ public class CRUDComponent extends UINamingContainer implements SystemEventListe
         htmlForm.getChildren().add(dataTable);
         dataTable.setId("table");
 
+        AjaxUpdateListener ajaxUpdateCreateListener = new AjaxUpdateListener(entityClass);
+        ajaxUpdateCreateListener.addClientId(message.getClientId());
+        ajaxUpdateCreateListener.addClientId(dataTable.getClientId());
+        addFacesListener(ajaxUpdateCreateListener);
+
         ValueExpression valueExpression = new EntityValueExpression(entityClass, getId(), getOrderBy());
         dataTable.setValueExpression("value", valueExpression);
         dataTable.setVar("row");
@@ -428,7 +434,8 @@ public class CRUDComponent extends UINamingContainer implements SystemEventListe
         addCommandButton.setValue("Add");
         addCommandButton.setOncomplete("addEntityResponse(xhr, status, args)");
         addCommandButton.addActionListener(new AddActionListener(entityInspector));
-        addCommandButton.setUpdate(addDialogHtmlForm.getClientId() + "," + dataTable.getClientId() + "," + message.getClientId());
+        addCommandButton.setUpdate(addDialogHtmlForm.getClientId());
+        //addCommandButton.setUpdate(addDialogHtmlForm.getClientId() + "," + dataTable.getClientId() + "," + message.getClientId());
 
         DismissButton dismissCommandButton = (DismissButton) application.createComponent(DismissButton.COMPONENT_TYPE);
         buttonHtmlPanelGrid.getChildren().add(dismissCommandButton);
@@ -490,7 +497,6 @@ public class CRUDComponent extends UINamingContainer implements SystemEventListe
         deleteCommandButton.setId("deleteButton");
         deleteCommandButton.addActionListener(new DeleteActionListener(entityInspector));
         deleteCommandButton.setOncomplete("PF('deleteDialog').hide()");
-        deleteCommandButton.setUpdate(dataTable.getClientId() + "," + message.getClientId());
 
         DismissButton dismissCommandButton = (DismissButton) application.createComponent(DismissButton.COMPONENT_TYPE);
         htmlPanelGrid.getChildren().add(dismissCommandButton);
@@ -580,7 +586,7 @@ public class CRUDComponent extends UINamingContainer implements SystemEventListe
         saveCommandButton.setValue("Save");
         saveCommandButton.setOncomplete("updateEntityResponse(xhr, status, args)");
         saveCommandButton.addActionListener(new SaveActionListener(entityInspector));
-        saveCommandButton.setUpdate(updateDialogHtmlForm.getClientId() + "," + dataTable.getClientId() + "," + message.getClientId());
+        saveCommandButton.setUpdate(updateDialogHtmlForm.getClientId());
 
         DismissButton dismissCommandButton = (DismissButton) application.createComponent(DismissButton.COMPONENT_TYPE);
         buttonHtmlPanelGrid.getChildren().add(dismissCommandButton);
@@ -1157,5 +1163,52 @@ public class CRUDComponent extends UINamingContainer implements SystemEventListe
     @Override
     public DeleteListener[] getDeleteListeners() {
         return (DeleteListener[]) getFacesListeners(DeleteListener.class);
+    }
+
+    private class AjaxUpdateListener implements CreateListener, UpdateListener, DeleteListener {
+
+        private final Class<?> entityClass;
+
+        private final List<String> clientIds;
+
+        public AjaxUpdateListener(Class<?> entityClass) {
+            this.entityClass = entityClass;
+            this.clientIds = new LinkedList<>();
+        }
+
+        public void addClientId(String clientId) {
+            this.clientIds.add(clientId);
+        }
+
+        @Override
+        public void entityCreated(CreateEvent event) {
+            Object entity = event.getEntity();
+            fireUpdates(entity);
+        }
+
+        @Override
+        public void entityUpdated(UpdateEvent event) {
+            Object entity = event.getEntity();
+            fireUpdates(entity);
+        }
+
+        private void fireUpdates(Object entity) {
+            if (null == entity) {
+                return;
+            }
+            if (entity.getClass().equals(this.entityClass)) {
+                PrimeFaces primeFaces = PrimeFaces.current();
+                if (primeFaces.isAjaxRequest()) {
+                    LOGGER.debug("firing updates");
+                    primeFaces.ajax().update(this.clientIds);
+                }
+            }
+        }
+
+        @Override
+        public void entityDeleted(DeleteEvent event) {
+            Object entity = event.getEntity();
+            fireUpdates(entity);
+        }
     }
 }
