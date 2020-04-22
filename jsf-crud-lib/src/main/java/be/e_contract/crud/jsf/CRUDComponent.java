@@ -36,6 +36,7 @@ import javax.el.ELResolver;
 import javax.el.FunctionMapper;
 import javax.el.MethodExpression;
 import javax.el.ValueExpression;
+import javax.faces.FacesException;
 import javax.faces.application.FacesMessage;
 import javax.faces.application.ResourceDependencies;
 import javax.faces.application.ResourceDependency;
@@ -288,282 +289,19 @@ public class CRUDComponent extends UINamingContainer implements SystemEventListe
             dataTable.getChildren().add(column);
             column.setHeaderText("Actions");
 
-            if (showView) {
-                CommandButton commandButton = (CommandButton) application.createComponent(CommandButton.COMPONENT_TYPE);
-                column.getChildren().add(commandButton);
-                commandButton.setValue("View...");
-                commandButton.setOncomplete("PF('viewDialog').show()");
-                commandButton.setId("viewButton");
+            addViewDialog(showView, application, column, entityName, message, entityInspector, idField, fields);
 
-                Dialog viewDialog = (Dialog) application.createComponent(Dialog.COMPONENT_TYPE);
-                getChildren().add(viewDialog);
-                viewDialog.setWidgetVar("viewDialog");
-                viewDialog.setId("viewDialog");
-                viewDialog.setHeader("View " + entityName);
-                viewDialog.setModal(true);
+            addUpdateDialog(showUpdate, application, column, entityName, message, expressionFactory, entityInspector, idField, fields, dataTable);
 
-                commandButton.setUpdate(viewDialog.getClientId() + "," + message.getClientId());
-                commandButton.addActionListener(new SelectRowActionListener());
+            addDeleteDialog(showDelete, application, column, deleteComponent, entityName, elContext, expressionFactory, entityInspector, dataTable, message);
 
-                HtmlPanelGrid htmlPanelGrid = (HtmlPanelGrid) application.createComponent(HtmlPanelGrid.COMPONENT_TYPE);
-                viewDialog.getChildren().add(htmlPanelGrid);
-                htmlPanelGrid.setColumns(2);
-
-                OutputLabel idOutputLabel = (OutputLabel) application.createComponent(OutputLabel.COMPONENT_TYPE);
-                htmlPanelGrid.getChildren().add(idOutputLabel);
-                idOutputLabel.setValue(entityInspector.toHumanReadable(idField));
-
-                HtmlOutputText identifierOutputText = (HtmlOutputText) application.createComponent(HtmlOutputText.COMPONENT_TYPE);
-                htmlPanelGrid.getChildren().add(identifierOutputText);
-                identifierOutputText.setValueExpression("value", new EntityFieldValueExpression(this, idField, false));
-
-                for (Field entityField : entityInspector.getOtherFields()) {
-                    String fieldLabel = getFieldLabel(entityField, entityInspector, fields);
-                    OutputLabel outputLabel = (OutputLabel) application.createComponent(OutputLabel.COMPONENT_TYPE);
-                    htmlPanelGrid.getChildren().add(outputLabel);
-                    outputLabel.setValue(fieldLabel);
-
-                    HtmlOutputText outputText = (HtmlOutputText) application.createComponent(HtmlOutputText.COMPONENT_TYPE);
-                    htmlPanelGrid.getChildren().add(outputText);
-                    outputText.setValueExpression("value", new EntityFieldValueExpression(this, entityField, false));
-                    outputText.setConverter(new FieldConverter());
-                }
-
-                HtmlPanelGrid buttonHtmlPanelGrid = (HtmlPanelGrid) application.createComponent(HtmlPanelGrid.COMPONENT_TYPE);
-                viewDialog.getChildren().add(buttonHtmlPanelGrid);
-                buttonHtmlPanelGrid.setColumns(1);
-
-                CommandButton dismissCommandButton = (CommandButton) application.createComponent(CommandButton.COMPONENT_TYPE);
-                buttonHtmlPanelGrid.getChildren().add(dismissCommandButton);
-                dismissCommandButton.setValue("Dismiss");
-                dismissCommandButton.setOncomplete("PF('viewDialog').hide()");
-            }
-
-            if (showUpdate) {
-                CommandButton commandButton = (CommandButton) application.createComponent(CommandButton.COMPONENT_TYPE);
-                column.getChildren().add(commandButton);
-                commandButton.setValue("Update...");
-                commandButton.setOncomplete("PF('updateDialog').show()");
-                commandButton.setId("updateButton");
-
-                Dialog updateDialog = (Dialog) application.createComponent(Dialog.COMPONENT_TYPE);
-                getChildren().add(updateDialog);
-                updateDialog.setWidgetVar("updateDialog");
-                updateDialog.setId("updateDialog");
-                updateDialog.setHeader("Update " + entityName);
-                updateDialog.setModal(true);
-
-                HtmlForm updateDialogHtmlForm = (HtmlForm) application.createComponent(HtmlForm.COMPONENT_TYPE);
-                updateDialog.getChildren().add(updateDialogHtmlForm);
-                updateDialogHtmlForm.setId("updateForm");
-
-                commandButton.setUpdate(updateDialog.getClientId() + "," + message.getClientId());
-                commandButton.addActionListener(new SelectRowActionListener());
-                commandButton.addActionListener(new ResetInputActionListener(expressionFactory.createValueExpression(updateDialogHtmlForm.getClientId(), String.class), null));
-
-                HtmlPanelGrid htmlPanelGrid = (HtmlPanelGrid) application.createComponent(HtmlPanelGrid.COMPONENT_TYPE);
-                updateDialogHtmlForm.getChildren().add(htmlPanelGrid);
-                htmlPanelGrid.setColumns(3);
-
-                OutputLabel idOutputLabel = (OutputLabel) application.createComponent(OutputLabel.COMPONENT_TYPE);
-                htmlPanelGrid.getChildren().add(idOutputLabel);
-                idOutputLabel.setValue(entityInspector.toHumanReadable(idField));
-
-                HtmlOutputText identifierOutputText = (HtmlOutputText) application.createComponent(HtmlOutputText.COMPONENT_TYPE);
-                htmlPanelGrid.getChildren().add(identifierOutputText);
-                identifierOutputText.setValueExpression("value", new EntityFieldValueExpression(this, idField, false));
-
-                HtmlOutputText voidOutputText = (HtmlOutputText) application.createComponent(HtmlOutputText.COMPONENT_TYPE);
-                htmlPanelGrid.getChildren().add(voidOutputText);
-
-                for (Field entityField : entityInspector.getOtherFields()) {
-                    addInputComponent(entityField, false, entityInspector, fields, htmlPanelGrid);
-                }
-
-                HtmlPanelGrid buttonHtmlPanelGrid = (HtmlPanelGrid) application.createComponent(HtmlPanelGrid.COMPONENT_TYPE);
-                updateDialogHtmlForm.getChildren().add(buttonHtmlPanelGrid);
-                buttonHtmlPanelGrid.setColumns(2);
-
-                CommandButton saveCommandButton = (CommandButton) application.createComponent(CommandButton.COMPONENT_TYPE);
-                buttonHtmlPanelGrid.getChildren().add(saveCommandButton);
-                saveCommandButton.setId("saveButton");
-                saveCommandButton.setValue("Save");
-                saveCommandButton.setOncomplete("updateEntityResponse(xhr, status, args)");
-                saveCommandButton.addActionListener(new SaveActionListener(entityInspector));
-                saveCommandButton.setUpdate(updateDialogHtmlForm.getClientId() + "," + dataTable.getClientId() + "," + message.getClientId());
-
-                CommandButton dismissCommandButton = (CommandButton) application.createComponent(CommandButton.COMPONENT_TYPE);
-                buttonHtmlPanelGrid.getChildren().add(dismissCommandButton);
-                dismissCommandButton.setValue("Dismiss");
-                dismissCommandButton.setOncomplete("PF('updateDialog').hide()");
-            }
-
-            if (showDelete) {
-                CommandButton commandButton = (CommandButton) application.createComponent(CommandButton.COMPONENT_TYPE);
-                column.getChildren().add(commandButton);
-                commandButton.setValue("Delete...");
-                commandButton.setId("deleteButton");
-                commandButton.setOncomplete("PF('deleteDialog').show()");
-
-                Dialog deleteDialog = (Dialog) application.createComponent(Dialog.COMPONENT_TYPE);
-                getChildren().add(deleteDialog);
-                deleteDialog.setWidgetVar("deleteDialog");
-                String deleteDialogHeader = null;
-                if (null != deleteComponent) {
-                    deleteDialogHeader = deleteComponent.getTitle();
-                }
-                if (null == deleteDialogHeader) {
-                    deleteDialogHeader = "Delete " + entityName;
-                }
-                deleteDialog.setHeader(deleteDialogHeader);
-                deleteDialog.setId("deleteDialog");
-                deleteDialog.setModal(true);
-
-                if (null != deleteComponent && deleteComponent.getChildCount() > 0) {
-                    List<UIComponent> deleteChildren = new LinkedList<>(deleteComponent.getChildren());
-                    deleteComponent.getChildren().clear();
-                    ContainerComponent containerComponent = (ContainerComponent) application.createComponent(ContainerComponent.COMPONENT_TYPE);
-                    containerComponent.setId("container");
-                    deleteDialog.getChildren().add(containerComponent);
-                    for (UIComponent deleteChild : deleteChildren) {
-                        containerComponent.getChildren().add(deleteChild);
-                        reloadId(deleteChild);
-                    }
-                } else {
-                    EntityComponent entityComponent = (EntityComponent) application.createComponent(EntityComponent.COMPONENT_TYPE);
-                    deleteDialog.getChildren().add(entityComponent);
-                    entityComponent.setVar("entity");
-                    HtmlOutputText htmlOutputText = (HtmlOutputText) application.createComponent(HtmlOutputText.COMPONENT_TYPE);
-
-                    try {
-                        registerToHumanReadableFunction(elContext);
-                    } catch (NoSuchMethodException | IllegalAccessException | IllegalArgumentException | InvocationTargetException ex) {
-                        LOGGER.error("reflection error: " + ex.getMessage(), ex);
-                        throw new AbortProcessingException();
-                    }
-
-                    ValueExpression deleteOutputTextValueExpression = expressionFactory.createValueExpression(elContext, "Do you want to delete #{crud:toHumanReadable(entity)} ?", String.class);
-                    htmlOutputText.setValueExpression("value", deleteOutputTextValueExpression);
-                    entityComponent.getChildren().add(htmlOutputText);
-                }
-
-                HtmlForm deleteDialogHtmlForm = (HtmlForm) application.createComponent(HtmlForm.COMPONENT_TYPE);
-                deleteDialog.getChildren().add(deleteDialogHtmlForm);
-                deleteDialogHtmlForm.setId("deleteForm");
-
-                HtmlPanelGrid htmlPanelGrid = (HtmlPanelGrid) application.createComponent(HtmlPanelGrid.COMPONENT_TYPE);
-                deleteDialogHtmlForm.getChildren().add(htmlPanelGrid);
-                htmlPanelGrid.setColumns(2);
-
-                CommandButton deleteCommandButton = (CommandButton) application.createComponent(CommandButton.COMPONENT_TYPE);
-                htmlPanelGrid.getChildren().add(deleteCommandButton);
-                deleteCommandButton.setValue("Delete");
-                deleteCommandButton.setId("deleteButton");
-                deleteCommandButton.addActionListener(new DeleteActionListener(entityInspector));
-                deleteCommandButton.setOncomplete("PF('deleteDialog').hide()");
-                deleteCommandButton.setUpdate(dataTable.getClientId() + "," + message.getClientId());
-
-                CommandButton dismissCommandButton = (CommandButton) application.createComponent(CommandButton.COMPONENT_TYPE);
-                htmlPanelGrid.getChildren().add(dismissCommandButton);
-                dismissCommandButton.setValue("Dismiss");
-                dismissCommandButton.setId("dismissButton");
-                dismissCommandButton.setOncomplete("PF('deleteDialog').hide()");
-
-                commandButton.setUpdate(deleteDialog.getClientId() + "," + message.getClientId());
-                commandButton.addActionListener(new SelectRowActionListener());
-            }
-
-            int actionIdx = 0;
-            for (ActionComponent action : actions) {
-                CRUDCommandButton commandButton = (CRUDCommandButton) application.createComponent(CRUDCommandButton.COMPONENT_TYPE);
-                column.getChildren().add(commandButton);
-                commandButton.setValue(action.getValue());
-                commandButton.setId("Action" + actionIdx);
-                actionIdx++;
-                commandButton.setUpdate(dataTable.getClientId() + "," + message.getClientId());
-                commandButton.addActionListener(new ActionAdapter(action.getAction(), action.getUpdate()));
-                commandButton.setOncomplete(action.getOncomplete());
-
-                ValueExpression renderedValueExpression = action.getRenderedValueExpression();
-                commandButton.setRenderedValueExpression(renderedValueExpression);
-
-                String update = action.getUpdate();
-                if (null != update) {
-                    UIViewRoot view = facesContext.getViewRoot();
-                    UIComponent component = view.findComponent(update);
-                    commandButton.setUpdate(dataTable.getClientId() + "," + message.getClientId() + "," + component.getClientId());
-                }
-            }
+            addCustomActions(actions, application, column, dataTable, message, facesContext);
         }
 
         HtmlPanelGroup footerHtmlPanelGroup = (HtmlPanelGroup) application.createComponent(HtmlPanelGroup.COMPONENT_TYPE);
         dataTable.getFacets().put("footer", footerHtmlPanelGroup);
 
-        if (showCreate) {
-            CommandButton commandButton = (CommandButton) application.createComponent(CommandButton.COMPONENT_TYPE);
-            footerHtmlPanelGroup.getChildren().add(commandButton);
-            commandButton.setValue("Add...");
-            commandButton.setOncomplete("PF('addDialog').show()");
-            commandButton.setId("addButton");
-
-            Dialog addDialog = (Dialog) application.createComponent(Dialog.COMPONENT_TYPE);
-            getChildren().add(addDialog);
-            addDialog.setWidgetVar("addDialog");
-            addDialog.setId("addDialog");
-            addDialog.setHeader("Add " + entityName);
-            addDialog.setModal(true);
-
-            HtmlForm addDialogHtmlForm = (HtmlForm) application.createComponent(HtmlForm.COMPONENT_TYPE);
-            addDialog.getChildren().add(addDialogHtmlForm);
-            addDialogHtmlForm.setId("addForm");
-
-            commandButton.setUpdate(addDialog.getClientId() + "," + message.getClientId());
-            commandButton.addActionListener(new ResetInputActionListener(expressionFactory.createValueExpression(addDialogHtmlForm.getClientId(), String.class), null));
-
-            HtmlPanelGrid htmlPanelGrid = (HtmlPanelGrid) application.createComponent(HtmlPanelGrid.COMPONENT_TYPE);
-            addDialogHtmlForm.getChildren().add(htmlPanelGrid);
-            htmlPanelGrid.setColumns(3);
-
-            GeneratedValue generatedValue = idField.getAnnotation(GeneratedValue.class);
-            if (null == generatedValue) {
-                OutputLabel idOutputLabel = (OutputLabel) application.createComponent(OutputLabel.COMPONENT_TYPE);
-                htmlPanelGrid.getChildren().add(idOutputLabel);
-                idOutputLabel.setValue(entityInspector.toHumanReadable(idField));
-                idOutputLabel.setFor("identifierInput");
-
-                InputText identifierInputText = (InputText) application.createComponent(InputText.COMPONENT_TYPE);
-                htmlPanelGrid.getChildren().add(identifierInputText);
-                identifierInputText.setId("identifierInput");
-                identifierInputText.setValueExpression("value", new EntityFieldValueExpression(this, idField, true));
-                identifierInputText.setRequired(true);
-                identifierInputText.addValidator(new NonExistingIdentifierValidator(entityClass));
-
-                Message identifierInputTextMessage = (Message) application.createComponent(Message.COMPONENT_TYPE);
-                htmlPanelGrid.getChildren().add(identifierInputTextMessage);
-                identifierInputTextMessage.setFor("identifierInput");
-            }
-
-            for (Field entityField : entityInspector.getOtherFields()) {
-                addInputComponent(entityField, true, entityInspector, fields, htmlPanelGrid);
-            }
-
-            HtmlPanelGrid buttonHtmlPanelGrid = (HtmlPanelGrid) application.createComponent(HtmlPanelGrid.COMPONENT_TYPE);
-            addDialogHtmlForm.getChildren().add(buttonHtmlPanelGrid);
-            buttonHtmlPanelGrid.setColumns(2);
-
-            CommandButton addCommandButton = (CommandButton) application.createComponent(CommandButton.COMPONENT_TYPE);
-            buttonHtmlPanelGrid.getChildren().add(addCommandButton);
-            addCommandButton.setId("addButton");
-            addCommandButton.setValue("Add");
-            addCommandButton.setOncomplete("addEntityResponse(xhr, status, args)");
-            addCommandButton.addActionListener(new AddActionListener(entityInspector));
-            addCommandButton.setUpdate(addDialogHtmlForm.getClientId() + "," + dataTable.getClientId() + "," + message.getClientId());
-
-            CommandButton dismissCommandButton = (CommandButton) application.createComponent(CommandButton.COMPONENT_TYPE);
-            buttonHtmlPanelGrid.getChildren().add(dismissCommandButton);
-            dismissCommandButton.setValue("Dismiss");
-            dismissCommandButton.setOncomplete("PF('addDialog').hide()");
-        }
+        addCreateDialog(showCreate, application, footerHtmlPanelGroup, entityName, message, expressionFactory, idField, entityInspector, entityClass, fields, dataTable);
 
         if (null != deleteComponent && deleteComponent.isDeleteAll()) {
             CommandButton commandButton = (CommandButton) application.createComponent(CommandButton.COMPONENT_TYPE);
@@ -605,6 +343,294 @@ public class CRUDComponent extends UINamingContainer implements SystemEventListe
             dismissCommandButton.setValue("Dismiss");
             dismissCommandButton.setOncomplete("PF('deleteAllDialog').hide()");
         }
+    }
+
+    private void addCustomActions(List<ActionComponent> actions, Application application, Column column, DataTable dataTable, Message message, FacesContext facesContext) throws FacesException {
+        int actionIdx = 0;
+        for (ActionComponent action : actions) {
+            CRUDCommandButton commandButton = (CRUDCommandButton) application.createComponent(CRUDCommandButton.COMPONENT_TYPE);
+            column.getChildren().add(commandButton);
+            commandButton.setValue(action.getValue());
+            commandButton.setId("Action" + actionIdx);
+            actionIdx++;
+            commandButton.setUpdate(dataTable.getClientId() + "," + message.getClientId());
+            commandButton.addActionListener(new ActionAdapter(action.getAction(), action.getUpdate()));
+            commandButton.setOncomplete(action.getOncomplete());
+
+            ValueExpression renderedValueExpression = action.getRenderedValueExpression();
+            commandButton.setRenderedValueExpression(renderedValueExpression);
+
+            String update = action.getUpdate();
+            if (null != update) {
+                UIViewRoot view = facesContext.getViewRoot();
+                UIComponent component = view.findComponent(update);
+                commandButton.setUpdate(dataTable.getClientId() + "," + message.getClientId() + "," + component.getClientId());
+            }
+        }
+    }
+
+    private void addCreateDialog(boolean showCreate, Application application, HtmlPanelGroup footerHtmlPanelGroup, String entityName, Message message, ExpressionFactory expressionFactory, Field idField, EntityInspector entityInspector, Class<?> entityClass, Map<String, FieldComponent> fields, DataTable dataTable) throws FacesException {
+        if (!showCreate) {
+            return;
+        }
+        CommandButton commandButton = (CommandButton) application.createComponent(CommandButton.COMPONENT_TYPE);
+        footerHtmlPanelGroup.getChildren().add(commandButton);
+        commandButton.setValue("Add...");
+        commandButton.setOncomplete("PF('addDialog').show()");
+        commandButton.setId("addButton");
+
+        Dialog addDialog = (Dialog) application.createComponent(Dialog.COMPONENT_TYPE);
+        getChildren().add(addDialog);
+        addDialog.setWidgetVar("addDialog");
+        addDialog.setId("addDialog");
+        addDialog.setHeader("Add " + entityName);
+        addDialog.setModal(true);
+
+        HtmlForm addDialogHtmlForm = (HtmlForm) application.createComponent(HtmlForm.COMPONENT_TYPE);
+        addDialog.getChildren().add(addDialogHtmlForm);
+        addDialogHtmlForm.setId("addForm");
+
+        commandButton.setUpdate(addDialog.getClientId() + "," + message.getClientId());
+        commandButton.addActionListener(new ResetInputActionListener(expressionFactory.createValueExpression(addDialogHtmlForm.getClientId(), String.class), null));
+
+        HtmlPanelGrid htmlPanelGrid = (HtmlPanelGrid) application.createComponent(HtmlPanelGrid.COMPONENT_TYPE);
+        addDialogHtmlForm.getChildren().add(htmlPanelGrid);
+        htmlPanelGrid.setColumns(3);
+
+        GeneratedValue generatedValue = idField.getAnnotation(GeneratedValue.class);
+        if (null == generatedValue) {
+            OutputLabel idOutputLabel = (OutputLabel) application.createComponent(OutputLabel.COMPONENT_TYPE);
+            htmlPanelGrid.getChildren().add(idOutputLabel);
+            idOutputLabel.setValue(entityInspector.toHumanReadable(idField));
+            idOutputLabel.setFor("identifierInput");
+
+            InputText identifierInputText = (InputText) application.createComponent(InputText.COMPONENT_TYPE);
+            htmlPanelGrid.getChildren().add(identifierInputText);
+            identifierInputText.setId("identifierInput");
+            identifierInputText.setValueExpression("value", new EntityFieldValueExpression(this, idField, true));
+            identifierInputText.setRequired(true);
+            identifierInputText.addValidator(new NonExistingIdentifierValidator(entityClass));
+
+            Message identifierInputTextMessage = (Message) application.createComponent(Message.COMPONENT_TYPE);
+            htmlPanelGrid.getChildren().add(identifierInputTextMessage);
+            identifierInputTextMessage.setFor("identifierInput");
+        }
+
+        for (Field entityField : entityInspector.getOtherFields()) {
+            addInputComponent(entityField, true, entityInspector, fields, htmlPanelGrid);
+        }
+
+        HtmlPanelGrid buttonHtmlPanelGrid = (HtmlPanelGrid) application.createComponent(HtmlPanelGrid.COMPONENT_TYPE);
+        addDialogHtmlForm.getChildren().add(buttonHtmlPanelGrid);
+        buttonHtmlPanelGrid.setColumns(2);
+
+        CommandButton addCommandButton = (CommandButton) application.createComponent(CommandButton.COMPONENT_TYPE);
+        buttonHtmlPanelGrid.getChildren().add(addCommandButton);
+        addCommandButton.setId("addButton");
+        addCommandButton.setValue("Add");
+        addCommandButton.setOncomplete("addEntityResponse(xhr, status, args)");
+        addCommandButton.addActionListener(new AddActionListener(entityInspector));
+        addCommandButton.setUpdate(addDialogHtmlForm.getClientId() + "," + dataTable.getClientId() + "," + message.getClientId());
+
+        CommandButton dismissCommandButton = (CommandButton) application.createComponent(CommandButton.COMPONENT_TYPE);
+        buttonHtmlPanelGrid.getChildren().add(dismissCommandButton);
+        dismissCommandButton.setValue("Dismiss");
+        dismissCommandButton.setOncomplete("PF('addDialog').hide()");
+    }
+
+    private void addDeleteDialog(boolean showDelete, Application application, Column column, DeleteComponent deleteComponent, String entityName, ELContext elContext, ExpressionFactory expressionFactory, EntityInspector entityInspector, DataTable dataTable, Message message) throws FacesException {
+        if (!showDelete) {
+            return;
+        }
+        CommandButton commandButton = (CommandButton) application.createComponent(CommandButton.COMPONENT_TYPE);
+        column.getChildren().add(commandButton);
+        commandButton.setValue("Delete...");
+        commandButton.setId("deleteButton");
+        commandButton.setOncomplete("PF('deleteDialog').show()");
+
+        Dialog deleteDialog = (Dialog) application.createComponent(Dialog.COMPONENT_TYPE);
+        getChildren().add(deleteDialog);
+        deleteDialog.setWidgetVar("deleteDialog");
+        String deleteDialogHeader = null;
+        if (null != deleteComponent) {
+            deleteDialogHeader = deleteComponent.getTitle();
+        }
+        if (null == deleteDialogHeader) {
+            deleteDialogHeader = "Delete " + entityName;
+        }
+        deleteDialog.setHeader(deleteDialogHeader);
+        deleteDialog.setId("deleteDialog");
+        deleteDialog.setModal(true);
+
+        if (null != deleteComponent && deleteComponent.getChildCount() > 0) {
+            List<UIComponent> deleteChildren = new LinkedList<>(deleteComponent.getChildren());
+            deleteComponent.getChildren().clear();
+            ContainerComponent containerComponent = (ContainerComponent) application.createComponent(ContainerComponent.COMPONENT_TYPE);
+            containerComponent.setId("container");
+            deleteDialog.getChildren().add(containerComponent);
+            for (UIComponent deleteChild : deleteChildren) {
+                containerComponent.getChildren().add(deleteChild);
+                reloadId(deleteChild);
+            }
+        } else {
+            EntityComponent entityComponent = (EntityComponent) application.createComponent(EntityComponent.COMPONENT_TYPE);
+            deleteDialog.getChildren().add(entityComponent);
+            entityComponent.setVar("entity");
+            HtmlOutputText htmlOutputText = (HtmlOutputText) application.createComponent(HtmlOutputText.COMPONENT_TYPE);
+
+            try {
+                registerToHumanReadableFunction(elContext);
+            } catch (NoSuchMethodException | IllegalAccessException | IllegalArgumentException | InvocationTargetException ex) {
+                LOGGER.error("reflection error: " + ex.getMessage(), ex);
+                throw new AbortProcessingException();
+            }
+
+            ValueExpression deleteOutputTextValueExpression = expressionFactory.createValueExpression(elContext, "Do you want to delete #{crud:toHumanReadable(entity)} ?", String.class);
+            htmlOutputText.setValueExpression("value", deleteOutputTextValueExpression);
+            entityComponent.getChildren().add(htmlOutputText);
+        }
+
+        HtmlForm deleteDialogHtmlForm = (HtmlForm) application.createComponent(HtmlForm.COMPONENT_TYPE);
+        deleteDialog.getChildren().add(deleteDialogHtmlForm);
+        deleteDialogHtmlForm.setId("deleteForm");
+
+        HtmlPanelGrid htmlPanelGrid = (HtmlPanelGrid) application.createComponent(HtmlPanelGrid.COMPONENT_TYPE);
+        deleteDialogHtmlForm.getChildren().add(htmlPanelGrid);
+        htmlPanelGrid.setColumns(2);
+
+        CommandButton deleteCommandButton = (CommandButton) application.createComponent(CommandButton.COMPONENT_TYPE);
+        htmlPanelGrid.getChildren().add(deleteCommandButton);
+        deleteCommandButton.setValue("Delete");
+        deleteCommandButton.setId("deleteButton");
+        deleteCommandButton.addActionListener(new DeleteActionListener(entityInspector));
+        deleteCommandButton.setOncomplete("PF('deleteDialog').hide()");
+        deleteCommandButton.setUpdate(dataTable.getClientId() + "," + message.getClientId());
+
+        CommandButton dismissCommandButton = (CommandButton) application.createComponent(CommandButton.COMPONENT_TYPE);
+        htmlPanelGrid.getChildren().add(dismissCommandButton);
+        dismissCommandButton.setValue("Dismiss");
+        dismissCommandButton.setId("dismissButton");
+        dismissCommandButton.setOncomplete("PF('deleteDialog').hide()");
+
+        commandButton.setUpdate(deleteDialog.getClientId() + "," + message.getClientId());
+        commandButton.addActionListener(new SelectRowActionListener());
+    }
+
+    private void addUpdateDialog(boolean showUpdate, Application application, Column column, String entityName, Message message, ExpressionFactory expressionFactory, EntityInspector entityInspector, Field idField, Map<String, FieldComponent> fields, DataTable dataTable) throws FacesException {
+        if (!showUpdate) {
+            return;
+        }
+
+        CommandButton commandButton = (CommandButton) application.createComponent(CommandButton.COMPONENT_TYPE);
+        column.getChildren().add(commandButton);
+        commandButton.setValue("Update...");
+        commandButton.setOncomplete("PF('updateDialog').show()");
+        commandButton.setId("updateButton");
+
+        Dialog updateDialog = (Dialog) application.createComponent(Dialog.COMPONENT_TYPE);
+        getChildren().add(updateDialog);
+        updateDialog.setWidgetVar("updateDialog");
+        updateDialog.setId("updateDialog");
+        updateDialog.setHeader("Update " + entityName);
+        updateDialog.setModal(true);
+
+        HtmlForm updateDialogHtmlForm = (HtmlForm) application.createComponent(HtmlForm.COMPONENT_TYPE);
+        updateDialog.getChildren().add(updateDialogHtmlForm);
+        updateDialogHtmlForm.setId("updateForm");
+
+        commandButton.setUpdate(updateDialog.getClientId() + "," + message.getClientId());
+        commandButton.addActionListener(new SelectRowActionListener());
+        commandButton.addActionListener(new ResetInputActionListener(expressionFactory.createValueExpression(updateDialogHtmlForm.getClientId(), String.class), null));
+
+        HtmlPanelGrid htmlPanelGrid = (HtmlPanelGrid) application.createComponent(HtmlPanelGrid.COMPONENT_TYPE);
+        updateDialogHtmlForm.getChildren().add(htmlPanelGrid);
+        htmlPanelGrid.setColumns(3);
+
+        OutputLabel idOutputLabel = (OutputLabel) application.createComponent(OutputLabel.COMPONENT_TYPE);
+        htmlPanelGrid.getChildren().add(idOutputLabel);
+        idOutputLabel.setValue(entityInspector.toHumanReadable(idField));
+
+        HtmlOutputText identifierOutputText = (HtmlOutputText) application.createComponent(HtmlOutputText.COMPONENT_TYPE);
+        htmlPanelGrid.getChildren().add(identifierOutputText);
+        identifierOutputText.setValueExpression("value", new EntityFieldValueExpression(this, idField, false));
+
+        HtmlOutputText voidOutputText = (HtmlOutputText) application.createComponent(HtmlOutputText.COMPONENT_TYPE);
+        htmlPanelGrid.getChildren().add(voidOutputText);
+
+        for (Field entityField : entityInspector.getOtherFields()) {
+            addInputComponent(entityField, false, entityInspector, fields, htmlPanelGrid);
+        }
+
+        HtmlPanelGrid buttonHtmlPanelGrid = (HtmlPanelGrid) application.createComponent(HtmlPanelGrid.COMPONENT_TYPE);
+        updateDialogHtmlForm.getChildren().add(buttonHtmlPanelGrid);
+        buttonHtmlPanelGrid.setColumns(2);
+
+        CommandButton saveCommandButton = (CommandButton) application.createComponent(CommandButton.COMPONENT_TYPE);
+        buttonHtmlPanelGrid.getChildren().add(saveCommandButton);
+        saveCommandButton.setId("saveButton");
+        saveCommandButton.setValue("Save");
+        saveCommandButton.setOncomplete("updateEntityResponse(xhr, status, args)");
+        saveCommandButton.addActionListener(new SaveActionListener(entityInspector));
+        saveCommandButton.setUpdate(updateDialogHtmlForm.getClientId() + "," + dataTable.getClientId() + "," + message.getClientId());
+
+        CommandButton dismissCommandButton = (CommandButton) application.createComponent(CommandButton.COMPONENT_TYPE);
+        buttonHtmlPanelGrid.getChildren().add(dismissCommandButton);
+        dismissCommandButton.setValue("Dismiss");
+        dismissCommandButton.setOncomplete("PF('updateDialog').hide()");
+    }
+
+    private void addViewDialog(boolean showView, Application application, Column column, String entityName, Message message, EntityInspector entityInspector, Field idField, Map<String, FieldComponent> fields) throws FacesException {
+        if (!showView) {
+            return;
+        }
+        CommandButton commandButton = (CommandButton) application.createComponent(CommandButton.COMPONENT_TYPE);
+        column.getChildren().add(commandButton);
+        commandButton.setValue("View...");
+        commandButton.setOncomplete("PF('viewDialog').show()");
+        commandButton.setId("viewButton");
+
+        Dialog viewDialog = (Dialog) application.createComponent(Dialog.COMPONENT_TYPE);
+        getChildren().add(viewDialog);
+        viewDialog.setWidgetVar("viewDialog");
+        viewDialog.setId("viewDialog");
+        viewDialog.setHeader("View " + entityName);
+        viewDialog.setModal(true);
+
+        commandButton.setUpdate(viewDialog.getClientId() + "," + message.getClientId());
+        commandButton.addActionListener(new SelectRowActionListener());
+
+        HtmlPanelGrid htmlPanelGrid = (HtmlPanelGrid) application.createComponent(HtmlPanelGrid.COMPONENT_TYPE);
+        viewDialog.getChildren().add(htmlPanelGrid);
+        htmlPanelGrid.setColumns(2);
+
+        OutputLabel idOutputLabel = (OutputLabel) application.createComponent(OutputLabel.COMPONENT_TYPE);
+        htmlPanelGrid.getChildren().add(idOutputLabel);
+        idOutputLabel.setValue(entityInspector.toHumanReadable(idField));
+
+        HtmlOutputText identifierOutputText = (HtmlOutputText) application.createComponent(HtmlOutputText.COMPONENT_TYPE);
+        htmlPanelGrid.getChildren().add(identifierOutputText);
+        identifierOutputText.setValueExpression("value", new EntityFieldValueExpression(this, idField, false));
+
+        for (Field entityField : entityInspector.getOtherFields()) {
+            String fieldLabel = getFieldLabel(entityField, entityInspector, fields);
+            OutputLabel outputLabel = (OutputLabel) application.createComponent(OutputLabel.COMPONENT_TYPE);
+            htmlPanelGrid.getChildren().add(outputLabel);
+            outputLabel.setValue(fieldLabel);
+
+            HtmlOutputText outputText = (HtmlOutputText) application.createComponent(HtmlOutputText.COMPONENT_TYPE);
+            htmlPanelGrid.getChildren().add(outputText);
+            outputText.setValueExpression("value", new EntityFieldValueExpression(this, entityField, false));
+            outputText.setConverter(new FieldConverter());
+        }
+
+        HtmlPanelGrid buttonHtmlPanelGrid = (HtmlPanelGrid) application.createComponent(HtmlPanelGrid.COMPONENT_TYPE);
+        viewDialog.getChildren().add(buttonHtmlPanelGrid);
+        buttonHtmlPanelGrid.setColumns(1);
+
+        CommandButton dismissCommandButton = (CommandButton) application.createComponent(CommandButton.COMPONENT_TYPE);
+        buttonHtmlPanelGrid.getChildren().add(dismissCommandButton);
+        dismissCommandButton.setValue("Dismiss");
+        dismissCommandButton.setOncomplete("PF('viewDialog').hide()");
     }
 
     private void registerToHumanReadableFunction(ELContext elContext) throws NoSuchMethodException, IllegalAccessException, IllegalArgumentException, InvocationTargetException {
