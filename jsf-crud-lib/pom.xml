@@ -4,7 +4,7 @@
     <parent>
         <groupId>be.e-contract</groupId>
         <artifactId>jsf-crud</artifactId>
-        <version>0.1.1-SNAPSHOT</version>
+        <version>0.2.0</version>
     </parent>
     <name>JSF CRUD Library</name>
     <groupId>be.e-contract.jsf-crud</groupId>
