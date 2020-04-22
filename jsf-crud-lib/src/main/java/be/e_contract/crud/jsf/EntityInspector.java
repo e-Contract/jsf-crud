@@ -20,8 +20,10 @@ package be.e_contract.crud.jsf;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
+import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.regex.Pattern;
 import javax.el.ELContext;
@@ -42,11 +44,21 @@ public class EntityInspector {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(EntityInspector.class);
 
+    private static final Map<String, Class<?>> ENTITY_CLASS_MAP;
+
+    static {
+        ENTITY_CLASS_MAP = new HashMap<>();
+    }
+
     private Class<?> entityClass;
 
     public EntityInspector(String entityClassName) {
         if (entityClassName.endsWith(".class")) {
             entityClassName = entityClassName.substring(0, entityClassName.indexOf(".class"));
+        }
+        this.entityClass = ENTITY_CLASS_MAP.get(entityClassName);
+        if (null != this.entityClass) {
+            return;
         }
         try {
             this.entityClass = Class.forName(entityClassName);
@@ -77,6 +89,7 @@ public class EntityInspector {
             LOGGER.error("class is not a JPA entity: {}", entityClassName);
             throw new IllegalArgumentException("class is not a JPA entity: " + entityClassName);
         }
+        ENTITY_CLASS_MAP.put(entityClassName, this.entityClass);
     }
 
     public Class<?> getEntityClass() {
