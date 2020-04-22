@@ -124,7 +124,9 @@ public class SaveButton extends UIComponentBase implements SystemEventListener {
             FacesContext facesContext = FacesContext.getCurrentInstance();
             ELContext elContext = facesContext.getELContext();
 
-            Object entity = getEntity();
+            EntityComponent entityComponent = getEntityComponent();
+            Object entity = entityComponent.getEntity();
+            CRUDComponent crudComponent = entityComponent.getCRUDComponent();
 
             if (null != this.methodExpression) {
                 this.methodExpression.invoke(elContext, new Object[]{entity});
@@ -153,14 +155,9 @@ public class SaveButton extends UIComponentBase implements SystemEventListener {
                 LOGGER.error("error: " + ex.getMessage(), ex);
                 return;
             }
-            //CRUDComponent.this.setSelection(null);
 
-            //String entityHumanReadable = this.entityInspector.toHumanReadable(entity);
-            //CRUDComponent.this.addMessage(FacesMessage.SEVERITY_INFO, "Updated " + entityHumanReadable);
-            UpdateEvent updateEvent = new UpdateEvent(SaveButton.this, entity);
+            UpdateEvent updateEvent = new UpdateEvent(crudComponent, entity);
             updateEvent.queue();
-            // we definitely need to be able to update CRUDComponent here...
-            // maybe let CRUDComponent listen to UpdateEvent itself?
         }
 
         @Override
@@ -192,12 +189,12 @@ public class SaveButton extends UIComponentBase implements SystemEventListener {
             this._transient = newTransientValue;
         }
 
-        private Object getEntity() {
+        private EntityComponent getEntityComponent() {
             UIComponent component = getParent();
             while (component != null) {
                 if (component instanceof EntityComponent) {
                     EntityComponent entityComponent = (EntityComponent) component;
-                    return entityComponent.getEntity();
+                    return entityComponent;
                 }
                 component = component.getParent();
             }

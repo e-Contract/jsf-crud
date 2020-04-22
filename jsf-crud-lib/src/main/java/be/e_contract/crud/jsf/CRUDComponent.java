@@ -120,7 +120,7 @@ public class CRUDComponent extends UINamingContainer implements SystemEventListe
     private void updateEntityComponents(Object entity, UIComponent component) {
         if (component instanceof EntityComponent) {
             EntityComponent entityComponent = (EntityComponent) component;
-            entityComponent.setEntity(entity);
+            entityComponent.setEntity(entity, this.getId());
         }
         for (UIComponent child : component.getChildren()) {
             updateEntityComponents(entity, child);
@@ -254,7 +254,7 @@ public class CRUDComponent extends UINamingContainer implements SystemEventListe
         htmlForm.getChildren().add(dataTable);
         dataTable.setId("table");
 
-        AjaxUpdateListener ajaxUpdateCreateListener = new AjaxUpdateListener(entityClass);
+        AjaxUpdateListener ajaxUpdateCreateListener = new AjaxUpdateListener();
         ajaxUpdateCreateListener.addClientId(message.getClientId());
         ajaxUpdateCreateListener.addClientId(dataTable.getClientId());
         addFacesListener(ajaxUpdateCreateListener);
@@ -358,7 +358,7 @@ public class CRUDComponent extends UINamingContainer implements SystemEventListe
             commandButton.setId("Action" + actionIdx);
             actionIdx++;
             commandButton.setUpdate(dataTable.getClientId() + "," + message.getClientId());
-            commandButton.addActionListener(new ActionAdapter(action.getAction(), action.getUpdate()));
+            commandButton.addActionListener(new ActionAdapter(action.getAction(), action.getUpdate(), getId()));
             commandButton.setOncomplete(action.getOncomplete());
 
             ValueExpression renderedValueExpression = action.getRenderedValueExpression();
@@ -435,7 +435,6 @@ public class CRUDComponent extends UINamingContainer implements SystemEventListe
         addCommandButton.setOncomplete("addEntityResponse(xhr, status, args)");
         addCommandButton.addActionListener(new AddActionListener(entityInspector));
         addCommandButton.setUpdate(addDialogHtmlForm.getClientId());
-        //addCommandButton.setUpdate(addDialogHtmlForm.getClientId() + "," + dataTable.getClientId() + "," + message.getClientId());
 
         DismissButton dismissCommandButton = (DismissButton) application.createComponent(DismissButton.COMPONENT_TYPE);
         buttonHtmlPanelGrid.getChildren().add(dismissCommandButton);
@@ -934,17 +933,24 @@ public class CRUDComponent extends UINamingContainer implements SystemEventListe
     private void addMessage(FacesMessage.Severity severity, String message) {
         FacesContext facesContext = FacesContext.getCurrentInstance();
         String dataTableClientId = null;
+        String messageClientId = null;
         for (UIComponent child : getChildren()) {
             if (child instanceof HtmlForm) {
                 for (UIComponent htmlFormChild : child.getChildren()) {
                     if (htmlFormChild instanceof DataTable) {
                         dataTableClientId = htmlFormChild.getClientId();
-                        break;
+                    } else if (htmlFormChild instanceof Message) {
+                        messageClientId = htmlFormChild.getClientId();
                     }
                 }
             }
         }
         facesContext.addMessage(dataTableClientId, new FacesMessage(severity, message, null));
+
+        PrimeFaces primeFaces = PrimeFaces.current();
+        if (primeFaces.isAjaxRequest()) {
+            primeFaces.ajax().update(messageClientId);
+        }
     }
 
     public void resetCache() {
@@ -1007,7 +1013,6 @@ public class CRUDComponent extends UINamingContainer implements SystemEventListe
 
             CreateEvent createEvent = new CreateEvent(CRUDComponent.this, entity);
             createEvent.queue();
-            CRUDComponent.this.resetCache();
         }
     }
 
@@ -1083,18 +1088,27 @@ public class CRUDComponent extends UINamingContainer implements SystemEventListe
                 LOGGER.error("error: " + ex.getMessage(), ex);
                 return;
             }
-
-            Object identifier = this.entityInspector.getIdentifier(selection);
-            Object entity = entityManager.find(selection.getClass(), identifier);
-
-            entityManager.remove(entity);
+            Object entity;
             try {
-                userTransaction.commit();
-            } catch (RollbackException | HeuristicMixedException | HeuristicRollbackException | SecurityException | IllegalStateException | SystemException ex) {
-                LOGGER.error("error: " + ex.getMessage(), ex);
-                String entityHumanReadable = this.entityInspector.toHumanReadable(entity);
-                CRUDComponent.this.addMessage(FacesMessage.SEVERITY_ERROR, "Could not delete " + entityHumanReadable);
-                return;
+                Object identifier = this.entityInspector.getIdentifier(selection);
+                entity = entityManager.find(selection.getClass(), identifier);
+                if (null != entity) {
+                    entityManager.remove(entity);
+                } else {
+                    LOGGER.error("missing entity");
+                    String entityHumanReadable = this.entityInspector.toHumanReadable(selection);
+                    CRUDComponent.this.addMessage(FacesMessage.SEVERITY_ERROR, "Could not delete " + entityHumanReadable);
+                    return;
+                }
+            } finally {
+                try {
+                    userTransaction.commit();
+                } catch (RollbackException | HeuristicMixedException | HeuristicRollbackException | SecurityException | IllegalStateException | SystemException ex) {
+                    LOGGER.error("error: " + ex.getMessage(), ex);
+                    String entityHumanReadable = this.entityInspector.toHumanReadable(selection);
+                    CRUDComponent.this.addMessage(FacesMessage.SEVERITY_ERROR, "Could not delete " + entityHumanReadable);
+                    return;
+                }
             }
             CRUDComponent.this.setSelection(null);
 
@@ -1103,7 +1117,6 @@ public class CRUDComponent extends UINamingContainer implements SystemEventListe
 
             DeleteEvent deleteEvent = new DeleteEvent(CRUDComponent.this, entity);
             deleteEvent.queue();
-            CRUDComponent.this.resetCache();
         }
     }
 
@@ -1167,12 +1180,9 @@ public class CRUDComponent extends UINamingContainer implements SystemEventListe
 
     private class AjaxUpdateListener implements CreateListener, UpdateListener, DeleteListener {
 
-        private final Class<?> entityClass;
-
         private final List<String> clientIds;
 
-        public AjaxUpdateListener(Class<?> entityClass) {
-            this.entityClass = entityClass;
+        public AjaxUpdateListener() {
             this.clientIds = new LinkedList<>();
         }
 
@@ -1182,6 +1192,7 @@ public class CRUDComponent extends UINamingContainer implements SystemEventListe
 
         @Override
         public void entityCreated(CreateEvent event) {
+            CRUDComponent.this.resetCache();
             Object entity = event.getEntity();
             fireUpdates(entity);
         }
@@ -1190,23 +1201,25 @@ public class CRUDComponent extends UINamingContainer implements SystemEventListe
         public void entityUpdated(UpdateEvent event) {
             Object entity = event.getEntity();
             fireUpdates(entity);
+            EntityInspector entityInspector = new EntityInspector(entity);
+            String entityHumanReadable = entityInspector.toHumanReadable(entity);
+            CRUDComponent.this.addMessage(FacesMessage.SEVERITY_INFO, "Updated " + entityHumanReadable);
         }
 
         private void fireUpdates(Object entity) {
             if (null == entity) {
                 return;
             }
-            if (entity.getClass().equals(this.entityClass)) {
-                PrimeFaces primeFaces = PrimeFaces.current();
-                if (primeFaces.isAjaxRequest()) {
-                    LOGGER.debug("firing updates");
-                    primeFaces.ajax().update(this.clientIds);
-                }
+            PrimeFaces primeFaces = PrimeFaces.current();
+            if (primeFaces.isAjaxRequest()) {
+                LOGGER.debug("firing updates: {}", this.clientIds);
+                primeFaces.ajax().update(this.clientIds);
             }
         }
 
         @Override
         public void entityDeleted(DeleteEvent event) {
+            CRUDComponent.this.resetCache();
             Object entity = event.getEntity();
             fireUpdates(entity);
         }

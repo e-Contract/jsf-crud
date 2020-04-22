@@ -20,7 +20,9 @@ package be.e_contract.crud.jsf;
 import java.io.IOException;
 import java.util.Map;
 import javax.faces.component.FacesComponent;
+import javax.faces.component.UIComponent;
 import javax.faces.component.UIComponentBase;
+import javax.faces.component.UIViewRoot;
 import javax.faces.context.ExternalContext;
 import javax.faces.context.FacesContext;
 import org.slf4j.Logger;
@@ -36,6 +38,7 @@ public class EntityComponent extends UIComponentBase {
     public enum PropertyKeys {
         var,
         entity,
+        crudComponentId,
     }
 
     @Override
@@ -51,12 +54,28 @@ public class EntityComponent extends UIComponentBase {
         return (String) getStateHelper().eval(PropertyKeys.var);
     }
 
-    public void setEntity(Object entity) {
+    void setEntity(Object entity, String crudComponentId) {
         getStateHelper().put(PropertyKeys.entity, entity);
+        getStateHelper().put(PropertyKeys.crudComponentId, crudComponentId);
     }
 
-    public Object getEntity() {
+    Object getEntity() {
         return getStateHelper().eval(PropertyKeys.entity);
+    }
+
+    String getCrudComponentId() {
+        return (String) getStateHelper().eval(PropertyKeys.crudComponentId);
+    }
+
+    CRUDComponent getCRUDComponent() {
+        FacesContext facesContext = getFacesContext();
+        UIViewRoot view = facesContext.getViewRoot();
+        String crudComponentId = getCrudComponentId();
+        UIComponent component = view.findComponent(crudComponentId);
+        if (null == component) {
+            return null;
+        }
+        return (CRUDComponent) component;
     }
 
     private Object setLocalVariable() {

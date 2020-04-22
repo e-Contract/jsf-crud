@@ -53,13 +53,16 @@ public class ActionAdapter implements ActionListener, StateHolder {
 
     private boolean _transient;
 
+    private String crudComponentId;
+
     public ActionAdapter() {
         // empty
     }
 
-    public ActionAdapter(MethodExpression methodExpression, String update) {
+    public ActionAdapter(MethodExpression methodExpression, String update, String crudComponentId) {
         this.methodExpression = methodExpression;
         this.update = update;
+        this.crudComponentId = crudComponentId;
     }
 
     @Override
@@ -67,7 +70,7 @@ public class ActionAdapter implements ActionListener, StateHolder {
         if (context == null) {
             throw new NullPointerException();
         }
-        return new Object[]{this.methodExpression, this.update};
+        return new Object[]{this.methodExpression, this.update, this.crudComponentId};
     }
 
     @Override
@@ -80,6 +83,7 @@ public class ActionAdapter implements ActionListener, StateHolder {
         }
         this.methodExpression = (MethodExpression) ((Object[]) state)[0];
         this.update = (String) ((Object[]) state)[1];
+        this.crudComponentId = (String) ((Object[]) state)[2];
     }
 
     @Override
@@ -98,7 +102,7 @@ public class ActionAdapter implements ActionListener, StateHolder {
         }
         if (component instanceof EntityComponent) {
             EntityComponent entityComponent = (EntityComponent) component;
-            entityComponent.setEntity(entity);
+            entityComponent.setEntity(entity, this.crudComponentId);
         }
         for (UIComponent child : component.getChildren()) {
             setEntity(entity, child);
