@@ -462,17 +462,7 @@ public class CRUDComponent extends UINamingContainer implements SystemEventListe
         deleteDialog.setId("deleteDialog");
         deleteDialog.setModal(true);
 
-        if (null != deleteComponent && deleteComponent.getChildCount() > 0) {
-            List<UIComponent> deleteChildren = new LinkedList<>(deleteComponent.getChildren());
-            deleteComponent.getChildren().clear();
-            ContainerComponent containerComponent = (ContainerComponent) application.createComponent(ContainerComponent.COMPONENT_TYPE);
-            containerComponent.setId("container");
-            deleteDialog.getChildren().add(containerComponent);
-            for (UIComponent deleteChild : deleteChildren) {
-                containerComponent.getChildren().add(deleteChild);
-                reloadId(deleteChild);
-            }
-        } else {
+        if (!relocateChildren(application, deleteComponent, deleteDialog)) {
             EntityComponent entityComponent = (EntityComponent) application.createComponent(EntityComponent.COMPONENT_TYPE);
             deleteDialog.getChildren().add(entityComponent);
             entityComponent.setVar("entity");
@@ -514,6 +504,32 @@ public class CRUDComponent extends UINamingContainer implements SystemEventListe
 
         commandButton.setUpdate(deleteDialog.getClientId() + "," + message.getClientId());
         commandButton.addActionListener(new SelectRowActionListener());
+    }
+
+    private boolean relocateChildren(Application application, UIComponent oldParent, UIComponent newParent) {
+        if (null == oldParent) {
+            return false;
+        }
+        if (oldParent.getChildCount() == 0) {
+            return false;
+        }
+        List<UIComponent> children = new LinkedList<>(oldParent.getChildren());
+        oldParent.getChildren().clear();
+        ContainerComponent containerComponent = (ContainerComponent) application.createComponent(ContainerComponent.COMPONENT_TYPE);
+        containerComponent.setId(newParent.getId() + "Container");
+        newParent.getChildren().add(containerComponent);
+        for (UIComponent child : children) {
+            containerComponent.getChildren().add(child);
+            reloadId(child);
+        }
+        return true;
+    }
+
+    private void reloadId(UIComponent component) {
+        component.setId(component.getId());
+        for (UIComponent child : component.getChildren()) {
+            reloadId(child);
+        }
     }
 
     private void addUpdateDialog(boolean showUpdate, Application application, Column column, String entityName, Message message, ExpressionFactory expressionFactory, EntityInspector entityInspector, Field idField, Map<String, FieldComponent> fields, DataTable dataTable) throws FacesException {
@@ -655,13 +671,6 @@ public class CRUDComponent extends UINamingContainer implements SystemEventListe
             return;
         }
         mapFunctionMethod.invoke(functionMapper, "crud", "toHumanReadable", toHumanReadableMethod);
-    }
-
-    private void reloadId(UIComponent component) {
-        component.setId(component.getId());
-        for (UIComponent child : component.getChildren()) {
-            reloadId(child);
-        }
     }
 
     private String getFieldLabel(Field entityField, EntityInspector entityInspector, Map<String, FieldComponent> fields) {
