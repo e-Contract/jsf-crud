@@ -4,4 +4,12 @@
               xsi:schemaLocation="http://java.sun.com/xml/ns/javaee http://java.sun.com/xml/ns/javaee/web-facesconfig_2_1.xsd"
               version="2.1">
 
+    <application>
+        <system-event-listener>
+            <system-event-listener-class>be.e_contract.crud.jsf.PostConstructApplicationEventListener</system-event-listener-class>
+            <system-event-class>javax.faces.event.PostConstructApplicationEvent</system-event-class>
+            <source-class>javax.faces.application.Application</source-class>
+        </system-event-listener>
+    </application>
+
 </faces-config>
