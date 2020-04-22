@@ -17,7 +17,7 @@ The component has been tested with PrimeFaces versions:
 
 # Usage
 
-If you use Maven, refer to the e-contract.be Maven repository via:
+If you are using Maven, refer to the e-contract.be Maven repository via:
 ```
 <repository>
     <id>e-contract</id>
@@ -32,7 +32,7 @@ Include the `jsf-crud-lib` JSF library within your WAR (JPA, CDI, and JSF enable
 <dependency>
     <groupId>be.e-contract.jsf-crud</groupId>
     <artifactId>jsf-crud-lib</artifactId>
-    <version>0.1.0</version>
+    <version>0.2.0</version>
 </dependency>
 ```
 
