@@ -338,10 +338,8 @@ public class CRUDComponent extends UINamingContainer implements SystemEventListe
             deleteCommandButton.setOncomplete("PF('deleteAllDialog').hide()");
             deleteCommandButton.setUpdate(dataTable.getClientId() + "," + message.getClientId());
 
-            CommandButton dismissCommandButton = (CommandButton) application.createComponent(CommandButton.COMPONENT_TYPE);
+            DismissButton dismissCommandButton = (DismissButton) application.createComponent(DismissButton.COMPONENT_TYPE);
             htmlPanelGrid.getChildren().add(dismissCommandButton);
-            dismissCommandButton.setValue("Dismiss");
-            dismissCommandButton.setOncomplete("PF('deleteAllDialog').hide()");
         }
     }
 
@@ -432,10 +430,8 @@ public class CRUDComponent extends UINamingContainer implements SystemEventListe
         addCommandButton.addActionListener(new AddActionListener(entityInspector));
         addCommandButton.setUpdate(addDialogHtmlForm.getClientId() + "," + dataTable.getClientId() + "," + message.getClientId());
 
-        CommandButton dismissCommandButton = (CommandButton) application.createComponent(CommandButton.COMPONENT_TYPE);
+        DismissButton dismissCommandButton = (DismissButton) application.createComponent(DismissButton.COMPONENT_TYPE);
         buttonHtmlPanelGrid.getChildren().add(dismissCommandButton);
-        dismissCommandButton.setValue("Dismiss");
-        dismissCommandButton.setOncomplete("PF('addDialog').hide()");
     }
 
     private void addDeleteDialog(boolean showDelete, Application application, Column column, DeleteComponent deleteComponent, String entityName, ELContext elContext, ExpressionFactory expressionFactory, EntityInspector entityInspector, DataTable dataTable, Message message) throws FacesException {
@@ -496,11 +492,8 @@ public class CRUDComponent extends UINamingContainer implements SystemEventListe
         deleteCommandButton.setOncomplete("PF('deleteDialog').hide()");
         deleteCommandButton.setUpdate(dataTable.getClientId() + "," + message.getClientId());
 
-        CommandButton dismissCommandButton = (CommandButton) application.createComponent(CommandButton.COMPONENT_TYPE);
+        DismissButton dismissCommandButton = (DismissButton) application.createComponent(DismissButton.COMPONENT_TYPE);
         htmlPanelGrid.getChildren().add(dismissCommandButton);
-        dismissCommandButton.setValue("Dismiss");
-        dismissCommandButton.setId("dismissButton");
-        dismissCommandButton.setOncomplete("PF('deleteDialog').hide()");
 
         commandButton.setUpdate(deleteDialog.getClientId() + "," + message.getClientId());
         commandButton.addActionListener(new SelectRowActionListener());
@@ -589,10 +582,8 @@ public class CRUDComponent extends UINamingContainer implements SystemEventListe
         saveCommandButton.addActionListener(new SaveActionListener(entityInspector));
         saveCommandButton.setUpdate(updateDialogHtmlForm.getClientId() + "," + dataTable.getClientId() + "," + message.getClientId());
 
-        CommandButton dismissCommandButton = (CommandButton) application.createComponent(CommandButton.COMPONENT_TYPE);
+        DismissButton dismissCommandButton = (DismissButton) application.createComponent(DismissButton.COMPONENT_TYPE);
         buttonHtmlPanelGrid.getChildren().add(dismissCommandButton);
-        dismissCommandButton.setValue("Dismiss");
-        dismissCommandButton.setOncomplete("PF('updateDialog').hide()");
     }
 
     private void addViewDialog(boolean showView, Application application, Column column, String entityName, Message message, EntityInspector entityInspector, Field idField, Map<String, FieldComponent> fields) throws FacesException {
@@ -643,10 +634,8 @@ public class CRUDComponent extends UINamingContainer implements SystemEventListe
         viewDialog.getChildren().add(buttonHtmlPanelGrid);
         buttonHtmlPanelGrid.setColumns(1);
 
-        CommandButton dismissCommandButton = (CommandButton) application.createComponent(CommandButton.COMPONENT_TYPE);
+        DismissButton dismissCommandButton = (DismissButton) application.createComponent(DismissButton.COMPONENT_TYPE);
         buttonHtmlPanelGrid.getChildren().add(dismissCommandButton);
-        dismissCommandButton.setValue("Dismiss");
-        dismissCommandButton.setOncomplete("PF('viewDialog').hide()");
     }
 
     private void registerToHumanReadableFunction(ELContext elContext) throws NoSuchMethodException, IllegalAccessException, IllegalArgumentException, InvocationTargetException {

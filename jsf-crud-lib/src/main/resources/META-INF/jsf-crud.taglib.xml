@@ -240,6 +240,14 @@
             <type>java.lang.Boolean</type>
         </attribute>
     </tag>
+    
+    <tag>
+        <description>A dialog dismiss button.</description>
+        <tag-name>dismissButton</tag-name>
+        <component>
+            <component-type>crud.dismissButton</component-type>
+        </component>
+    </tag>
 
     <function>
         <function-name>toHumanReadable</function-name>

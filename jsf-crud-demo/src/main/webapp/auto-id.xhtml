@@ -45,7 +45,7 @@
                     <h:panelGrid columns="2">
                         <p:commandButton value="Action" action="#{demoController.action(entity)}"
                                          oncomplete="PF('customDialog').hide()"/>
-                        <p:commandButton value="Dismiss" onclick="PF('customDialog').hide()"/>
+                        <crud:dismissButton/>
                     </h:panelGrid>
                 </h:form>
             </crud:entity>
