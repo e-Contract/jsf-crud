@@ -24,6 +24,7 @@ import javax.el.MethodExpression;
 import javax.el.ValueExpression;
 import javax.faces.application.Application;
 import javax.faces.application.FacesMessage;
+import javax.faces.application.NavigationHandler;
 import javax.faces.component.StateHolder;
 import javax.faces.component.UIComponent;
 import javax.faces.component.UIViewRoot;
@@ -92,6 +93,9 @@ public class ActionAdapter implements ActionListener, StateHolder {
     }
 
     private void setEntity(Object entity, UIComponent component) {
+        if (null == component) {
+            throw new IllegalArgumentException();
+        }
         if (component instanceof EntityComponent) {
             EntityComponent entityComponent = (EntityComponent) component;
             entityComponent.setEntity(entity);
@@ -153,6 +157,11 @@ public class ActionAdapter implements ActionListener, StateHolder {
             EntityInspector entityInspector = new EntityInspector(result);
             FacesMessage facesMessage = new FacesMessage(FacesMessage.SEVERITY_INFO, "Saved " + entityInspector.toHumanReadable(result), null);
             facesContext.addMessage(dataTableClientId, facesMessage);
+        } else if (result instanceof String) {
+            Application application = facesContext.getApplication();
+            NavigationHandler navigationHandler = application.getNavigationHandler();
+            String outcome = (String) result;
+            navigationHandler.handleNavigation(facesContext, null, outcome);
         } else {
             LOGGER.warn("unsupported return type: {}", result.getClass().getName());
         }

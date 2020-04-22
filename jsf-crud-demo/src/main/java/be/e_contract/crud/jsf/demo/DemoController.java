@@ -63,4 +63,9 @@ public class DemoController {
         // return to get merged
         return entity;
     }
+
+    public String navigationAction(DemoEntity entity) {
+        LOGGER.debug("entity: {}", entity.getName());
+        return "/demo";
+    }
 }

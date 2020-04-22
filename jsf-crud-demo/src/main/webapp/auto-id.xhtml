@@ -51,7 +51,9 @@
             </crud:entity>
         </p:dialog>
 
-        <crud:crud entity="be.e_contract.crud.jsf.demo.DemoEntity"/>
+        <crud:crud entity="DemoEntity">
+            <crud:action value="Navigation Action" action="#{demoController.navigationAction}"/>
+        </crud:crud>
 
         <h:form>
             <p:commandLink action="/index?faces-redirect=true" value="Back"/>
