@@ -205,6 +205,8 @@ public class CRUDComponent extends UINamingContainer implements SystemEventListe
         UpdateComponent updateComponent = null;
         ReadComponent readComponent = null;
         Map<String, FieldComponent> fields = new HashMap<>();
+        Map<String, FieldComponent> createFields = new HashMap<>();
+        Map<String, FieldComponent> updateFields = new HashMap<>();
         List<ActionComponent> actions = new LinkedList<>();
         List<PropertyComponent> properties = new LinkedList<>();
         List<UIComponent> children = getChildren();
@@ -213,6 +215,12 @@ public class CRUDComponent extends UINamingContainer implements SystemEventListe
                 createComponent = (CreateComponent) child;
                 if (createComponent.isDisabled()) {
                     showCreate = false;
+                }
+                for (UIComponent createChild : createComponent.getChildren()) {
+                    if (createChild instanceof FieldComponent) {
+                        FieldComponent createFieldComponent = (FieldComponent) createChild;
+                        createFields.put(createFieldComponent.getName(), createFieldComponent);
+                    }
                 }
             } else if (child instanceof DeleteComponent) {
                 deleteComponent = (DeleteComponent) child;
@@ -223,6 +231,12 @@ public class CRUDComponent extends UINamingContainer implements SystemEventListe
                 updateComponent = (UpdateComponent) child;
                 if (updateComponent.isDisabled()) {
                     showUpdate = false;
+                }
+                for (UIComponent updateChild : updateComponent.getChildren()) {
+                    if (updateChild instanceof FieldComponent) {
+                        FieldComponent createFieldComponent = (FieldComponent) updateChild;
+                        updateFields.put(createFieldComponent.getName(), createFieldComponent);
+                    }
                 }
             } else if (child instanceof ReadComponent) {
                 readComponent = (ReadComponent) child;
@@ -332,7 +346,7 @@ public class CRUDComponent extends UINamingContainer implements SystemEventListe
 
             addViewDialog(showView, application, column, entityName, message, entityInspector, idField, fields);
 
-            addUpdateDialog(showUpdate, application, column, entityName, message, expressionFactory, entityInspector, idField, fields, dataTable);
+            addUpdateDialog(showUpdate, application, column, entityName, message, expressionFactory, entityInspector, idField, fields, updateFields);
 
             addDeleteDialog(showDelete, application, column, deleteComponent, entityName, elContext, expressionFactory, entityInspector, dataTable, message);
 
@@ -343,7 +357,7 @@ public class CRUDComponent extends UINamingContainer implements SystemEventListe
         dataTable.getFacets().put("footer", footerHtmlPanelGroup);
         footerHtmlPanelGroup.setStyle("display:block; text-align: left;");
 
-        addCreateDialog(showCreate, application, footerHtmlPanelGroup, entityName, message, expressionFactory, idField, entityInspector, entityClass, fields, dataTable);
+        addCreateDialog(showCreate, application, footerHtmlPanelGroup, entityName, message, expressionFactory, idField, entityInspector, entityClass, fields, createFields);
 
         if (null != deleteComponent && deleteComponent.isDeleteAll()) {
             CommandButton commandButton = (CommandButton) application.createComponent(CommandButton.COMPONENT_TYPE);
@@ -409,7 +423,9 @@ public class CRUDComponent extends UINamingContainer implements SystemEventListe
         }
     }
 
-    private void addCreateDialog(boolean showCreate, Application application, HtmlPanelGroup footerHtmlPanelGroup, String entityName, Message message, ExpressionFactory expressionFactory, Field idField, EntityInspector entityInspector, Class<?> entityClass, Map<String, FieldComponent> fields, DataTable dataTable) throws FacesException {
+    private void addCreateDialog(boolean showCreate, Application application, HtmlPanelGroup footerHtmlPanelGroup, String entityName,
+            Message message, ExpressionFactory expressionFactory, Field idField, EntityInspector entityInspector,
+            Class<?> entityClass, Map<String, FieldComponent> fields, Map<String, FieldComponent> createFields) throws FacesException {
         if (!showCreate) {
             return;
         }
@@ -457,7 +473,7 @@ public class CRUDComponent extends UINamingContainer implements SystemEventListe
         }
 
         for (Field entityField : entityInspector.getOtherFields()) {
-            addInputComponent(entityField, true, entityInspector, fields, htmlPanelGrid);
+            addInputComponent(entityField, true, entityInspector, fields, createFields, htmlPanelGrid);
         }
 
         HtmlPanelGrid buttonHtmlPanelGrid = (HtmlPanelGrid) application.createComponent(HtmlPanelGrid.COMPONENT_TYPE);
@@ -565,7 +581,8 @@ public class CRUDComponent extends UINamingContainer implements SystemEventListe
         }
     }
 
-    private void addUpdateDialog(boolean showUpdate, Application application, Column column, String entityName, Message message, ExpressionFactory expressionFactory, EntityInspector entityInspector, Field idField, Map<String, FieldComponent> fields, DataTable dataTable) throws FacesException {
+    private void addUpdateDialog(boolean showUpdate, Application application, Column column, String entityName, Message message,
+            ExpressionFactory expressionFactory, EntityInspector entityInspector, Field idField, Map<String, FieldComponent> fields, Map<String, FieldComponent> updateFields) throws FacesException {
         if (!showUpdate) {
             return;
         }
@@ -607,7 +624,7 @@ public class CRUDComponent extends UINamingContainer implements SystemEventListe
         htmlPanelGrid.getChildren().add(voidOutputText);
 
         for (Field entityField : entityInspector.getOtherFields()) {
-            addInputComponent(entityField, false, entityInspector, fields, htmlPanelGrid);
+            addInputComponent(entityField, false, entityInspector, fields, updateFields, htmlPanelGrid);
         }
 
         HtmlPanelGrid buttonHtmlPanelGrid = (HtmlPanelGrid) application.createComponent(HtmlPanelGrid.COMPONENT_TYPE);
@@ -715,12 +732,25 @@ public class CRUDComponent extends UINamingContainer implements SystemEventListe
         return entityInspector.toHumanReadable(entityField);
     }
 
-    private boolean isHideField(Field entityField, Map<String, FieldComponent> fields) {
+    private boolean isHideField(Field entityField, Map<String, FieldComponent> fields, Map<String, FieldComponent> overrideFields) {
+        if (null != overrideFields) {
+            FieldComponent fieldComponent = overrideFields.get(entityField.getName());
+            if (null != fieldComponent) {
+                Boolean hide = fieldComponent.isHide();
+                if (null != hide) {
+                    return hide;
+                }
+            }
+        }
         FieldComponent fieldComponent = fields.get(entityField.getName());
         if (null == fieldComponent) {
             return false;
         }
-        return fieldComponent.isHide();
+        Boolean hide = fieldComponent.isHide();
+        if (null == hide) {
+            return false;
+        }
+        return hide;
     }
 
     private boolean isSortField(Field entityField, Map<String, FieldComponent> fields) {
@@ -751,7 +781,10 @@ public class CRUDComponent extends UINamingContainer implements SystemEventListe
         return fieldComponent.isFilter();
     }
 
-    private void addInputComponent(Field entityField, boolean addNotUpdate, EntityInspector entityInspector, Map<String, FieldComponent> fields, HtmlPanelGrid htmlPanelGrid) {
+    private void addInputComponent(Field entityField, boolean addNotUpdate, EntityInspector entityInspector, Map<String, FieldComponent> fields, Map<String, FieldComponent> overrideFields, HtmlPanelGrid htmlPanelGrid) {
+        if (isHideField(entityField, fields, overrideFields)) {
+            return;
+        }
         FacesContext facesContext = FacesContext.getCurrentInstance();
         Application application = facesContext.getApplication();
 
@@ -873,7 +906,7 @@ public class CRUDComponent extends UINamingContainer implements SystemEventListe
     }
 
     private void addColumn(DataTable dataTable, Field field, EntityInspector entityInspector, Map<String, FieldComponent> fields) {
-        if (isHideField(field, fields)) {
+        if (isHideField(field, fields, null)) {
             return;
         }
         FacesContext facesContext = FacesContext.getCurrentInstance();

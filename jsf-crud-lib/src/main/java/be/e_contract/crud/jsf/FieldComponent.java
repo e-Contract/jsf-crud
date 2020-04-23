@@ -54,15 +54,12 @@ public class FieldComponent extends UIComponentBase {
         getStateHelper().put(PropertyKeys.label, label);
     }
 
-    public boolean isHide() {
+    public Boolean isHide() {
         Boolean hide = (Boolean) getStateHelper().get(PropertyKeys.hide);
-        if (null == hide) {
-            return false;
-        }
         return hide;
     }
 
-    public void setHide(boolean hide) {
+    public void setHide(Boolean hide) {
         getStateHelper().put(PropertyKeys.hide, hide);
     }
 
