@@ -1022,6 +1022,9 @@ public class CRUDComponent extends UINamingContainer implements SystemEventListe
                 userTransaction.commit();
             } catch (RollbackException | HeuristicMixedException | HeuristicRollbackException | SecurityException | IllegalStateException | SystemException ex) {
                 LOGGER.error("error: " + ex.getMessage(), ex);
+                String entityHumanReadable = this.entityInspector.toHumanReadable(entity);
+                CRUDComponent.this.addMessage(FacesMessage.SEVERITY_ERROR, "Could not update " + entityHumanReadable);
+                CRUDComponent.this.resetCache();
                 return;
             }
             CRUDComponent.this.setSelection(null);
@@ -1103,6 +1106,9 @@ public class CRUDComponent extends UINamingContainer implements SystemEventListe
                 userTransaction.commit();
             } catch (RollbackException | HeuristicMixedException | HeuristicRollbackException | SecurityException | IllegalStateException | SystemException ex) {
                 LOGGER.error("error: " + ex.getMessage(), ex);
+                String entityHumanReadable = this.entityInspector.toHumanReadable(entity);
+                CRUDComponent.this.addMessage(FacesMessage.SEVERITY_ERROR, "Could not add " + entityHumanReadable);
+                CRUDComponent.this.setNewEntity(null);
                 return;
             }
             CRUDComponent.this.setNewEntity(null);
