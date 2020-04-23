@@ -612,16 +612,18 @@ public class CRUDComponent extends UINamingContainer implements SystemEventListe
         updateDialogHtmlForm.getChildren().add(htmlPanelGrid);
         htmlPanelGrid.setColumns(3);
 
-        OutputLabel idOutputLabel = (OutputLabel) application.createComponent(OutputLabel.COMPONENT_TYPE);
-        htmlPanelGrid.getChildren().add(idOutputLabel);
-        idOutputLabel.setValue(entityInspector.toHumanReadable(idField));
+        if (!isHideField(idField, fields, updateFields)) {
+            OutputLabel idOutputLabel = (OutputLabel) application.createComponent(OutputLabel.COMPONENT_TYPE);
+            htmlPanelGrid.getChildren().add(idOutputLabel);
+            idOutputLabel.setValue(entityInspector.toHumanReadable(idField));
 
-        HtmlOutputText identifierOutputText = (HtmlOutputText) application.createComponent(HtmlOutputText.COMPONENT_TYPE);
-        htmlPanelGrid.getChildren().add(identifierOutputText);
-        identifierOutputText.setValueExpression("value", new EntityFieldValueExpression(this, idField, false));
+            HtmlOutputText identifierOutputText = (HtmlOutputText) application.createComponent(HtmlOutputText.COMPONENT_TYPE);
+            htmlPanelGrid.getChildren().add(identifierOutputText);
+            identifierOutputText.setValueExpression("value", new EntityFieldValueExpression(this, idField, false));
 
-        HtmlOutputText voidOutputText = (HtmlOutputText) application.createComponent(HtmlOutputText.COMPONENT_TYPE);
-        htmlPanelGrid.getChildren().add(voidOutputText);
+            HtmlOutputText voidOutputText = (HtmlOutputText) application.createComponent(HtmlOutputText.COMPONENT_TYPE);
+            htmlPanelGrid.getChildren().add(voidOutputText);
+        }
 
         for (Field entityField : entityInspector.getOtherFields()) {
             addInputComponent(entityField, false, entityInspector, fields, updateFields, htmlPanelGrid);
