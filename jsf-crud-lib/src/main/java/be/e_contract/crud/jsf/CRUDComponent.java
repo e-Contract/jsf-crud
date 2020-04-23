@@ -923,6 +923,11 @@ public class CRUDComponent extends UINamingContainer implements SystemEventListe
                 input.setRequired(true);
             }
         }
+        if (null != manyToOne) {
+            if (!manyToOne.optional()) {
+                input.setRequired(true);
+            }
+        }
 
         Message inputTextMessage = (Message) application.createComponent(Message.COMPONENT_TYPE);
         htmlPanelGrid.getChildren().add(inputTextMessage);
