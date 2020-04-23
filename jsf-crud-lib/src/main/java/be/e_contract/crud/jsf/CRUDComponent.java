@@ -476,8 +476,7 @@ public class CRUDComponent extends UINamingContainer implements SystemEventListe
                 LOGGER.error("reflection error: " + ex.getMessage(), ex);
                 throw new AbortProcessingException();
             }
-
-            ValueExpression deleteOutputTextValueExpression = expressionFactory.createValueExpression(elContext, "Do you want to delete #{crud:toHumanReadable(entity)} ?", String.class);
+            ValueExpression deleteOutputTextValueExpression = expressionFactory.createValueExpression(new CRUDELContext(elContext), "Do you want to delete #{crud:toHumanReadable(entity)} ?", String.class);
             htmlOutputText.setValueExpression("value", deleteOutputTextValueExpression);
             entityComponent.getChildren().add(htmlOutputText);
         }
@@ -644,6 +643,14 @@ public class CRUDComponent extends UINamingContainer implements SystemEventListe
     }
 
     private void registerToHumanReadableFunction(ELContext elContext) throws NoSuchMethodException, IllegalAccessException, IllegalArgumentException, InvocationTargetException {
+        FunctionMapper functionMapper = elContext.getFunctionMapper();
+        if (null == functionMapper) {
+            // open liberty
+            LOGGER.warn("missing FunctionMapper");
+            return;
+        }
+        LOGGER.debug("FunctionMapper class: {}", functionMapper.getClass().getName());
+
         Method mapFunctionMethod = null;
         Method[] methods = FunctionMapper.class.getMethods();
         for (Method method : methods) {
@@ -658,12 +665,7 @@ public class CRUDComponent extends UINamingContainer implements SystemEventListe
         }
 
         Method toHumanReadableMethod = CRUDFunctions.class.getMethod("toHumanReadable", new Class[]{Object.class});
-        FunctionMapper functionMapper = elContext.getFunctionMapper();
-        if (null == functionMapper) {
-            // open liberty
-            LOGGER.warn("missing FunctionMapper");
-            return;
-        }
+
         mapFunctionMethod.invoke(functionMapper, "crud", "toHumanReadable", toHumanReadableMethod);
     }
 
