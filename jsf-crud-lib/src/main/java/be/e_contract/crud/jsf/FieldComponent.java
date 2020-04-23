@@ -66,15 +66,12 @@ public class FieldComponent extends UIComponentBase {
         getStateHelper().put(PropertyKeys.hide, hide);
     }
 
-    public boolean isSort() {
+    public Boolean isSort() {
         Boolean sort = (Boolean) getStateHelper().get(PropertyKeys.sort);
-        if (null == sort) {
-            return false;
-        }
         return sort;
     }
 
-    public void setSort(boolean sort) {
+    public void setSort(Boolean sort) {
         getStateHelper().put(PropertyKeys.sort, sort);
     }
 

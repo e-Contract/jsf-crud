@@ -53,15 +53,12 @@ public class PropertyComponent extends UIComponentBase {
         getStateHelper().put(PropertyKeys.label, label);
     }
 
-    public boolean isSort() {
+    public Boolean isSort() {
         Boolean sort = (Boolean) getStateHelper().get(PropertyKeys.sort);
-        if (null == sort) {
-            return false;
-        }
         return sort;
     }
 
-    public void setSort(boolean sort) {
+    public void setSort(Boolean sort) {
         getStateHelper().put(PropertyKeys.sort, sort);
     }
 

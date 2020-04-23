@@ -110,6 +110,7 @@ public class CRUDComponent extends UINamingContainer implements SystemEventListe
         newEntity,
         title,
         orderBy,
+        sort,
     }
 
     public void setEntity(String entity) {
@@ -162,6 +163,18 @@ public class CRUDComponent extends UINamingContainer implements SystemEventListe
 
     public void setOrderBy(String orderBy) {
         getStateHelper().put(PropertyKeys.orderBy, orderBy);
+    }
+
+    public boolean isSort() {
+        Boolean sort = (Boolean) getStateHelper().get(PropertyKeys.sort);
+        if (null == sort) {
+            return false;
+        }
+        return sort;
+    }
+
+    public void setSort(boolean sort) {
+        getStateHelper().put(PropertyKeys.sort, sort);
     }
 
     @Override
@@ -691,9 +704,21 @@ public class CRUDComponent extends UINamingContainer implements SystemEventListe
     private boolean isSortField(Field entityField, Map<String, FieldComponent> fields) {
         FieldComponent fieldComponent = fields.get(entityField.getName());
         if (null == fieldComponent) {
-            return false;
+            return isSort();
         }
-        return fieldComponent.isSort();
+        Boolean sort = fieldComponent.isSort();
+        if (null == sort) {
+            return isSort();
+        }
+        return sort;
+    }
+
+    private boolean isSortProperty(PropertyComponent property) {
+        Boolean sort = property.isSort();
+        if (null == sort) {
+            return isSort();
+        }
+        return sort;
     }
 
     private boolean isFilterField(Field entityField, Map<String, FieldComponent> fields) {
@@ -869,7 +894,7 @@ public class CRUDComponent extends UINamingContainer implements SystemEventListe
             propertyLabel = EntityInspector.toHumanReadable(property.getName());
         }
         column.setHeaderText(propertyLabel);
-        if (property.isSort()) {
+        if (isSortProperty(property)) {
             column.setValueExpression("sortBy", expressionFactory.createValueExpression(elContext, "#{row." + property.getName() + "}", String.class));
         }
         if (property.isFilter()) {
