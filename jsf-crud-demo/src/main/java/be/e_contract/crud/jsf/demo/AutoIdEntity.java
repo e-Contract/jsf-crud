@@ -76,6 +76,9 @@ public class AutoIdEntity implements Serializable {
     @Temporal(TemporalType.DATE)
     private Calendar dateOfBirth;
 
+    @Column(length = 1024 * 10)
+    private String largeText;
+
     public AutoIdEntity() {
         super();
     }
@@ -178,6 +181,14 @@ public class AutoIdEntity implements Serializable {
 
     public void setDateOfBirth(Calendar dateOfBirth) {
         this.dateOfBirth = dateOfBirth;
+    }
+
+    public String getLargeText() {
+        return this.largeText;
+    }
+
+    public void setLargeText(String largeText) {
+        this.largeText = largeText;
     }
 
     public String getMyProperty() {

@@ -75,6 +75,7 @@ import org.primefaces.component.column.Column;
 import org.primefaces.component.commandbutton.CommandButton;
 import org.primefaces.component.dialog.Dialog;
 import org.primefaces.component.inputtext.InputText;
+import org.primefaces.component.inputtextarea.InputTextarea;
 import org.primefaces.component.message.Message;
 import org.primefaces.component.outputlabel.OutputLabel;
 import org.primefaces.component.resetinput.ResetInputActionListener;
@@ -918,14 +919,27 @@ public class CRUDComponent extends UINamingContainer implements SystemEventListe
                 input.getChildren().add(selectItem);
             }
         } else {
-            input = (InputText) application.createComponent(InputText.COMPONENT_TYPE);
-            input.addValidator(new LengthValidator(255));
-            InputText inputText = (InputText) input;
-            inputText.setDisabled(disabled);
-            Integer size = getFieldSize(entityField, fields, overrideFields);
-            if (null != size) {
-                inputText.setSize(size);
+            int length = 255;
+            if (null != columnAnnotation) {
+                length = columnAnnotation.length();
             }
+            if (length <= 255) {
+                input = (InputText) application.createComponent(InputText.COMPONENT_TYPE);
+                InputText inputText = (InputText) input;
+                inputText.setDisabled(disabled);
+                Integer size = getFieldSize(entityField, fields, overrideFields);
+                if (null != size) {
+                    inputText.setSize(size);
+                }
+            } else {
+                input = (InputTextarea) application.createComponent(InputTextarea.COMPONENT_TYPE);
+                InputTextarea inputTextarea = (InputTextarea) input;
+                inputTextarea.setDisabled(disabled);
+                inputTextarea.setCols(80);
+                inputTextarea.setRows(10);
+                inputTextarea.setAutoResize(false);
+            }
+            input.addValidator(new LengthValidator(length));
         }
         htmlPanelGrid.getChildren().add(input);
         input.setId(entityField.getName());
@@ -933,9 +947,6 @@ public class CRUDComponent extends UINamingContainer implements SystemEventListe
         if (null != columnAnnotation) {
             if (!columnAnnotation.nullable()) {
                 input.setRequired(true);
-            }
-            if (columnAnnotation.length() != 255) {
-                input.addValidator(new LengthValidator(columnAnnotation.length()));
             }
         }
         Basic basicAnnotation = entityField.getAnnotation(Basic.class);
