@@ -306,6 +306,7 @@ public class CRUDComponent extends UINamingContainer implements SystemEventListe
 
         HtmlPanelGroup footerHtmlPanelGroup = (HtmlPanelGroup) application.createComponent(HtmlPanelGroup.COMPONENT_TYPE);
         dataTable.getFacets().put("footer", footerHtmlPanelGroup);
+        footerHtmlPanelGroup.setStyle("display:block; text-align: left;");
 
         addCreateDialog(showCreate, application, footerHtmlPanelGroup, entityName, message, expressionFactory, idField, entityInspector, entityClass, fields, dataTable);
 
