@@ -176,6 +176,11 @@
             <name>filter</name>
             <type>java.lang.Boolean</type>
         </attribute>
+        <attribute>
+            <description>The optional field size for create/update operations.</description>
+            <name>size</name>
+            <type>java.lang.Integer</type>
+        </attribute>
     </tag>
     
     <tag>

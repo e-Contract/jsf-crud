@@ -783,6 +783,24 @@ public class CRUDComponent extends UINamingContainer implements SystemEventListe
         return fieldComponent.isFilter();
     }
 
+    private Integer getFieldSize(Field entityField, Map<String, FieldComponent> fields, Map<String, FieldComponent> overrideFields) {
+        if (null != overrideFields) {
+            FieldComponent fieldComponent = overrideFields.get(entityField.getName());
+            if (null != fieldComponent) {
+                Integer size = fieldComponent.getSize();
+                if (null != size) {
+                    return size;
+                }
+            }
+        }
+        FieldComponent fieldComponent = fields.get(entityField.getName());
+        if (null == fieldComponent) {
+            return null;
+        }
+        Integer size = fieldComponent.getSize();
+        return size;
+    }
+
     private void addInputComponent(Field entityField, boolean addNotUpdate, EntityInspector entityInspector, Map<String, FieldComponent> fields, Map<String, FieldComponent> overrideFields, HtmlPanelGrid htmlPanelGrid) {
         if (isHideField(entityField, fields, overrideFields)) {
             return;
@@ -883,6 +901,10 @@ public class CRUDComponent extends UINamingContainer implements SystemEventListe
             input.addValidator(new LengthValidator(255));
             InputText inputText = (InputText) input;
             inputText.setDisabled(disabled);
+            Integer size = getFieldSize(entityField, fields, overrideFields);
+            if (null != size) {
+                inputText.setSize(size);
+            }
         }
         htmlPanelGrid.getChildren().add(input);
         input.setId(entityField.getName());

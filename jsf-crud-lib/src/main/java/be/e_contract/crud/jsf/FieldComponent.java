@@ -31,6 +31,7 @@ public class FieldComponent extends UIComponentBase {
         hide,
         sort,
         filter,
+        size,
     }
 
     @Override
@@ -82,5 +83,13 @@ public class FieldComponent extends UIComponentBase {
 
     public void setFilter(boolean filter) {
         getStateHelper().put(PropertyKeys.filter, filter);
+    }
+
+    public Integer getSize() {
+        return (Integer) getStateHelper().get(PropertyKeys.size);
+    }
+
+    public void setSize(Integer size) {
+        getStateHelper().put(PropertyKeys.size, size);
     }
 }
