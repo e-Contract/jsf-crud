@@ -101,6 +101,11 @@
                     <artifactId>liberty-maven-plugin</artifactId>
                     <version>3.2</version>
                 </plugin>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-war-plugin</artifactId>
+                    <version>3.2.3</version>
+                </plugin>
             </plugins>
         </pluginManagement>
         <plugins>

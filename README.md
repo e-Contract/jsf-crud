@@ -8,6 +8,7 @@ The component has been tested on the following application servers:
 * WildFly 19.0.0
 * Payara 5.201
 * Oracle WebLogic Server 14.1.1
+* Apache TomEE 8.0.1
 * Open Liberty 20.0.0.4 (EL FunctionMapper not available)
 
 The component has been tested with PrimeFaces versions:
