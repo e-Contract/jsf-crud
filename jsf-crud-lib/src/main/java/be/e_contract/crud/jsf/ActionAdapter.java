@@ -37,6 +37,7 @@ import javax.transaction.NotSupportedException;
 import javax.transaction.RollbackException;
 import javax.transaction.SystemException;
 import javax.transaction.UserTransaction;
+import org.primefaces.PrimeFaces;
 import org.primefaces.component.datatable.DataTable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -122,13 +123,19 @@ public class ActionAdapter implements ActionListener, StateHolder {
             return;
         }
         Object result = this.methodExpression.invoke(elContext, new Object[]{entity});
+
+        UIComponent component = event.getComponent();
+        CRUDComponent crudComponent = getCRUDComponent(component);
+        crudComponent.resetCache();
+        PrimeFaces primeFaces = PrimeFaces.current();
+        String dataTableClientId = getParentDataTableClientId(component);
+        primeFaces.ajax().update(dataTableClientId);
+
         if (null == result) {
             return;
         }
         if (result instanceof FacesMessage) {
             FacesMessage facesMessage = (FacesMessage) result;
-            UIComponent component = event.getComponent();
-            String dataTableClientId = getParentDataTableClientId(component);
             facesContext.addMessage(dataTableClientId, facesMessage);
         } else if (result.getClass().equals(entity.getClass())) {
             CRUDController crudController = CRUDController.getCRUDController();
@@ -151,11 +158,8 @@ public class ActionAdapter implements ActionListener, StateHolder {
                 return;
             }
 
-            UIComponent component = event.getComponent();
-            String dataTableClientId = getParentDataTableClientId(component);
-            EntityInspector entityInspector = new EntityInspector(result);
-            FacesMessage facesMessage = new FacesMessage(FacesMessage.SEVERITY_INFO, "Saved " + entityInspector.toHumanReadable(result), null);
-            facesContext.addMessage(dataTableClientId, facesMessage);
+            UpdateEvent updateEvent = new UpdateEvent(crudComponent, entity);
+            updateEvent.queue();
         } else if (result instanceof String) {
             Application application = facesContext.getApplication();
             NavigationHandler navigationHandler = application.getNavigationHandler();
@@ -171,6 +175,16 @@ public class ActionAdapter implements ActionListener, StateHolder {
             component = component.getParent();
             if (component instanceof DataTable) {
                 return component.getClientId();
+            }
+        }
+        throw new AbortProcessingException();
+    }
+
+    private CRUDComponent getCRUDComponent(UIComponent component) {
+        while (component.getParent() != null) {
+            component = component.getParent();
+            if (component instanceof CRUDComponent) {
+                return (CRUDComponent) component;
             }
         }
         throw new AbortProcessingException();
