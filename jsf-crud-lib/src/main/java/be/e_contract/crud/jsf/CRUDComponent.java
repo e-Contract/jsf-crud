@@ -767,6 +767,27 @@ public class CRUDComponent extends UINamingContainer implements SystemEventListe
         return sort;
     }
 
+    private boolean isRequiredField(Field entityField, Map<String, FieldComponent> fields, Map<String, FieldComponent> overrideFields) {
+        if (null != overrideFields) {
+            FieldComponent fieldComponent = overrideFields.get(entityField.getName());
+            if (null != fieldComponent) {
+                Boolean required = fieldComponent.isRequired();
+                if (null != required) {
+                    return required;
+                }
+            }
+        }
+        FieldComponent fieldComponent = fields.get(entityField.getName());
+        if (null == fieldComponent) {
+            return false;
+        }
+        Boolean required = fieldComponent.isRequired();
+        if (null == required) {
+            return false;
+        }
+        return required;
+    }
+
     private boolean isSortProperty(PropertyComponent property) {
         Boolean sort = property.isSort();
         if (null == sort) {
@@ -927,6 +948,9 @@ public class CRUDComponent extends UINamingContainer implements SystemEventListe
             if (!manyToOne.optional()) {
                 input.setRequired(true);
             }
+        }
+        if (isRequiredField(entityField, fields, overrideFields)) {
+            input.setRequired(true);
         }
 
         Message inputTextMessage = (Message) application.createComponent(Message.COMPONENT_TYPE);

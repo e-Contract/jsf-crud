@@ -181,6 +181,11 @@
             <name>size</name>
             <type>java.lang.Integer</type>
         </attribute>
+        <attribute>
+            <description>Set to true to make this field required for create/update.</description>
+            <name>required</name>
+            <type>java.lang.Boolean</type>
+        </attribute>
     </tag>
     
     <tag>

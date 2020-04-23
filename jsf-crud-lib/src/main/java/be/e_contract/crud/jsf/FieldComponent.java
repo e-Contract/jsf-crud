@@ -32,6 +32,7 @@ public class FieldComponent extends UIComponentBase {
         sort,
         filter,
         size,
+        required,
     }
 
     @Override
@@ -91,5 +92,14 @@ public class FieldComponent extends UIComponentBase {
 
     public void setSize(Integer size) {
         getStateHelper().put(PropertyKeys.size, size);
+    }
+
+    public Boolean isRequired() {
+        Boolean required = (Boolean) getStateHelper().get(PropertyKeys.required);
+        return required;
+    }
+
+    public void setRequired(Boolean required) {
+        getStateHelper().put(PropertyKeys.required, required);
     }
 }
