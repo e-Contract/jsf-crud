@@ -49,6 +49,7 @@ import javax.faces.component.html.HtmlForm;
 import javax.faces.component.html.HtmlOutputText;
 import javax.faces.component.html.HtmlPanelGrid;
 import javax.faces.component.html.HtmlPanelGroup;
+import javax.faces.context.ExternalContext;
 import javax.faces.event.ActionEvent;
 import javax.faces.event.ActionListener;
 import javax.faces.event.PostAddToViewEvent;
@@ -61,6 +62,7 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.ManyToOne;
 import javax.persistence.Query;
 import javax.persistence.Temporal;
+import javax.servlet.http.HttpServletRequest;
 import javax.transaction.HeuristicMixedException;
 import javax.transaction.HeuristicRollbackException;
 import javax.transaction.NotSupportedException;
@@ -111,6 +113,7 @@ public class CRUDComponent extends UINamingContainer implements SystemEventListe
         title,
         orderBy,
         sort,
+        roleAllowed,
     }
 
     public void setEntity(String entity) {
@@ -177,6 +180,14 @@ public class CRUDComponent extends UINamingContainer implements SystemEventListe
         getStateHelper().put(PropertyKeys.sort, sort);
     }
 
+    public void setRoleAllowed(String roleAllowed) {
+        getStateHelper().put(PropertyKeys.roleAllowed, roleAllowed);
+    }
+
+    public String getRoleAllowed() {
+        return (String) getStateHelper().eval(PropertyKeys.roleAllowed);
+    }
+
     @Override
     public void processEvent(SystemEvent event) throws AbortProcessingException {
         FacesContext facesContext = FacesContext.getCurrentInstance();
@@ -240,6 +251,17 @@ public class CRUDComponent extends UINamingContainer implements SystemEventListe
             } else if (child instanceof PropertyComponent) {
                 PropertyComponent propertyComponent = (PropertyComponent) child;
                 properties.add(propertyComponent);
+            }
+        }
+
+        String roleAllowed = getRoleAllowed();
+        if (!UIInput.isEmpty(roleAllowed)) {
+            LOGGER.debug("role allowed: {}", roleAllowed);
+            ExternalContext externalContext = facesContext.getExternalContext();
+            HttpServletRequest httpServletRequest = (HttpServletRequest) externalContext.getRequest();
+            if (!httpServletRequest.isUserInRole(roleAllowed)) {
+                LOGGER.warn("caller principal not in role: {}", roleAllowed);
+                throw new AbortProcessingException();
             }
         }
 

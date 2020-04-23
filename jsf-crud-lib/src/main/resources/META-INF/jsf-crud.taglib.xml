@@ -35,6 +35,11 @@
             <name>sort</name>
             <type>java.lang.Boolean</type>
         </attribute>
+        <attribute>
+            <description>The optional security role that is allowed CRUD operations.</description>
+            <name>roleAllowed</name>
+            <type>java.lang.String</type>
+        </attribute>
     </tag>
 
     <tag>
