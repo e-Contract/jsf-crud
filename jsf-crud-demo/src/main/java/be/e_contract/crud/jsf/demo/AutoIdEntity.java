@@ -32,6 +32,7 @@ import javax.persistence.Id;
 import javax.persistence.ManyToOne;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
+import javax.validation.constraints.Max;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 
@@ -47,6 +48,7 @@ public class AutoIdEntity implements Serializable {
     @Column(nullable = false, unique = true)
     private String description;
 
+    @Max(1000)
     private long amount;
 
     private boolean checked;

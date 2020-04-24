@@ -1072,7 +1072,7 @@ public class CRUDComponent extends UINamingContainer implements SystemEventListe
         }
     }
 
-    private void addMessage(FacesMessage.Severity severity, String message) {
+    void addMessage(FacesMessage.Severity severity, String message) {
         FacesContext facesContext = FacesContext.getCurrentInstance();
         String dataTableClientId = null;
         String messageClientId = null;

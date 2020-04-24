@@ -20,6 +20,7 @@ package be.e_contract.crud.jsf;
 import javax.el.ELContext;
 import javax.el.MethodExpression;
 import javax.faces.application.Application;
+import javax.faces.application.FacesMessage;
 import javax.faces.component.FacesComponent;
 import javax.faces.component.StateHolder;
 import javax.faces.component.UIComponent;
@@ -153,6 +154,8 @@ public class SaveButton extends UIComponentBase implements SystemEventListener {
                 userTransaction.begin();
             } catch (NotSupportedException | SystemException ex) {
                 LOGGER.error("error: " + ex.getMessage(), ex);
+                crudComponent.addMessage(FacesMessage.SEVERITY_ERROR, "Could not save entity.");
+                crudComponent.resetCache();
                 return;
             }
 
@@ -162,6 +165,8 @@ public class SaveButton extends UIComponentBase implements SystemEventListener {
                 userTransaction.commit();
             } catch (RollbackException | HeuristicMixedException | HeuristicRollbackException | SecurityException | IllegalStateException | SystemException ex) {
                 LOGGER.error("error: " + ex.getMessage(), ex);
+                crudComponent.addMessage(FacesMessage.SEVERITY_ERROR, "Could not save entity.");
+                crudComponent.resetCache();
                 return;
             }
 
