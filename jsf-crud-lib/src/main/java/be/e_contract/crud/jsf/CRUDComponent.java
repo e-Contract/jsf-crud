@@ -55,6 +55,7 @@ import javax.faces.event.ActionListener;
 import javax.faces.event.PostAddToViewEvent;
 import javax.faces.event.SystemEvent;
 import javax.faces.event.SystemEventListener;
+import javax.faces.validator.BeanValidator;
 import javax.faces.validator.LengthValidator;
 import javax.persistence.Basic;
 import javax.persistence.EntityManager;
@@ -69,6 +70,7 @@ import javax.transaction.NotSupportedException;
 import javax.transaction.RollbackException;
 import javax.transaction.SystemException;
 import javax.transaction.UserTransaction;
+import javax.validation.groups.Default;
 import org.primefaces.PrimeFaces;
 import org.primefaces.component.calendar.Calendar;
 import org.primefaces.component.column.Column;
@@ -963,6 +965,10 @@ public class CRUDComponent extends UINamingContainer implements SystemEventListe
         if (isRequiredField(entityField, fields, overrideFields)) {
             input.setRequired(true);
         }
+        BeanValidator beanValidator = (BeanValidator) application.createValidator(BeanValidator.VALIDATOR_ID);
+        beanValidator.setValidationGroups(Default.class.getName());
+        input.addValidator(beanValidator);
+        input.addValidator(new UniqueValidator());
 
         Message inputTextMessage = (Message) application.createComponent(Message.COMPONENT_TYPE);
         htmlPanelGrid.getChildren().add(inputTextMessage);

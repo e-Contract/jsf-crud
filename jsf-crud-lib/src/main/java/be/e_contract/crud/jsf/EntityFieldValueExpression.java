@@ -20,6 +20,7 @@ package be.e_contract.crud.jsf;
 import java.lang.reflect.Field;
 import javax.el.ELContext;
 import javax.el.ValueExpression;
+import javax.el.ValueReference;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -81,6 +82,11 @@ public class EntityFieldValueExpression extends ValueExpression {
             return;
         }
         try {
+            if (null == value) {
+                if (this.entityField.getType().isPrimitive()) {
+                    return;
+                }
+            }
             this.entityField.setAccessible(true);
             this.entityField.set(entity, value);
         } catch (IllegalArgumentException | IllegalAccessException ex) {
@@ -128,5 +134,10 @@ public class EntityFieldValueExpression extends ValueExpression {
     public boolean isLiteralText() {
         //LOGGER.debug("isLiteralText");
         return false;
+    }
+
+    @Override
+    public ValueReference getValueReference(ELContext context) {
+        return new ValueReference(getEntity(), this.entityField.getName());
     }
 }
