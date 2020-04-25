@@ -66,6 +66,10 @@ import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.Query;
 import javax.persistence.Temporal;
+import javax.persistence.TypedQuery;
+import javax.persistence.criteria.CriteriaBuilder;
+import javax.persistence.criteria.CriteriaQuery;
+import javax.persistence.criteria.Root;
 import javax.servlet.http.HttpServletRequest;
 import javax.transaction.HeuristicMixedException;
 import javax.transaction.HeuristicRollbackException;
@@ -893,8 +897,15 @@ public class CRUDComponent extends UINamingContainer implements SystemEventListe
             EntityManager entityManager = crudController.getEntityManager();
 
             EntityInspector otherEntityInspector = new EntityInspector(entityField.getType());
-            Query query = entityManager.createQuery("SELECT entity FROM " + entityField.getType().getSimpleName() + " AS entity");
+
+            CriteriaBuilder criteriaBuilder = entityManager.getCriteriaBuilder();
+            CriteriaQuery<Object> criteriaQuery = criteriaBuilder.createQuery(Object.class);
+            Root<? extends Object> entity = criteriaQuery.from(entityField.getType());
+            criteriaQuery.select(entity);
+
+            TypedQuery<Object> query = entityManager.createQuery(criteriaQuery);
             List resultList = query.getResultList();
+
             for (Object otherEntity : resultList) {
                 UISelectItem selectItem = (UISelectItem) application.createComponent(UISelectItem.COMPONENT_TYPE);
                 selectItem.setItemValue(otherEntity);
@@ -913,7 +924,7 @@ public class CRUDComponent extends UINamingContainer implements SystemEventListe
             ParameterizedType parameterizedType = (ParameterizedType) type;
             Class<?> listTypeClass = (Class<?>) parameterizedType.getActualTypeArguments()[0];
             selectManyMenu.setConverter(new EntityConverter(listTypeClass));
-            selectItems.setValueExpression("value", new EntityFieldSelectItemsValueExpression(this, entityField, addNotUpdate));
+            selectItems.setValueExpression("value", new EntityFieldSelectItemsValueExpression(entityField));
         } else if (entityField.getType() == Boolean.TYPE) {
             input = (SelectBooleanCheckbox) application.createComponent(SelectBooleanCheckbox.COMPONENT_TYPE);
             SelectBooleanCheckbox selectBooleanCheckbox = (SelectBooleanCheckbox) input;

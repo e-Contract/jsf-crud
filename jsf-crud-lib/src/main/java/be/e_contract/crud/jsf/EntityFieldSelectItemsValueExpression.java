@@ -26,7 +26,10 @@ import javax.el.ELContext;
 import javax.el.ValueExpression;
 import javax.faces.model.SelectItem;
 import javax.persistence.EntityManager;
-import javax.persistence.Query;
+import javax.persistence.TypedQuery;
+import javax.persistence.criteria.CriteriaBuilder;
+import javax.persistence.criteria.CriteriaQuery;
+import javax.persistence.criteria.Root;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -34,16 +37,10 @@ public class EntityFieldSelectItemsValueExpression extends ValueExpression {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(EntityFieldSelectItemsValueExpression.class);
 
-    private final CRUDComponent crudComponent;
-
     private final Field entityField;
 
-    private final boolean create;
-
-    public EntityFieldSelectItemsValueExpression(CRUDComponent crudComponent, Field entityField, boolean create) {
-        this.crudComponent = crudComponent;
+    public EntityFieldSelectItemsValueExpression(Field entityField) {
         this.entityField = entityField;
-        this.create = create;
     }
 
     @Override
@@ -56,8 +53,15 @@ public class EntityFieldSelectItemsValueExpression extends ValueExpression {
         LOGGER.debug("list type class: {}", listTypeClass.getName());
         CRUDController crudController = CRUDController.getCRUDController();
         EntityManager entityManager = crudController.getEntityManager();
-        Query query = entityManager.createQuery("SELECT entity FROM " + listTypeClass.getSimpleName() + " AS entity");
+
+        CriteriaBuilder criteriaBuilder = entityManager.getCriteriaBuilder();
+        CriteriaQuery<Object> criteriaQuery = criteriaBuilder.createQuery(Object.class);
+        Root<? extends Object> entity = criteriaQuery.from(listTypeClass);
+        criteriaQuery.select(entity);
+
+        TypedQuery<Object> query = entityManager.createQuery(criteriaQuery);
         List entities = query.getResultList();
+
         EntityInspector entityInspector = new EntityInspector(listTypeClass);
         List<SelectItem> selectItems = new LinkedList<>();
         for (Object entityObject : entities) {
@@ -65,25 +69,6 @@ public class EntityFieldSelectItemsValueExpression extends ValueExpression {
             selectItems.add(selectItem);
         }
         return selectItems;
-    }
-
-    private Object getEntity() {
-        Object entity;
-        if (this.create) {
-            entity = this.crudComponent.getNewEntity();
-            if (null == entity) {
-                try {
-                    entity = this.entityField.getDeclaringClass().newInstance();
-                } catch (InstantiationException | IllegalAccessException ex) {
-                    LOGGER.error("error: " + ex.getMessage(), ex);
-                    return null;
-                }
-                this.crudComponent.setNewEntity(entity);
-            }
-        } else {
-            entity = this.crudComponent.getSelection();
-        }
-        return entity;
     }
 
     @Override
