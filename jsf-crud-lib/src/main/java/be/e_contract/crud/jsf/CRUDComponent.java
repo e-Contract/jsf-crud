@@ -44,6 +44,7 @@ import javax.faces.component.UIComponent;
 import javax.faces.component.UIInput;
 import javax.faces.component.UINamingContainer;
 import javax.faces.component.UISelectItem;
+import javax.faces.component.UISelectItems;
 import javax.faces.component.UIViewRoot;
 import javax.faces.component.html.HtmlForm;
 import javax.faces.component.html.HtmlOutputText;
@@ -60,6 +61,7 @@ import javax.persistence.Basic;
 import javax.persistence.EntityManager;
 import javax.persistence.GeneratedValue;
 import javax.persistence.ManyToOne;
+import javax.persistence.OneToMany;
 import javax.persistence.Query;
 import javax.persistence.Temporal;
 import javax.servlet.http.HttpServletRequest;
@@ -80,6 +82,7 @@ import org.primefaces.component.message.Message;
 import org.primefaces.component.outputlabel.OutputLabel;
 import org.primefaces.component.resetinput.ResetInputActionListener;
 import org.primefaces.component.selectbooleancheckbox.SelectBooleanCheckbox;
+import org.primefaces.component.selectmanymenu.SelectManyMenu;
 import org.primefaces.component.selectonemenu.SelectOneMenu;
 import org.primefaces.component.spacer.Spacer;
 import org.primefaces.component.tristatecheckbox.TriStateCheckbox;
@@ -145,6 +148,7 @@ public class CRUDComponent extends UINamingContainer implements SystemEventListe
     }
 
     void setSelection(Object entity) {
+        entity = eagerLoad(entity);
         getStateHelper().put(PropertyKeys.selection, entity);
         updateEntityComponents(entity, this);
     }
@@ -844,8 +848,9 @@ public class CRUDComponent extends UINamingContainer implements SystemEventListe
         }
 
         UIInput input;
-        ManyToOne manyToOne = entityField.getAnnotation(ManyToOne.class);
-        if (null != manyToOne) {
+        ManyToOne manyToOneAnnotation = entityField.getAnnotation(ManyToOne.class);
+        OneToMany oneToManyAnnotation = entityField.getAnnotation(OneToMany.class);
+        if (null != manyToOneAnnotation) {
             input = (SelectOneMenu) application.createComponent(SelectOneMenu.COMPONENT_TYPE);
             SelectOneMenu selectOneMenu = (SelectOneMenu) input;
             selectOneMenu.setDisabled(disabled);
@@ -865,6 +870,14 @@ public class CRUDComponent extends UINamingContainer implements SystemEventListe
                 selectItem.setItemLabel(otherEntityInspector.toHumanReadable(otherEntity));
                 input.getChildren().add(selectItem);
             }
+        } else if (null != oneToManyAnnotation) {
+            input = (SelectManyMenu) application.createComponent(SelectManyMenu.COMPONENT_TYPE);
+            SelectManyMenu selectManyMenu = (SelectManyMenu) input;
+            selectManyMenu.setDisabled(disabled);
+            selectManyMenu.setShowCheckbox(true);
+            UISelectItems selectItems = (UISelectItems) application.createComponent(UISelectItems.COMPONENT_TYPE);
+            input.getChildren().add(selectItems);
+            selectItems.setValueExpression("value", new EntityFieldSelectItemsValueExpression(this, entityField, addNotUpdate));
         } else if (entityField.getType() == Boolean.TYPE) {
             input = (SelectBooleanCheckbox) application.createComponent(SelectBooleanCheckbox.COMPONENT_TYPE);
             SelectBooleanCheckbox selectBooleanCheckbox = (SelectBooleanCheckbox) input;
@@ -955,8 +968,8 @@ public class CRUDComponent extends UINamingContainer implements SystemEventListe
                 input.setRequired(true);
             }
         }
-        if (null != manyToOne) {
-            if (!manyToOne.optional()) {
+        if (null != manyToOneAnnotation) {
+            if (!manyToOneAnnotation.optional()) {
                 input.setRequired(true);
             }
         }
@@ -1355,6 +1368,61 @@ public class CRUDComponent extends UINamingContainer implements SystemEventListe
             CRUDComponent.this.resetCache();
             Object entity = event.getEntity();
             fireUpdates(entity);
+        }
+    }
+
+    private Object eagerLoad(Object entity) {
+        if (null == entity) {
+            return null;
+        }
+        EntityInspector entityInspector = new EntityInspector(entity);
+        Class<?> entityClass = entityInspector.getEntityClass();
+        Object identifier = entityInspector.getIdentifier(entity);
+        CRUDController crudController = CRUDController.getCRUDController();
+        EntityManager entityManager = crudController.getEntityManager();
+        UserTransaction userTransaction = crudController.getUserTransaction();
+
+        try {
+            userTransaction.begin();
+        } catch (NotSupportedException | SystemException ex) {
+            LOGGER.error("error: " + ex.getMessage(), ex);
+            return entity;
+        }
+        Object loadedEntity;
+        try {
+            loadedEntity = entityManager.find(entityClass, identifier);
+            if (null == loadedEntity) {
+                LOGGER.error("could not find entity: " + identifier);
+                return entity;
+            }
+            Field[] fields = entityClass.getDeclaredFields();
+            for (Field field : fields) {
+                OneToMany oneToManyAnnotation = field.getAnnotation(OneToMany.class);
+                if (null == oneToManyAnnotation) {
+                    continue;
+                }
+                if (!List.class.equals(field.getType())) {
+                    continue;
+                }
+                List listValue;
+                try {
+                    field.setAccessible(true);
+                    listValue = (List) field.get(loadedEntity);
+                } catch (IllegalArgumentException | IllegalAccessException ex) {
+                    LOGGER.error("reflection error: " + ex.getMessage(), ex);
+                    return loadedEntity;
+                }
+                int size = listValue.size(); // eager loading
+                LOGGER.debug("eager loading {} of size {}", field.getName(), size);
+            }
+            return loadedEntity;
+        } finally {
+            try {
+                userTransaction.commit();
+            } catch (RollbackException | HeuristicMixedException | HeuristicRollbackException | SecurityException | IllegalStateException | SystemException ex) {
+                LOGGER.error("error: " + ex.getMessage(), ex);
+                return entity;
+            }
         }
     }
 }

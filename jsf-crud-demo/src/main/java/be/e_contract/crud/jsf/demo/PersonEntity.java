@@ -31,7 +31,7 @@ public class PersonEntity implements Serializable {
     @Id
     private String name;
 
-    @OneToMany
+    @OneToMany(mappedBy = "owner")
     private List<CarEntity> cars;
 
     @Override

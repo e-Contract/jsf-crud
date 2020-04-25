@@ -50,8 +50,12 @@ public class FieldConverter implements Converter {
         }
         if (value instanceof List) {
             // avoid lazy loading issue
-            return null;
+            return "...";
         }
-        return value.toString();
+        String strValue = value.toString();
+        if (strValue.length() > 40) {
+            strValue = strValue.substring(0, 40) + "...";
+        }
+        return strValue;
     }
 }
