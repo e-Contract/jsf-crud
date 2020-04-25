@@ -17,10 +17,16 @@
  */
 package test.unit.be.e_contract.crud.jsf.demo;
 
+import be.e_contract.crud.jsf.demo.PersonEntity;
+import java.util.List;
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
 import javax.persistence.EntityTransaction;
 import javax.persistence.Persistence;
+import javax.persistence.TypedQuery;
+import javax.persistence.criteria.CriteriaBuilder;
+import javax.persistence.criteria.CriteriaQuery;
+import javax.persistence.criteria.Root;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -48,7 +54,15 @@ public class PersistenceTest {
 
         entityTransaction.begin();
         {
+            CriteriaBuilder criteriaBuilder = this.entityManager.getCriteriaBuilder();
+            CriteriaQuery<PersonEntity> criteriaQuery = criteriaBuilder.createQuery(PersonEntity.class);
+            Root<PersonEntity> person = criteriaQuery.from(PersonEntity.class);
+            criteriaQuery.select(person);
 
+            criteriaQuery.orderBy(criteriaBuilder.asc(person.get("name")));
+
+            TypedQuery<PersonEntity> query = this.entityManager.createQuery(criteriaQuery);
+            List<PersonEntity> persons = query.getResultList();
         }
         entityTransaction.commit();
 

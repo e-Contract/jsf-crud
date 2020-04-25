@@ -34,7 +34,6 @@ import javax.faces.event.AbortProcessingException;
 import org.primefaces.component.datatable.DataTable;
 import java.util.List;
 import java.util.Map;
-import java.util.logging.Level;
 import javax.el.ELResolver;
 import javax.el.FunctionMapper;
 import javax.el.MethodExpression;
@@ -120,6 +119,7 @@ public class CRUDComponent extends UINamingContainer implements SystemEventListe
         newEntity,
         title,
         orderBy,
+        ordering,
         sort,
         roleAllowed,
     }
@@ -175,6 +175,25 @@ public class CRUDComponent extends UINamingContainer implements SystemEventListe
 
     public void setOrderBy(String orderBy) {
         getStateHelper().put(PropertyKeys.orderBy, orderBy);
+    }
+
+    public String getOrdering() {
+        return (String) getStateHelper().get(PropertyKeys.ordering);
+    }
+
+    public void setOrdering(String ordering) {
+        getStateHelper().put(PropertyKeys.ordering, ordering);
+    }
+
+    boolean isAscending() {
+        String ordering = getOrdering();
+        if (UIInput.isEmpty(ordering)) {
+            return true;
+        }
+        if (ordering.toLowerCase().equals("desc")) {
+            return false;
+        }
+        return true;
     }
 
     public boolean isSort() {
@@ -317,7 +336,7 @@ public class CRUDComponent extends UINamingContainer implements SystemEventListe
         ajaxUpdateCreateListener.addClientId(dataTable.getClientId());
         addFacesListener(ajaxUpdateCreateListener);
 
-        ValueExpression valueExpression = new EntityValueExpression(entityClass, getId(), getOrderBy());
+        ValueExpression valueExpression = new EntityValueExpression(entityClass, this);
         dataTable.setValueExpression("value", valueExpression);
         dataTable.setVar("row");
         dataTable.setResizableColumns(true);
@@ -1107,6 +1126,7 @@ public class CRUDComponent extends UINamingContainer implements SystemEventListe
                 CRUDComponent.this.resetCache();
                 return;
             }
+            CRUDComponent.this.resetCache();
             CRUDComponent.this.setSelection(null);
 
             String entityHumanReadable = this.entityInspector.toHumanReadable(entity);

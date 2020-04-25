@@ -26,7 +26,11 @@ import javax.faces.component.UIInput;
 import javax.faces.component.UIViewRoot;
 import javax.faces.context.FacesContext;
 import javax.persistence.EntityManager;
-import javax.persistence.Query;
+import javax.persistence.TypedQuery;
+import javax.persistence.criteria.CriteriaBuilder;
+import javax.persistence.criteria.CriteriaQuery;
+import javax.persistence.criteria.Path;
+import javax.persistence.criteria.Root;
 import javax.transaction.HeuristicMixedException;
 import javax.transaction.HeuristicRollbackException;
 import javax.transaction.NotSupportedException;
@@ -42,14 +46,11 @@ public class EntityValueExpression extends ValueExpression {
 
     private final Class<?> entityClass;
 
-    private final String orderBy;
+    private final CRUDComponent crudComponent;
 
-    private final String id;
-
-    public EntityValueExpression(Class<?> entityClass, String id, String orderBy) {
+    public EntityValueExpression(Class<?> entityClass, CRUDComponent crudComponent) {
         this.entityClass = entityClass;
-        this.id = id;
-        this.orderBy = orderBy;
+        this.crudComponent = crudComponent;
     }
 
     @Override
@@ -61,7 +62,7 @@ public class EntityValueExpression extends ValueExpression {
         String key = EntityValueExpression.class.getName();
         Map<String, Object> entityViewMap = (Map<String, Object>) viewMap.get(key);
         if (null != entityViewMap) {
-            Object cachedObject = entityViewMap.get(this.id);
+            Object cachedObject = entityViewMap.get(this.crudComponent.getId());
             if (null != cachedObject) {
                 return cachedObject;
             }
@@ -80,12 +81,24 @@ public class EntityValueExpression extends ValueExpression {
             LOGGER.error("error: " + ex.getMessage(), ex);
             return null;
         }
-        String queryString = "SELECT entity FROM " + this.entityClass.getSimpleName() + " AS entity";
-        if (!UIInput.isEmpty(this.orderBy)) {
-            queryString += " ORDER BY entity." + this.orderBy;
+
+        CriteriaBuilder criteriaBuilder = entityManager.getCriteriaBuilder();
+        CriteriaQuery<Object> criteriaQuery = criteriaBuilder.createQuery(Object.class);
+        Root<? extends Object> entity = criteriaQuery.from(this.entityClass);
+        criteriaQuery.select(entity);
+
+        if (!UIInput.isEmpty(this.crudComponent.getOrderBy())) {
+            Path path = entity.get(this.crudComponent.getOrderBy());
+            if (this.crudComponent.isAscending()) {
+                criteriaQuery.orderBy(criteriaBuilder.asc(path));
+            } else {
+                criteriaQuery.orderBy(criteriaBuilder.desc(path));
+            }
         }
-        Query query = entityManager.createQuery(queryString);
+
+        TypedQuery<Object> query = entityManager.createQuery(criteriaQuery);
         List resultList = query.getResultList();
+
         try {
             userTransaction.commit();
         } catch (RollbackException | HeuristicMixedException | HeuristicRollbackException | SecurityException | IllegalStateException | SystemException ex) {
@@ -93,7 +106,7 @@ public class EntityValueExpression extends ValueExpression {
             return null;
         }
 
-        entityViewMap.put(this.id, resultList);
+        entityViewMap.put(this.crudComponent.getId(), resultList);
         return resultList;
     }
 
@@ -105,7 +118,7 @@ public class EntityValueExpression extends ValueExpression {
         String key = EntityValueExpression.class.getName();
         Map<String, Object> entityViewMap = (Map<String, Object>) viewMap.get(key);
         if (null != entityViewMap) {
-            entityViewMap.remove(this.id);
+            entityViewMap.remove(this.crudComponent.getId());
             if (entityViewMap.isEmpty()) {
                 viewMap.remove(key);
             }
