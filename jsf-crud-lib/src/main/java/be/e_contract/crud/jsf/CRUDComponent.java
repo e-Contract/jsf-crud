@@ -20,6 +20,8 @@ package be.e_contract.crud.jsf;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.lang.reflect.ParameterizedType;
+import java.lang.reflect.Type;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.LinkedList;
@@ -886,6 +888,11 @@ public class CRUDComponent extends UINamingContainer implements SystemEventListe
             selectManyMenu.setShowCheckbox(true);
             UISelectItems selectItems = (UISelectItems) application.createComponent(UISelectItems.COMPONENT_TYPE);
             input.getChildren().add(selectItems);
+            Type type = entityField.getGenericType();
+            LOGGER.debug("type class: {}", type.getClass().getName());
+            ParameterizedType parameterizedType = (ParameterizedType) type;
+            Class<?> listTypeClass = (Class<?>) parameterizedType.getActualTypeArguments()[0];
+            selectManyMenu.setConverter(new EntityConverter(listTypeClass));
             selectItems.setValueExpression("value", new EntityFieldSelectItemsValueExpression(this, entityField, addNotUpdate));
         } else if (entityField.getType() == Boolean.TYPE) {
             input = (SelectBooleanCheckbox) application.createComponent(SelectBooleanCheckbox.COMPONENT_TYPE);

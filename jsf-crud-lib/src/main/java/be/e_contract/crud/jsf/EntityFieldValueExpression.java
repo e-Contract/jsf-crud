@@ -76,7 +76,7 @@ public class EntityFieldValueExpression extends ValueExpression {
 
     @Override
     public void setValue(ELContext context, Object value) {
-        LOGGER.debug("setValue: {}", value);
+        LOGGER.debug("setValue: {} = {}", this.entityField.getName(), value);
         Object entity = getEntity();
         if (null == entity) {
             return;
