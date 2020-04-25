@@ -18,6 +18,7 @@
 package be.e_contract.crud.jsf;
 
 import java.lang.reflect.Field;
+import java.util.LinkedList;
 import java.util.List;
 import javax.el.ELContext;
 import javax.el.ValueExpression;
@@ -49,7 +50,15 @@ public class EntityFieldValueExpression extends ValueExpression {
         }
         try {
             this.entityField.setAccessible(true);
-            return this.entityField.get(entity);
+            Object value = this.entityField.get(entity);
+            if (value instanceof List) {
+                LOGGER.debug("list class: {}", value.getClass().getName());
+                // avoid passing org.hibernate.collection.internal.PersistentBag that later on can yield 
+                // org.hibernate.LazyInitializationException exceptions
+                LinkedList newList = new LinkedList((List) value);
+                return newList;
+            }
+            return value;
         } catch (IllegalArgumentException | IllegalAccessException ex) {
             LOGGER.error("error: " + ex.getMessage(), ex);
             return null;
@@ -86,12 +95,6 @@ public class EntityFieldValueExpression extends ValueExpression {
             if (null == value) {
                 if (this.entityField.getType().isPrimitive()) {
                     return;
-                }
-            }
-            if (value instanceof List) {
-                List list = (List) value;
-                if (!list.isEmpty()) {
-                    LOGGER.debug("list type: {}", list.get(0).getClass().getName());
                 }
             }
             this.entityField.setAccessible(true);

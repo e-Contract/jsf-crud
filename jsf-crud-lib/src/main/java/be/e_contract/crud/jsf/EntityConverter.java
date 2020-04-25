@@ -22,8 +22,12 @@ import java.util.Map;
 import javax.faces.component.UIComponent;
 import javax.faces.context.FacesContext;
 import javax.faces.convert.Converter;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class EntityConverter implements Converter {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(EntityConverter.class);
 
     private final EntityInspector entityInspector;
 
@@ -39,6 +43,7 @@ public class EntityConverter implements Converter {
         if (value.isEmpty()) {
             return null;
         }
+        LOGGER.debug("getAsObject: {}", value);
         Map<String, Object> viewMap = getViewMap(facesContext);
         Object entity = viewMap.get(value);
         return entity;

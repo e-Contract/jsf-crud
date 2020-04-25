@@ -17,21 +17,29 @@
  */
 package test.unit.be.e_contract.crud.jsf.demo;
 
+import be.e_contract.crud.jsf.demo.CarEntity;
 import be.e_contract.crud.jsf.demo.PersonEntity;
 import java.util.List;
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
 import javax.persistence.EntityTransaction;
 import javax.persistence.Persistence;
+import javax.persistence.Query;
 import javax.persistence.TypedQuery;
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Root;
+import javax.persistence.metamodel.EntityType;
+import javax.persistence.metamodel.Metamodel;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class PersistenceTest {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(PersistenceTest.class);
 
     private EntityManager entityManager;
 
@@ -63,6 +71,34 @@ public class PersistenceTest {
 
             TypedQuery<PersonEntity> query = this.entityManager.createQuery(criteriaQuery);
             List<PersonEntity> persons = query.getResultList();
+        }
+        entityTransaction.commit();
+
+    }
+
+    @Test
+    public void testCarsWithoutPerson() throws Exception {
+        EntityTransaction entityTransaction = this.entityManager
+                .getTransaction();
+
+        entityTransaction.begin();
+        {
+            CriteriaBuilder criteriaBuilder = this.entityManager.getCriteriaBuilder();
+            CriteriaQuery<CarEntity> criteriaQuery = criteriaBuilder.createQuery(CarEntity.class);
+            Root<CarEntity> car = criteriaQuery.from(CarEntity.class);
+            criteriaQuery.select(car);
+
+            Metamodel metamodel = this.entityManager.getMetamodel();
+            EntityType<CarEntity> entityType = metamodel.entity(CarEntity.class);
+            LOGGER.debug("car attributes: {}", entityType.getAttributes());
+
+            TypedQuery<CarEntity> query = this.entityManager.createQuery(criteriaQuery);
+            List<CarEntity> cars = query.getResultList();
+
+            Query classicQuery = this.entityManager.createQuery("SELECT car FROM CarEntity AS car WHERE car NOT IN (SELECT DISTINCT car2 FROM PersonEntity AS person JOIN person.cars AS car2)");
+            //Query classicQuery = this.entityManager.createQuery("SELECT DISTINCT person.cars FROM PersonEntity AS person");
+
+            classicQuery.getResultList();
         }
         entityTransaction.commit();
 

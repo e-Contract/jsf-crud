@@ -85,7 +85,7 @@ public class EntityFieldSelectItemsValueExpression extends ValueExpression {
     @Override
     public Class<?> getType(ELContext context) {
         //LOGGER.debug("getType");
-        return this.entityField.getType();
+        return List.class;
     }
 
     @Override
