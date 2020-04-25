@@ -18,6 +18,7 @@
 package be.e_contract.crud.jsf;
 
 import java.lang.reflect.Field;
+import java.util.List;
 import javax.el.ELContext;
 import javax.el.ValueExpression;
 import javax.el.ValueReference;
@@ -85,6 +86,12 @@ public class EntityFieldValueExpression extends ValueExpression {
             if (null == value) {
                 if (this.entityField.getType().isPrimitive()) {
                     return;
+                }
+            }
+            if (value instanceof List) {
+                List list = (List) value;
+                if (!list.isEmpty()) {
+                    LOGGER.debug("list type: {}", list.get(0).getClass().getName());
                 }
             }
             this.entityField.setAccessible(true);

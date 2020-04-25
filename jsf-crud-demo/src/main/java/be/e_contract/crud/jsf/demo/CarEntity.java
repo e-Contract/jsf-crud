@@ -20,7 +20,6 @@ package be.e_contract.crud.jsf.demo;
 import java.io.Serializable;
 import javax.persistence.Entity;
 import javax.persistence.Id;
-import javax.persistence.ManyToOne;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 
@@ -29,11 +28,6 @@ public class CarEntity implements Serializable {
 
     @Id
     private String numberPlate;
-
-    private String description;
-
-    @ManyToOne
-    private PersonEntity owner;
 
     @Override
     public int hashCode() {

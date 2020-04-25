@@ -195,6 +195,21 @@
                 <artifactId>commons-text</artifactId>
                 <version>1.8</version>
             </dependency>
+            <dependency>
+                <groupId>org.hibernate</groupId>
+                <artifactId>hibernate-entitymanager</artifactId>
+                <version>5.4.14.Final</version>
+            </dependency>
+            <dependency>
+                <groupId>org.hibernate</groupId>
+                <artifactId>hibernate-jcache</artifactId>
+                <version>5.4.14.Final</version>
+            </dependency>
+            <dependency>
+                <groupId>com.h2database</groupId>
+                <artifactId>h2</artifactId>
+                <version>1.4.200</version>
+            </dependency>
         </dependencies>
     </dependencyManagement>
     <profiles>

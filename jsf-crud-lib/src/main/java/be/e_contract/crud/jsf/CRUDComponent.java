@@ -34,6 +34,7 @@ import javax.faces.event.AbortProcessingException;
 import org.primefaces.component.datatable.DataTable;
 import java.util.List;
 import java.util.Map;
+import java.util.logging.Level;
 import javax.el.ELResolver;
 import javax.el.FunctionMapper;
 import javax.el.MethodExpression;
@@ -1171,6 +1172,20 @@ public class CRUDComponent extends UINamingContainer implements SystemEventListe
             UserTransaction userTransaction = crudController.getUserTransaction();
 
             Object entity = CRUDComponent.this.getNewEntity();
+
+            Field[] fields = entity.getClass().getDeclaredFields();
+            for (Field field : fields) {
+                if (field.getType().equals(List.class)) {
+                    field.setAccessible(true);
+                    try {
+                        List listValue = (List) field.get(entity);
+                        LOGGER.debug("field {} list size {}", field.getName(), listValue.size());
+                    } catch (IllegalArgumentException | IllegalAccessException ex) {
+                        LOGGER.error("reflection error: " + ex.getMessage(), ex);
+                        return;
+                    }
+                }
+            }
 
             try {
                 userTransaction.begin();
