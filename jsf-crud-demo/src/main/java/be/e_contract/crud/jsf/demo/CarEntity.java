@@ -29,6 +29,14 @@ public class CarEntity implements Serializable {
     @Id
     private String numberPlate;
 
+    public CarEntity() {
+        super();
+    }
+
+    public CarEntity(String numberPlate) {
+        this.numberPlate = numberPlate;
+    }
+
     @Override
     public int hashCode() {
         return new HashCodeBuilder().append(this.numberPlate).toHashCode();
@@ -49,5 +57,10 @@ public class CarEntity implements Serializable {
         return new EqualsBuilder()
                 .append(this.numberPlate, rhs.numberPlate)
                 .isEquals();
+    }
+
+    @Override
+    public String toString() {
+        return "car " + this.numberPlate;
     }
 }

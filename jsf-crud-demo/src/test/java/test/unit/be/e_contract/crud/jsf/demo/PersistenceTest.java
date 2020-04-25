@@ -19,6 +19,7 @@ package test.unit.be.e_contract.crud.jsf.demo;
 
 import be.e_contract.crud.jsf.demo.CarEntity;
 import be.e_contract.crud.jsf.demo.PersonEntity;
+import java.util.LinkedList;
 import java.util.List;
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
@@ -83,6 +84,21 @@ public class PersistenceTest {
 
         entityTransaction.begin();
         {
+            CarEntity car1 = new CarEntity("1234");
+            this.entityManager.persist(car1);
+
+            CarEntity car2 = new CarEntity("5678");
+            this.entityManager.persist(car2);
+
+            PersonEntity person = new PersonEntity("Alice");
+            person.setCars(new LinkedList<>());
+            person.getCars().add(car1);
+            this.entityManager.persist(person);
+        }
+        entityTransaction.commit();
+
+        entityTransaction.begin();
+        {
             CriteriaBuilder criteriaBuilder = this.entityManager.getCriteriaBuilder();
             CriteriaQuery<CarEntity> criteriaQuery = criteriaBuilder.createQuery(CarEntity.class);
             Root<CarEntity> car = criteriaQuery.from(CarEntity.class);
@@ -95,10 +111,8 @@ public class PersistenceTest {
             TypedQuery<CarEntity> query = this.entityManager.createQuery(criteriaQuery);
             List<CarEntity> cars = query.getResultList();
 
-            Query classicQuery = this.entityManager.createQuery("SELECT car FROM CarEntity AS car WHERE car NOT IN (SELECT DISTINCT car2 FROM PersonEntity AS person JOIN person.cars AS car2)");
-            //Query classicQuery = this.entityManager.createQuery("SELECT DISTINCT person.cars FROM PersonEntity AS person");
-
-            classicQuery.getResultList();
+            Query newEntityQuery = this.entityManager.createQuery("SELECT car FROM CarEntity AS car WHERE car NOT IN (SELECT DISTINCT car2 FROM PersonEntity AS person JOIN person.cars AS car2)");
+            LOGGER.debug("result list: {}", newEntityQuery.getResultList());
         }
         entityTransaction.commit();
 

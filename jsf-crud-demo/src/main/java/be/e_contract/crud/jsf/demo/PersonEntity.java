@@ -34,6 +34,22 @@ public class PersonEntity implements Serializable {
     @OneToMany
     private List<CarEntity> cars;
 
+    public PersonEntity() {
+        super();
+    }
+
+    public PersonEntity(String name) {
+        this.name = name;
+    }
+
+    public List<CarEntity> getCars() {
+        return this.cars;
+    }
+
+    public void setCars(List<CarEntity> cars) {
+        this.cars = cars;
+    }
+
     @Override
     public int hashCode() {
         return new HashCodeBuilder().append(this.name).toHashCode();
