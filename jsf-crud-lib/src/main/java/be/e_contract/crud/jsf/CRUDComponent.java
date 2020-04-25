@@ -80,6 +80,7 @@ import org.primefaces.component.inputtext.InputText;
 import org.primefaces.component.inputtextarea.InputTextarea;
 import org.primefaces.component.message.Message;
 import org.primefaces.component.outputlabel.OutputLabel;
+import org.primefaces.component.password.Password;
 import org.primefaces.component.resetinput.ResetInputActionListener;
 import org.primefaces.component.selectbooleancheckbox.SelectBooleanCheckbox;
 import org.primefaces.component.selectmanymenu.SelectManyMenu;
@@ -809,6 +810,14 @@ public class CRUDComponent extends UINamingContainer implements SystemEventListe
         return fieldComponent.isFilter();
     }
 
+    private boolean isPasswordField(Field entityField, Map<String, FieldComponent> fields) {
+        FieldComponent fieldComponent = fields.get(entityField.getName());
+        if (null == fieldComponent) {
+            return false;
+        }
+        return fieldComponent.isPassword();
+    }
+
     private Integer getFieldSize(Field entityField, Map<String, FieldComponent> fields, Map<String, FieldComponent> overrideFields) {
         if (null != overrideFields) {
             FieldComponent fieldComponent = overrideFields.get(entityField.getName());
@@ -931,6 +940,19 @@ public class CRUDComponent extends UINamingContainer implements SystemEventListe
                 selectItem.setItemLabel(enumConstant.toString());
                 input.getChildren().add(selectItem);
             }
+        } else if (isPasswordField(entityField, fields)) {
+            input = (Password) application.createComponent(Password.COMPONENT_TYPE);
+            Password password = (Password) input;
+            password.setDisabled(disabled);
+            Integer size = getFieldSize(entityField, fields, overrideFields);
+            if (null != size) {
+                password.setSize(size);
+            }
+            int length = 255;
+            if (null != columnAnnotation) {
+                length = columnAnnotation.length();
+            }
+            input.addValidator(new LengthValidator(length));
         } else {
             int length = 255;
             if (null != columnAnnotation) {

@@ -81,6 +81,8 @@ public class AutoIdEntity implements Serializable {
     @Column(length = 1024 * 10)
     private String largeText;
 
+    private String password;
+
     public AutoIdEntity() {
         super();
     }
@@ -195,6 +197,14 @@ public class AutoIdEntity implements Serializable {
 
     public String getMyProperty() {
         return "My property " + this.id;
+    }
+
+    public String getPassword() {
+        return this.password;
+    }
+
+    public void setPassword(String password) {
+        this.password = password;
     }
 
     @Override

@@ -186,6 +186,11 @@
             <name>required</name>
             <type>java.lang.Boolean</type>
         </attribute>
+        <attribute>
+            <description>Set to true to handle this field as a password.</description>
+            <name>password</name>
+            <type>java.lang.Boolean</type>
+        </attribute>
     </tag>
     
     <tag>
