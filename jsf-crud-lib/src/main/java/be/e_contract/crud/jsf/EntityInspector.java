@@ -71,6 +71,7 @@ public class EntityInspector {
             }
             if (null == this.entityClass) {
                 LOGGER.error("entity class not found: " + entityClassName);
+                LOGGER.error("Did you forget to put the @Entity annotation?");
                 throw new IllegalArgumentException("entity class not found: " + entityClassName);
             }
         }

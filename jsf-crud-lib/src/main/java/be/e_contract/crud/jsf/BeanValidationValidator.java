@@ -51,6 +51,12 @@ public class BeanValidationValidator implements Validator {
         String property = (String) valueReference.getProperty();
         LOGGER.debug("entity: {}", entity);
         LOGGER.debug("property: {}", property);
+        if (null == entity) {
+            return;
+        }
+        if (null == property) {
+            return;
+        }
         EntityInspector entityInspector = new EntityInspector(entity);
         Class<?> entityClass = entityInspector.getEntityClass();
 

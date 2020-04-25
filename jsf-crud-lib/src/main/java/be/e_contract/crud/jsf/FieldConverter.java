@@ -19,6 +19,7 @@ package be.e_contract.crud.jsf;
 
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
+import java.util.List;
 import javax.faces.component.UIComponent;
 import javax.faces.context.FacesContext;
 import javax.faces.convert.Converter;
@@ -46,6 +47,10 @@ public class FieldConverter implements Converter {
             SimpleDateFormat format = new SimpleDateFormat("dd/MM/yyyy");
             Calendar calendar = (Calendar) value;
             return format.format(calendar.getTime());
+        }
+        if (value instanceof List) {
+            // avoid lazy loading issue
+            return null;
         }
         return value.toString();
     }
