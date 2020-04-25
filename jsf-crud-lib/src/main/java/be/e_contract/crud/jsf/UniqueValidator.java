@@ -28,7 +28,12 @@ import javax.faces.validator.Validator;
 import javax.faces.validator.ValidatorException;
 import javax.persistence.Column;
 import javax.persistence.EntityManager;
-import javax.persistence.Query;
+import javax.persistence.TypedQuery;
+import javax.persistence.criteria.CriteriaBuilder;
+import javax.persistence.criteria.CriteriaQuery;
+import javax.persistence.criteria.ParameterExpression;
+import javax.persistence.criteria.Predicate;
+import javax.persistence.criteria.Root;
 import javax.transaction.HeuristicMixedException;
 import javax.transaction.HeuristicRollbackException;
 import javax.transaction.NotSupportedException;
@@ -89,9 +94,18 @@ public class UniqueValidator implements Validator {
             return;
         }
         try {
-            Query query = entityManager.createQuery("SELECT entity FROM " + entityClass.getSimpleName() + " AS entity WHERE entity." + property + " = :value");
-            query.setParameter("value", value);
+            CriteriaBuilder criteriaBuilder = entityManager.getCriteriaBuilder();
+            CriteriaQuery<Object> criteriaQuery = criteriaBuilder.createQuery(Object.class);
+            Root<? extends Object> entityRoot = criteriaQuery.from(entityClass);
+            criteriaQuery.select(entityRoot);
+            ParameterExpression<Object> parameter = criteriaBuilder.parameter(Object.class, property);
+            Predicate predicate = criteriaBuilder.equal(entityRoot.get(property), parameter);
+            criteriaQuery.where(predicate);
+
+            TypedQuery<Object> query = entityManager.createQuery(criteriaQuery);
+            query.setParameter(property, value);
             List entities = query.getResultList();
+
             if (entities.isEmpty()) {
                 return;
             }
