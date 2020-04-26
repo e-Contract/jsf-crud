@@ -15,15 +15,15 @@
  * License along with this software; if not, see
  * http://www.gnu.org/licenses/.
  */
-package be.e_contract.crud.jsf;
+package be.e_contract.crud.jsf.update;
 
 import javax.faces.component.FacesComponent;
 import javax.faces.component.UIComponentBase;
 
-@FacesComponent(CreateComponent.COMPONENT_TYPE)
-public class CreateComponent extends UIComponentBase {
+@FacesComponent(UpdateComponent.COMPONENT_TYPE)
+public class UpdateComponent extends UIComponentBase {
 
-    public static final String COMPONENT_TYPE = "crud.create";
+    public static final String COMPONENT_TYPE = "crud.update";
 
     public enum PropertyKeys {
         disabled,

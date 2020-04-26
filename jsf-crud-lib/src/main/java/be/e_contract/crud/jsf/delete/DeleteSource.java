@@ -15,13 +15,13 @@
  * License along with this software; if not, see
  * http://www.gnu.org/licenses/.
  */
-package be.e_contract.crud.jsf;
+package be.e_contract.crud.jsf.delete;
 
-public interface UpdateSource {
+public interface DeleteSource {
 
-    void addUpdateListener(UpdateListener listener);
+    void addDeleteListener(DeleteListener listener);
 
-    void removeUpdateListener(UpdateListener listener);
+    void removeDeleteListener(DeleteListener listener);
 
-    UpdateListener[] getUpdateListeners();
+    DeleteListener[] getDeleteListeners();
 }

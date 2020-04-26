@@ -17,9 +17,9 @@
  */
 package be.e_contract.crud.jsf.demo;
 
-import be.e_contract.crud.jsf.CreateEvent;
-import be.e_contract.crud.jsf.DeleteEvent;
-import be.e_contract.crud.jsf.UpdateEvent;
+import be.e_contract.crud.jsf.create.CreateEvent;
+import be.e_contract.crud.jsf.delete.DeleteEvent;
+import be.e_contract.crud.jsf.update.UpdateEvent;
 import java.io.Serializable;
 import javax.enterprise.context.SessionScoped;
 import javax.faces.application.FacesMessage;

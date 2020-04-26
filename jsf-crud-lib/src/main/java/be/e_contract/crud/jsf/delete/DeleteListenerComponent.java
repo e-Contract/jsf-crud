@@ -15,18 +15,23 @@
  * License along with this software; if not, see
  * http://www.gnu.org/licenses/.
  */
-package be.e_contract.crud.jsf;
+package be.e_contract.crud.jsf.delete;
 
+import javax.el.MethodExpression;
 import javax.faces.component.FacesComponent;
 import javax.faces.component.UIComponentBase;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-@FacesComponent(UpdateComponent.COMPONENT_TYPE)
-public class UpdateComponent extends UIComponentBase {
+@FacesComponent(DeleteListenerComponent.COMPONENT_TYPE)
+public class DeleteListenerComponent extends UIComponentBase {
 
-    public static final String COMPONENT_TYPE = "crud.update";
+    public static final String COMPONENT_TYPE = "crud.deleteListener";
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(DeleteListenerComponent.class);
 
     public enum PropertyKeys {
-        disabled,
+        action
     }
 
     @Override
@@ -34,15 +39,11 @@ public class UpdateComponent extends UIComponentBase {
         return "crud";
     }
 
-    public boolean isDisabled() {
-        Boolean disabled = (Boolean) getStateHelper().get(PropertyKeys.disabled);
-        if (null == disabled) {
-            return false;
-        }
-        return disabled;
+    public void setAction(MethodExpression methodExpression) {
+        getStateHelper().put(PropertyKeys.action, methodExpression);
     }
 
-    public void setDisabled(boolean disabled) {
-        getStateHelper().put(PropertyKeys.disabled, disabled);
+    public MethodExpression getAction() {
+        return (MethodExpression) getStateHelper().eval(PropertyKeys.action);
     }
 }

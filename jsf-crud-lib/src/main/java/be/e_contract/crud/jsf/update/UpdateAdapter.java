@@ -15,7 +15,7 @@
  * License along with this software; if not, see
  * http://www.gnu.org/licenses/.
  */
-package be.e_contract.crud.jsf;
+package be.e_contract.crud.jsf.update;
 
 import javax.el.ELContext;
 import javax.el.MethodExpression;
@@ -24,25 +24,25 @@ import javax.faces.context.FacesContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class DeleteAdapter implements DeleteListener, StateHolder {
+public class UpdateAdapter implements UpdateListener, StateHolder {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(DeleteAdapter.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(UpdateAdapter.class);
 
     private MethodExpression methodExpression;
 
     private boolean _transient;
 
-    public DeleteAdapter() {
+    public UpdateAdapter() {
         // empty
     }
 
-    public DeleteAdapter(MethodExpression methodExpression) {
+    public UpdateAdapter(MethodExpression methodExpression) {
         this.methodExpression = methodExpression;
     }
 
     @Override
-    public void entityDeleted(DeleteEvent event) {
-        LOGGER.debug("entityDeleted: {}", event);
+    public void entityUpdated(UpdateEvent event) {
+        LOGGER.debug("entityUpdated: {}", event);
         FacesContext facesContext = FacesContext.getCurrentInstance();
         ELContext elContext = facesContext.getELContext();
         this.methodExpression.invoke(elContext, new Object[]{event});

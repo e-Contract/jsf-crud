@@ -15,7 +15,7 @@
  * License along with this software; if not, see
  * http://www.gnu.org/licenses/.
  */
-package be.e_contract.crud.jsf;
+package be.e_contract.crud.jsf.update;
 
 import javax.faces.view.facelets.ComponentConfig;
 import javax.faces.view.facelets.ComponentHandler;
@@ -23,16 +23,16 @@ import javax.faces.view.facelets.MetaRule;
 import javax.faces.view.facelets.MetaRuleset;
 import org.primefaces.facelets.MethodRule;
 
-public class CreateListenerTagHandler extends ComponentHandler {
+public class UpdateListenerTagHandler extends ComponentHandler {
 
-    public CreateListenerTagHandler(ComponentConfig config) {
+    public UpdateListenerTagHandler(ComponentConfig config) {
         super(config);
     }
 
     @Override
     protected MetaRuleset createMetaRuleset(Class type) {
         MetaRuleset metaRuleset = super.createMetaRuleset(type);
-        MetaRule metaRule = new MethodRule("action", void.class, new Class[]{CreateEvent.class});
+        MetaRule metaRule = new MethodRule("action", void.class, new Class[]{UpdateEvent.class});
         metaRuleset.addRule(metaRule);
         return metaRuleset;
     }

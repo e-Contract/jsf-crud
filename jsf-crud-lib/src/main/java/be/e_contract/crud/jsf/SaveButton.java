@@ -17,6 +17,7 @@
  */
 package be.e_contract.crud.jsf;
 
+import be.e_contract.crud.jsf.update.UpdateEvent;
 import javax.el.ELContext;
 import javax.el.MethodExpression;
 import javax.faces.application.Application;

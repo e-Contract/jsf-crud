@@ -17,6 +17,24 @@
  */
 package be.e_contract.crud.jsf;
 
+import be.e_contract.crud.jsf.update.UpdateAdapter;
+import be.e_contract.crud.jsf.update.UpdateListenerComponent;
+import be.e_contract.crud.jsf.update.UpdateSource;
+import be.e_contract.crud.jsf.update.UpdateEvent;
+import be.e_contract.crud.jsf.update.UpdateListener;
+import be.e_contract.crud.jsf.update.UpdateComponent;
+import be.e_contract.crud.jsf.delete.DeleteListener;
+import be.e_contract.crud.jsf.delete.DeleteAdapter;
+import be.e_contract.crud.jsf.delete.DeleteComponent;
+import be.e_contract.crud.jsf.delete.DeleteSource;
+import be.e_contract.crud.jsf.delete.DeleteEvent;
+import be.e_contract.crud.jsf.delete.DeleteListenerComponent;
+import be.e_contract.crud.jsf.create.CreateListenerComponent;
+import be.e_contract.crud.jsf.create.CreateAdapter;
+import be.e_contract.crud.jsf.create.CreateComponent;
+import be.e_contract.crud.jsf.create.CreateListener;
+import be.e_contract.crud.jsf.create.CreateSource;
+import be.e_contract.crud.jsf.create.CreateEvent;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
