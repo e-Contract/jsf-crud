@@ -40,6 +40,7 @@
             <crud:action value="Increase amount" action="#{demoController.increaseAmount}" rendered="#{row.amount lt 500}"/>
             <crud:action value="Custom Dialog" oncomplete="PF('customDialog').show()"
                          update=":customDialog"/>
+            <crud:globalAction value="Custom Action" action="#{demoController.globalAction}"/>
         </crud:crud>
 
         <p:dialog id="customDialog" widgetVar="customDialog" header="Custom Dialog">

@@ -29,6 +29,8 @@ import be.e_contract.crud.jsf.component.FieldComponent;
 import be.e_contract.crud.jsf.component.PropertyComponent;
 import be.e_contract.crud.jsf.action.ActionComponent;
 import be.e_contract.crud.jsf.action.ActionAdapter;
+import be.e_contract.crud.jsf.action.GlobalActionAdapter;
+import be.e_contract.crud.jsf.action.GlobalActionComponent;
 import be.e_contract.crud.jsf.el.EntityFieldSelectItemsValueExpression;
 import be.e_contract.crud.jsf.el.EntityFieldValueExpression;
 import be.e_contract.crud.jsf.el.EntityValueExpression;
@@ -283,6 +285,7 @@ public class CRUDComponent extends UINamingContainer implements SystemEventListe
         Map<String, FieldComponent> updateFields = new HashMap<>();
         List<ActionComponent> actions = new LinkedList<>();
         List<PropertyComponent> properties = new LinkedList<>();
+        List<GlobalActionComponent> globalActions = new LinkedList<>();
         List<UIComponent> children = getChildren();
         for (UIComponent child : children) {
             if (child instanceof CreateComponent) {
@@ -339,6 +342,9 @@ public class CRUDComponent extends UINamingContainer implements SystemEventListe
             } else if (child instanceof PropertyComponent) {
                 PropertyComponent propertyComponent = (PropertyComponent) child;
                 properties.add(propertyComponent);
+            } else if (child instanceof GlobalActionComponent) {
+                GlobalActionComponent globalAction = (GlobalActionComponent) child;
+                globalActions.add(globalAction);
             }
         }
 
@@ -471,6 +477,12 @@ public class CRUDComponent extends UINamingContainer implements SystemEventListe
             DismissButton dismissCommandButton = (DismissButton) application.createComponent(DismissButton.COMPONENT_TYPE);
             htmlPanelGrid.getChildren().add(dismissCommandButton);
         }
+
+        int globalActionIdx = 1;
+        for (GlobalActionComponent globalAction : globalActions) {
+            addGlobalAction(globalAction, globalActionIdx, application, dataTable, message, facesContext, footerHtmlPanelGroup);
+            globalActionIdx++;
+        }
     }
 
     private void addCustomActions(List<ActionComponent> actions, Application application, Column column, DataTable dataTable, Message message, FacesContext facesContext) throws FacesException {
@@ -495,6 +507,22 @@ public class CRUDComponent extends UINamingContainer implements SystemEventListe
                 commandButton.setUpdate(dataTable.getClientId() + "," + message.getClientId() + "," + component.getClientId());
             }
         }
+    }
+
+    private void addGlobalAction(GlobalActionComponent globalAction, int globalActionIdx, Application application, DataTable dataTable, Message message, FacesContext facesContext, HtmlPanelGroup footerHtmlPanelGroup) {
+        CommandButton commandButton = (CommandButton) application.createComponent(CommandButton.COMPONENT_TYPE);
+        footerHtmlPanelGroup.getChildren().add(commandButton);
+        commandButton.setId("GlobalAction" + globalActionIdx);
+        commandButton.setValue(globalAction.getValue());
+        commandButton.setUpdate(dataTable.getClientId() + "," + message.getClientId());
+        commandButton.setOncomplete(globalAction.getOncomplete());
+        String update = globalAction.getUpdate();
+        if (null != update) {
+            UIViewRoot view = facesContext.getViewRoot();
+            UIComponent component = view.findComponent(update);
+            commandButton.setUpdate(dataTable.getClientId() + "," + message.getClientId() + "," + component.getClientId());
+        }
+        commandButton.addActionListener(new GlobalActionAdapter(globalAction.getAction()));
     }
 
     private void addCreateDialog(boolean showCreate, Application application, HtmlPanelGroup footerHtmlPanelGroup, String entityName,

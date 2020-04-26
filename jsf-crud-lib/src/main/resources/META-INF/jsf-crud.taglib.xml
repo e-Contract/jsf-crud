@@ -297,6 +297,36 @@
             <type>java.lang.String</type>
         </attribute>
     </tag>
+    
+    <tag>
+        <description>Specifies a global custom action within the CRUD table.</description>
+        <tag-name>globalAction</tag-name>
+        <component>
+            <component-type>crud.globalAction</component-type>
+            <handler-class>be.e_contract.crud.jsf.action.GlobalActionTagHandler</handler-class>
+        </component>
+        <attribute>
+            <description>The action button text.</description>
+            <name>value</name>
+            <required>true</required>
+            <type>java.lang.String</type>
+        </attribute>
+        <attribute>
+            <description>The optional action method to invoke.</description>
+            <name>action</name>
+            <type>javax.el.MethodExpression</type>
+        </attribute>
+        <attribute>
+            <description>Client-side oncomplete event.</description>
+            <name>oncomplete</name>
+            <type>java.lang.String</type>
+        </attribute>
+        <attribute>
+            <description>Specifies which component should get updated.</description>
+            <name>update</name>
+            <type>java.lang.String</type>
+        </attribute>
+    </tag>
 
     <function>
         <function-name>toHumanReadable</function-name>

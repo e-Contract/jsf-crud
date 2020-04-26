@@ -86,4 +86,9 @@ public class DemoController implements Serializable {
         LOGGER.debug("add amount: {}", this.amount);
         entity.setAmount(entity.getAmount() + this.amount);
     }
+
+    public FacesMessage globalAction() {
+        FacesMessage facesMessage = new FacesMessage(FacesMessage.SEVERITY_INFO, "Custom global action", null);
+        return facesMessage;
+    }
 }
