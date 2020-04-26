@@ -715,10 +715,9 @@ public class CRUDComponent extends UINamingContainer implements SystemEventListe
             htmlPanelGrid.getChildren().add(outputLabel);
             outputLabel.setValue(fieldLabel);
 
-            HtmlOutputText outputText = (HtmlOutputText) application.createComponent(HtmlOutputText.COMPONENT_TYPE);
+            LimitingOutputText outputText = (LimitingOutputText) application.createComponent(LimitingOutputText.COMPONENT_TYPE);
             htmlPanelGrid.getChildren().add(outputText);
             outputText.setValueExpression("value", new EntityFieldValueExpression(this, entityField, false));
-            outputText.setConverter(new FieldConverter());
         }
 
         HtmlPanelGrid buttonHtmlPanelGrid = (HtmlPanelGrid) application.createComponent(HtmlPanelGrid.COMPONENT_TYPE);
@@ -1067,10 +1066,9 @@ public class CRUDComponent extends UINamingContainer implements SystemEventListe
         String fieldLabel = getFieldLabel(field, entityInspector, fields);
         column.setHeaderText(fieldLabel);
 
-        HtmlOutputText outputText = (HtmlOutputText) application.createComponent(HtmlOutputText.COMPONENT_TYPE);
+        LimitingOutputText outputText = (LimitingOutputText) application.createComponent(LimitingOutputText.COMPONENT_TYPE);
         column.getChildren().add(outputText);
         outputText.setValueExpression("value", expressionFactory.createValueExpression(elContext, "#{row." + field.getName() + "}", field.getType()));
-        outputText.setConverter(new FieldConverter());
     }
 
     private void addColumn(DataTable dataTable, PropertyComponent property) {

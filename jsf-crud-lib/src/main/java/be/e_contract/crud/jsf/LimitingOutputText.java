@@ -17,45 +17,51 @@
  */
 package be.e_contract.crud.jsf;
 
+import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.List;
-import javax.faces.component.UIComponent;
+import javax.faces.component.FacesComponent;
+import javax.faces.component.html.HtmlOutputText;
 import javax.faces.context.FacesContext;
-import javax.faces.convert.Converter;
 import javax.persistence.Entity;
 
-public class FieldConverter implements Converter {
+@FacesComponent(LimitingOutputText.COMPONENT_TYPE)
+public class LimitingOutputText extends HtmlOutputText {
+
+    public static final String COMPONENT_TYPE = "crud.limitingOutputText";
 
     @Override
-    public Object getAsObject(FacesContext context, UIComponent component, String value) {
-        // this converter is only meant to be used as output converter
-        return value;
+    public void encodeBegin(FacesContext context) throws IOException {
+        limitValue();
+        super.encodeBegin(context);
     }
 
-    @Override
-    public String getAsString(FacesContext context, UIComponent component, Object value) {
+    private void limitValue() {
+        Object value = getValue();
         if (null == value) {
-            return null;
+            return;
         }
         Entity entityAnnotation = value.getClass().getAnnotation(Entity.class);
         if (null != entityAnnotation) {
             EntityInspector entityInspector = new EntityInspector(value.getClass());
-            return entityInspector.toHumanReadable(value);
+            setValue(entityInspector.toHumanReadable(value));
+            return;
         }
         if (value instanceof Calendar) {
             SimpleDateFormat format = new SimpleDateFormat("dd/MM/yyyy");
             Calendar calendar = (Calendar) value;
-            return format.format(calendar.getTime());
+            setValue(format.format(calendar.getTime()));
+            return;
         }
         if (value instanceof List) {
             // avoid lazy loading issue
-            return "...";
+            setValue("...");
+            return;
         }
         String strValue = value.toString();
         if (strValue.length() > 40) {
-            strValue = strValue.substring(0, 40) + "...";
+            setValue(strValue.substring(0, 40) + "...");
         }
-        return strValue;
     }
 }
