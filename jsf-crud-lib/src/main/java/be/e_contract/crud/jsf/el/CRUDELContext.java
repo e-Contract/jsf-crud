@@ -15,25 +15,33 @@
  * License along with this software; if not, see
  * http://www.gnu.org/licenses/.
  */
-package be.e_contract.crud.jsf;
+package be.e_contract.crud.jsf.el;
 
-import javax.faces.view.facelets.ComponentConfig;
-import javax.faces.view.facelets.ComponentHandler;
-import javax.faces.view.facelets.MetaRule;
-import javax.faces.view.facelets.MetaRuleset;
-import org.primefaces.facelets.MethodRule;
+import javax.el.ELContext;
+import javax.el.ELResolver;
+import javax.el.FunctionMapper;
+import javax.el.VariableMapper;
 
-public class SaveTagHandler extends ComponentHandler {
+public class CRUDELContext extends ELContext {
 
-    public SaveTagHandler(ComponentConfig config) {
-        super(config);
+    private final ELContext parent;
+
+    public CRUDELContext(ELContext parent) {
+        this.parent = parent;
     }
 
     @Override
-    protected MetaRuleset createMetaRuleset(Class type) {
-        MetaRuleset metaRuleset = super.createMetaRuleset(type);
-        MetaRule metaRule = new MethodRule("action", void.class, new Class[]{Object.class});
-        metaRuleset.addRule(metaRule);
-        return metaRuleset;
+    public ELResolver getELResolver() {
+        return this.parent.getELResolver();
+    }
+
+    @Override
+    public FunctionMapper getFunctionMapper() {
+        return new CRUDFunctionMapper(this.parent.getFunctionMapper());
+    }
+
+    @Override
+    public VariableMapper getVariableMapper() {
+        return this.parent.getVariableMapper();
     }
 }

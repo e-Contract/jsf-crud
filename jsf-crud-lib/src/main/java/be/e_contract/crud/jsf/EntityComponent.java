@@ -54,12 +54,12 @@ public class EntityComponent extends UIComponentBase {
         return (String) getStateHelper().eval(PropertyKeys.var);
     }
 
-    void setEntity(Object entity, String crudComponentId) {
+    public void setEntity(Object entity, String crudComponentId) {
         getStateHelper().put(PropertyKeys.entity, entity);
         getStateHelper().put(PropertyKeys.crudComponentId, crudComponentId);
     }
 
-    Object getEntity() {
+    public Object getEntity() {
         return getStateHelper().eval(PropertyKeys.entity);
     }
 
@@ -67,7 +67,7 @@ public class EntityComponent extends UIComponentBase {
         return (String) getStateHelper().eval(PropertyKeys.crudComponentId);
     }
 
-    CRUDComponent getCRUDComponent() {
+    public CRUDComponent getCRUDComponent() {
         FacesContext facesContext = getFacesContext();
         UIViewRoot view = facesContext.getViewRoot();
         String crudComponentId = getCrudComponentId();

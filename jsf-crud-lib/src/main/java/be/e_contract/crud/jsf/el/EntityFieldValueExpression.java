@@ -15,8 +15,9 @@
  * License along with this software; if not, see
  * http://www.gnu.org/licenses/.
  */
-package be.e_contract.crud.jsf;
+package be.e_contract.crud.jsf.el;
 
+import be.e_contract.crud.jsf.CRUDComponent;
 import java.lang.reflect.Field;
 import java.util.LinkedList;
 import java.util.List;

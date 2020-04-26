@@ -15,8 +15,9 @@
  * License along with this software; if not, see
  * http://www.gnu.org/licenses/.
  */
-package be.e_contract.crud.jsf;
+package be.e_contract.crud.jsf.validator;
 
+import be.e_contract.crud.jsf.EntityInspector;
 import java.util.LinkedHashSet;
 import java.util.Set;
 import javax.el.ValueExpression;

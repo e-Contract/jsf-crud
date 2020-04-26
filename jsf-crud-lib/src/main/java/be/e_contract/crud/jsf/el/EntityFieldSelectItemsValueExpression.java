@@ -15,8 +15,10 @@
  * License along with this software; if not, see
  * http://www.gnu.org/licenses/.
  */
-package be.e_contract.crud.jsf;
+package be.e_contract.crud.jsf.el;
 
+import be.e_contract.crud.jsf.CRUDController;
+import be.e_contract.crud.jsf.EntityInspector;
 import java.lang.reflect.Field;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;

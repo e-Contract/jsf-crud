@@ -15,33 +15,17 @@
  * License along with this software; if not, see
  * http://www.gnu.org/licenses/.
  */
-package be.e_contract.crud.jsf;
+package be.e_contract.crud.jsf.el;
 
-import javax.el.ELContext;
-import javax.el.ELResolver;
-import javax.el.FunctionMapper;
-import javax.el.VariableMapper;
+import be.e_contract.crud.jsf.EntityInspector;
 
-public class CRUDELContext extends ELContext {
+public class CRUDFunctions {
 
-    private final ELContext parent;
-
-    public CRUDELContext(ELContext parent) {
-        this.parent = parent;
-    }
-
-    @Override
-    public ELResolver getELResolver() {
-        return this.parent.getELResolver();
-    }
-
-    @Override
-    public FunctionMapper getFunctionMapper() {
-        return new CRUDFunctionMapper(this.parent.getFunctionMapper());
-    }
-
-    @Override
-    public VariableMapper getVariableMapper() {
-        return this.parent.getVariableMapper();
+    public static String toHumanReadable(Object entity) {
+        if (null == entity) {
+            return null;
+        }
+        EntityInspector entityInspector = new EntityInspector(entity);
+        return entityInspector.toHumanReadable(entity);
     }
 }

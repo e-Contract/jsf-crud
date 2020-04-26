@@ -16,7 +16,7 @@
             <system-event-class>javax.faces.event.PostConstructApplicationEvent</system-event-class>
             <source-class>javax.faces.application.Application</source-class>
         </system-event-listener>
-        <el-resolver>be.e_contract.crud.jsf.EntityELResolver</el-resolver>
+        <el-resolver>be.e_contract.crud.jsf.el.EntityELResolver</el-resolver>
     </application>
 
 </faces-config>

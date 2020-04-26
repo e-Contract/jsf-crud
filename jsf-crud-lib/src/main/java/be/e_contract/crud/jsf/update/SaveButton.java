@@ -15,9 +15,11 @@
  * License along with this software; if not, see
  * http://www.gnu.org/licenses/.
  */
-package be.e_contract.crud.jsf;
+package be.e_contract.crud.jsf.update;
 
-import be.e_contract.crud.jsf.update.UpdateEvent;
+import be.e_contract.crud.jsf.CRUDComponent;
+import be.e_contract.crud.jsf.CRUDController;
+import be.e_contract.crud.jsf.EntityComponent;
 import javax.el.ELContext;
 import javax.el.MethodExpression;
 import javax.faces.application.Application;

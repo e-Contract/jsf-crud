@@ -17,6 +17,17 @@
  */
 package be.e_contract.crud.jsf;
 
+import be.e_contract.crud.jsf.el.EntityFieldSelectItemsValueExpression;
+import be.e_contract.crud.jsf.el.EntityFieldValueExpression;
+import be.e_contract.crud.jsf.el.EntityValueExpression;
+import be.e_contract.crud.jsf.el.CRUDFunctions;
+import be.e_contract.crud.jsf.el.CRUDELContext;
+import be.e_contract.crud.jsf.converter.EntityConverter;
+import be.e_contract.crud.jsf.converter.TriStateBooleanConverter;
+import be.e_contract.crud.jsf.converter.CalendarConverter;
+import be.e_contract.crud.jsf.validator.UniqueValidator;
+import be.e_contract.crud.jsf.validator.NonExistingIdentifierValidator;
+import be.e_contract.crud.jsf.validator.BeanValidationValidator;
 import be.e_contract.crud.jsf.update.UpdateAdapter;
 import be.e_contract.crud.jsf.update.UpdateListenerComponent;
 import be.e_contract.crud.jsf.update.UpdateSource;
@@ -179,15 +190,15 @@ public class CRUDComponent extends UINamingContainer implements SystemEventListe
         updateEntityComponents(entity, this);
     }
 
-    Object getSelection() {
+    public Object getSelection() {
         return getStateHelper().eval(PropertyKeys.selection);
     }
 
-    Object getNewEntity() {
+    public Object getNewEntity() {
         return getStateHelper().eval(PropertyKeys.newEntity);
     }
 
-    void setNewEntity(Object entity) {
+    public void setNewEntity(Object entity) {
         getStateHelper().put(PropertyKeys.newEntity, entity);
     }
 
@@ -207,7 +218,7 @@ public class CRUDComponent extends UINamingContainer implements SystemEventListe
         getStateHelper().put(PropertyKeys.ordering, ordering);
     }
 
-    boolean isAscending() {
+    public boolean isAscending() {
         String ordering = getOrdering();
         if (UIInput.isEmpty(ordering)) {
             return true;
@@ -1164,7 +1175,7 @@ public class CRUDComponent extends UINamingContainer implements SystemEventListe
         }
     }
 
-    void addMessage(FacesMessage.Severity severity, String message) {
+    public void addMessage(FacesMessage.Severity severity, String message) {
         FacesContext facesContext = FacesContext.getCurrentInstance();
         String dataTableClientId = null;
         String messageClientId = null;
