@@ -103,6 +103,7 @@ import javax.faces.validator.LengthValidator;
 import javax.persistence.Basic;
 import javax.persistence.EntityManager;
 import javax.persistence.GeneratedValue;
+import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.Query;
@@ -925,7 +926,21 @@ public class CRUDComponent extends UINamingContainer implements SystemEventListe
         UIInput input;
         ManyToOne manyToOneAnnotation = entityField.getAnnotation(ManyToOne.class);
         OneToMany oneToManyAnnotation = entityField.getAnnotation(OneToMany.class);
-        if (null != manyToOneAnnotation) {
+        ManyToMany manyToManyAnnotation = entityField.getAnnotation(ManyToMany.class);
+        if (null != manyToManyAnnotation) {
+            input = (SelectManyMenu) application.createComponent(SelectManyMenu.COMPONENT_TYPE);
+            SelectManyMenu selectManyMenu = (SelectManyMenu) input;
+            selectManyMenu.setDisabled(disabled);
+            selectManyMenu.setShowCheckbox(true);
+            UISelectItems selectItems = (UISelectItems) application.createComponent(UISelectItems.COMPONENT_TYPE);
+            input.getChildren().add(selectItems);
+            Type type = entityField.getGenericType();
+            LOGGER.debug("type class: {}", type.getClass().getName());
+            ParameterizedType parameterizedType = (ParameterizedType) type;
+            Class<?> listTypeClass = (Class<?>) parameterizedType.getActualTypeArguments()[0];
+            selectManyMenu.setConverter(new EntityConverter(listTypeClass));
+            selectItems.setValueExpression("value", new EntityFieldSelectItemsValueExpression(entityField));
+        } else if (null != manyToOneAnnotation) {
             input = (SelectOneMenu) application.createComponent(SelectOneMenu.COMPONENT_TYPE);
             SelectOneMenu selectOneMenu = (SelectOneMenu) input;
             selectOneMenu.setDisabled(disabled);
@@ -1249,7 +1264,13 @@ public class CRUDComponent extends UINamingContainer implements SystemEventListe
                     field.setAccessible(true);
                     try {
                         List listValue = (List) field.get(entity);
-                        LOGGER.debug("field {} list size {}", field.getName(), listValue.size());
+                        int listSize;
+                        if (null == listValue) {
+                            listSize = 0;
+                        } else {
+                            listSize = listValue.size();
+                        }
+                        LOGGER.debug("field {} list size {}", field.getName(), listSize);
                     } catch (IllegalArgumentException | IllegalAccessException ex) {
                         LOGGER.error("reflection error: " + ex.getMessage(), ex);
                         return;
@@ -1512,7 +1533,8 @@ public class CRUDComponent extends UINamingContainer implements SystemEventListe
             Field[] fields = entityClass.getDeclaredFields();
             for (Field field : fields) {
                 OneToMany oneToManyAnnotation = field.getAnnotation(OneToMany.class);
-                if (null == oneToManyAnnotation) {
+                ManyToMany manyToManyAnnotation = field.getAnnotation(ManyToMany.class);
+                if (null == oneToManyAnnotation && null == manyToManyAnnotation) {
                     continue;
                 }
                 if (!List.class.equals(field.getType())) {

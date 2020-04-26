@@ -18,8 +18,10 @@
 package be.e_contract.crud.jsf.demo;
 
 import java.io.Serializable;
+import java.util.List;
 import javax.persistence.Entity;
 import javax.persistence.Id;
+import javax.persistence.ManyToMany;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 
@@ -29,12 +31,23 @@ public class CarEntity implements Serializable {
     @Id
     private String numberPlate;
 
+    @ManyToMany
+    private List<PersonEntity> drivers;
+
     public CarEntity() {
         super();
     }
 
     public CarEntity(String numberPlate) {
         this.numberPlate = numberPlate;
+    }
+
+    public List<PersonEntity> getDrivers() {
+        return this.drivers;
+    }
+
+    public void setDrivers(List<PersonEntity> drivers) {
+        this.drivers = drivers;
     }
 
     @Override
