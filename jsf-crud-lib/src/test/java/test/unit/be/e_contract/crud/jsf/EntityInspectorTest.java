@@ -17,7 +17,7 @@
  */
 package test.unit.be.e_contract.crud.jsf;
 
-import be.e_contract.crud.jsf.EntityInspector;
+import be.e_contract.crud.jsf.jpa.EntityInspector;
 import java.lang.reflect.Field;
 import javax.persistence.Entity;
 import javax.persistence.Id;

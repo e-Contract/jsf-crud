@@ -17,7 +17,7 @@
  */
 package be.e_contract.crud.jsf.el;
 
-import be.e_contract.crud.jsf.EntityInspector;
+import be.e_contract.crud.jsf.jpa.EntityInspector;
 
 public class CRUDFunctions {
 

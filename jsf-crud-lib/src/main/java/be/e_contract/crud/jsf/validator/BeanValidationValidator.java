@@ -17,7 +17,7 @@
  */
 package be.e_contract.crud.jsf.validator;
 
-import be.e_contract.crud.jsf.EntityInspector;
+import be.e_contract.crud.jsf.jpa.EntityInspector;
 import java.util.LinkedHashSet;
 import java.util.Set;
 import javax.el.ValueExpression;

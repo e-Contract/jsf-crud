@@ -15,25 +15,21 @@
  * License along with this software; if not, see
  * http://www.gnu.org/licenses/.
  */
-package be.e_contract.crud.jsf;
+package be.e_contract.crud.jsf.component;
 
 import javax.faces.component.FacesComponent;
 import javax.faces.component.UIComponentBase;
 
-@FacesComponent(FieldComponent.COMPONENT_TYPE)
-public class FieldComponent extends UIComponentBase {
+@FacesComponent(PropertyComponent.COMPONENT_TYPE)
+public class PropertyComponent extends UIComponentBase {
 
-    public static final String COMPONENT_TYPE = "crud.field";
+    public static final String COMPONENT_TYPE = "crud.property";
 
     public enum PropertyKeys {
         name,
         label,
-        hide,
         sort,
         filter,
-        size,
-        required,
-        password,
     }
 
     @Override
@@ -57,15 +53,6 @@ public class FieldComponent extends UIComponentBase {
         getStateHelper().put(PropertyKeys.label, label);
     }
 
-    public Boolean isHide() {
-        Boolean hide = (Boolean) getStateHelper().get(PropertyKeys.hide);
-        return hide;
-    }
-
-    public void setHide(Boolean hide) {
-        getStateHelper().put(PropertyKeys.hide, hide);
-    }
-
     public Boolean isSort() {
         Boolean sort = (Boolean) getStateHelper().get(PropertyKeys.sort);
         return sort;
@@ -85,34 +72,5 @@ public class FieldComponent extends UIComponentBase {
 
     public void setFilter(boolean filter) {
         getStateHelper().put(PropertyKeys.filter, filter);
-    }
-
-    public Integer getSize() {
-        return (Integer) getStateHelper().get(PropertyKeys.size);
-    }
-
-    public void setSize(Integer size) {
-        getStateHelper().put(PropertyKeys.size, size);
-    }
-
-    public Boolean isRequired() {
-        Boolean required = (Boolean) getStateHelper().get(PropertyKeys.required);
-        return required;
-    }
-
-    public void setRequired(Boolean required) {
-        getStateHelper().put(PropertyKeys.required, required);
-    }
-
-    public boolean isPassword() {
-        Boolean password = (Boolean) getStateHelper().get(PropertyKeys.password);
-        if (null == password) {
-            return false;
-        }
-        return password;
-    }
-
-    public void setPassword(boolean password) {
-        getStateHelper().put(PropertyKeys.password, password);
     }
 }

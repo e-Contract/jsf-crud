@@ -15,7 +15,7 @@
  * License along with this software; if not, see
  * http://www.gnu.org/licenses/.
  */
-package be.e_contract.crud.jsf;
+package be.e_contract.crud.jsf.component;
 
 import javax.faces.component.FacesComponent;
 import javax.faces.component.UIComponentBase;

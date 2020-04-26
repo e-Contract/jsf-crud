@@ -15,8 +15,10 @@
  * License along with this software; if not, see
  * http://www.gnu.org/licenses/.
  */
-package be.e_contract.crud.jsf;
+package be.e_contract.crud.jsf.component;
 
+import be.e_contract.crud.jsf.CRUDComponent;
+import be.e_contract.crud.jsf.jpa.EntityInspector;
 import java.io.IOException;
 import java.util.Map;
 import javax.faces.component.FacesComponent;

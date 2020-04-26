@@ -17,7 +17,7 @@
  */
 package be.e_contract.crud.jsf.converter;
 
-import be.e_contract.crud.jsf.EntityInspector;
+import be.e_contract.crud.jsf.jpa.EntityInspector;
 import java.util.HashMap;
 import java.util.Map;
 import javax.faces.component.UIComponent;

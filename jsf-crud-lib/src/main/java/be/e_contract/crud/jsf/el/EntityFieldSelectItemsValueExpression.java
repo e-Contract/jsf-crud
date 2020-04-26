@@ -17,8 +17,8 @@
  */
 package be.e_contract.crud.jsf.el;
 
-import be.e_contract.crud.jsf.CRUDController;
-import be.e_contract.crud.jsf.EntityInspector;
+import be.e_contract.crud.jsf.jpa.CRUDController;
+import be.e_contract.crud.jsf.jpa.EntityInspector;
 import java.lang.reflect.Field;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;

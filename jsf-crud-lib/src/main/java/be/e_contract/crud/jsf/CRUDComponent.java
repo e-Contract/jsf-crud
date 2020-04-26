@@ -17,6 +17,18 @@
  */
 package be.e_contract.crud.jsf;
 
+import be.e_contract.crud.jsf.jpa.EntityInspector;
+import be.e_contract.crud.jsf.jpa.CRUDController;
+import be.e_contract.crud.jsf.component.ContainerComponent;
+import be.e_contract.crud.jsf.component.DismissButton;
+import be.e_contract.crud.jsf.component.CRUDCommandButton;
+import be.e_contract.crud.jsf.component.LimitingOutputText;
+import be.e_contract.crud.jsf.component.ReadComponent;
+import be.e_contract.crud.jsf.component.EntityComponent;
+import be.e_contract.crud.jsf.component.FieldComponent;
+import be.e_contract.crud.jsf.component.PropertyComponent;
+import be.e_contract.crud.jsf.action.ActionComponent;
+import be.e_contract.crud.jsf.action.ActionAdapter;
 import be.e_contract.crud.jsf.el.EntityFieldSelectItemsValueExpression;
 import be.e_contract.crud.jsf.el.EntityFieldValueExpression;
 import be.e_contract.crud.jsf.el.EntityValueExpression;

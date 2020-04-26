@@ -18,7 +18,7 @@
 package be.e_contract.crud.jsf.el;
 
 import be.e_contract.crud.jsf.CRUDComponent;
-import be.e_contract.crud.jsf.CRUDController;
+import be.e_contract.crud.jsf.jpa.CRUDController;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;

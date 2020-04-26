@@ -198,7 +198,7 @@
         <tag-name>action</tag-name>
         <component>
             <component-type>crud.action</component-type>
-            <handler-class>be.e_contract.crud.jsf.ActionTagHandler</handler-class>
+            <handler-class>be.e_contract.crud.jsf.action.ActionTagHandler</handler-class>
         </component>
         <attribute>
             <description>The action button text.</description>

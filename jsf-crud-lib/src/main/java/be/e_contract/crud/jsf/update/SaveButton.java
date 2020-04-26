@@ -18,8 +18,8 @@
 package be.e_contract.crud.jsf.update;
 
 import be.e_contract.crud.jsf.CRUDComponent;
-import be.e_contract.crud.jsf.CRUDController;
-import be.e_contract.crud.jsf.EntityComponent;
+import be.e_contract.crud.jsf.jpa.CRUDController;
+import be.e_contract.crud.jsf.component.EntityComponent;
 import javax.el.ELContext;
 import javax.el.MethodExpression;
 import javax.faces.application.Application;

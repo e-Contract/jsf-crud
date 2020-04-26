@@ -17,7 +17,7 @@
  */
 package be.e_contract.crud.jsf.validator;
 
-import be.e_contract.crud.jsf.CRUDController;
+import be.e_contract.crud.jsf.jpa.CRUDController;
 import javax.faces.application.FacesMessage;
 import javax.faces.component.UIComponent;
 import javax.faces.component.UIInput;
