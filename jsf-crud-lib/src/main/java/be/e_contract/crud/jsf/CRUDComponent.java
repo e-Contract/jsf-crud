@@ -31,6 +31,7 @@ import be.e_contract.crud.jsf.action.ActionComponent;
 import be.e_contract.crud.jsf.action.ActionAdapter;
 import be.e_contract.crud.jsf.action.GlobalActionAdapter;
 import be.e_contract.crud.jsf.action.GlobalActionComponent;
+import be.e_contract.crud.jsf.api.CRUD;
 import be.e_contract.crud.jsf.el.EntityFieldSelectItemsValueExpression;
 import be.e_contract.crud.jsf.el.EntityFieldValueExpression;
 import be.e_contract.crud.jsf.el.EntityValueExpression;
@@ -44,22 +45,19 @@ import be.e_contract.crud.jsf.validator.NonExistingIdentifierValidator;
 import be.e_contract.crud.jsf.validator.BeanValidationValidator;
 import be.e_contract.crud.jsf.update.UpdateAdapter;
 import be.e_contract.crud.jsf.update.UpdateListenerComponent;
-import be.e_contract.crud.jsf.update.UpdateSource;
-import be.e_contract.crud.jsf.update.UpdateEvent;
-import be.e_contract.crud.jsf.update.UpdateListener;
+import be.e_contract.crud.jsf.api.UpdateEvent;
+import be.e_contract.crud.jsf.api.UpdateListener;
 import be.e_contract.crud.jsf.update.UpdateComponent;
-import be.e_contract.crud.jsf.delete.DeleteListener;
+import be.e_contract.crud.jsf.api.DeleteListener;
 import be.e_contract.crud.jsf.delete.DeleteAdapter;
 import be.e_contract.crud.jsf.delete.DeleteComponent;
-import be.e_contract.crud.jsf.delete.DeleteSource;
-import be.e_contract.crud.jsf.delete.DeleteEvent;
+import be.e_contract.crud.jsf.api.DeleteEvent;
 import be.e_contract.crud.jsf.delete.DeleteListenerComponent;
 import be.e_contract.crud.jsf.create.CreateListenerComponent;
 import be.e_contract.crud.jsf.create.CreateAdapter;
 import be.e_contract.crud.jsf.create.CreateComponent;
-import be.e_contract.crud.jsf.create.CreateListener;
-import be.e_contract.crud.jsf.create.CreateSource;
-import be.e_contract.crud.jsf.create.CreateEvent;
+import be.e_contract.crud.jsf.api.CreateListener;
+import be.e_contract.crud.jsf.api.CreateEvent;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -85,6 +83,7 @@ import javax.faces.FacesException;
 import javax.faces.application.FacesMessage;
 import javax.faces.application.ResourceDependencies;
 import javax.faces.application.ResourceDependency;
+import javax.faces.component.StateHolder;
 import javax.faces.component.UIComponent;
 import javax.faces.component.UIInput;
 import javax.faces.component.UINamingContainer;
@@ -98,6 +97,7 @@ import javax.faces.component.html.HtmlPanelGroup;
 import javax.faces.context.ExternalContext;
 import javax.faces.event.ActionEvent;
 import javax.faces.event.ActionListener;
+import javax.faces.event.FacesListener;
 import javax.faces.event.PostAddToViewEvent;
 import javax.faces.event.SystemEvent;
 import javax.faces.event.SystemEventListener;
@@ -144,7 +144,7 @@ import org.slf4j.LoggerFactory;
 @ResourceDependencies(value = {
     @ResourceDependency(library = "crud", name = "crud.js")
 })
-public class CRUDComponent extends UINamingContainer implements SystemEventListener, CreateSource, UpdateSource, DeleteSource {
+public class CRUDComponent extends UINamingContainer implements SystemEventListener, CRUD {
 
     public static final String COMPONENT_TYPE = "crud.crud";
 
@@ -383,7 +383,7 @@ public class CRUDComponent extends UINamingContainer implements SystemEventListe
         htmlForm.getChildren().add(dataTable);
         dataTable.setId("table");
 
-        AjaxUpdateListener ajaxUpdateCreateListener = new AjaxUpdateListener();
+        AjaxUpdateListener ajaxUpdateCreateListener = new AjaxUpdateListener(getId());
         ajaxUpdateCreateListener.addClientId(message.getClientId());
         ajaxUpdateCreateListener.addClientId(dataTable.getClientId());
         addFacesListener(ajaxUpdateCreateListener);
@@ -1444,6 +1444,12 @@ public class CRUDComponent extends UINamingContainer implements SystemEventListe
 
     @Override
     public void addCreateListener(CreateListener listener) {
+        FacesListener[] facesListeners = getFacesListeners(FacesListener.class);
+        for (FacesListener existingFacesListener : facesListeners) {
+            if (existingFacesListener == listener) {
+                return;
+            }
+        }
         addFacesListener(listener);
     }
 
@@ -1459,6 +1465,12 @@ public class CRUDComponent extends UINamingContainer implements SystemEventListe
 
     @Override
     public void addUpdateListener(UpdateListener listener) {
+        FacesListener[] facesListeners = getFacesListeners(FacesListener.class);
+        for (FacesListener existingFacesListener : facesListeners) {
+            if (existingFacesListener == listener) {
+                return;
+            }
+        }
         addFacesListener(listener);
     }
 
@@ -1474,6 +1486,12 @@ public class CRUDComponent extends UINamingContainer implements SystemEventListe
 
     @Override
     public void addDeleteListener(DeleteListener listener) {
+        FacesListener[] facesListeners = getFacesListeners(FacesListener.class);
+        for (FacesListener existingFacesListener : facesListeners) {
+            if (existingFacesListener == listener) {
+                return;
+            }
+        }
         addFacesListener(listener);
     }
 
@@ -1487,11 +1505,21 @@ public class CRUDComponent extends UINamingContainer implements SystemEventListe
         return (DeleteListener[]) getFacesListeners(DeleteListener.class);
     }
 
-    private class AjaxUpdateListener implements CreateListener, UpdateListener, DeleteListener {
+    public static class AjaxUpdateListener implements CreateListener, UpdateListener, DeleteListener, StateHolder {
 
-        private final List<String> clientIds;
+        private List<String> clientIds;
+
+        private String crudComponentId;
+
+        private boolean _transient;
 
         public AjaxUpdateListener() {
+            LOGGER.debug("AjaxUpdateListener default constructor");
+            this.clientIds = new LinkedList<>();
+        }
+
+        public AjaxUpdateListener(String crudComponentId) {
+            this.crudComponentId = crudComponentId;
             this.clientIds = new LinkedList<>();
         }
 
@@ -1500,8 +1528,49 @@ public class CRUDComponent extends UINamingContainer implements SystemEventListe
         }
 
         @Override
+        public Object saveState(FacesContext context) {
+            if (context == null) {
+                throw new NullPointerException();
+            }
+            return new Object[]{this.crudComponentId, this.clientIds};
+        }
+
+        @Override
+        public void restoreState(FacesContext context, Object state) {
+            if (context == null) {
+                throw new NullPointerException();
+            }
+            if (state == null) {
+                return;
+            }
+            this.crudComponentId = (String) ((Object[]) state)[0];
+            this.clientIds = (List<String>) ((Object[]) state)[1];
+        }
+
+        @Override
+        public boolean isTransient() {
+            return this._transient;
+        }
+
+        @Override
+        public void setTransient(boolean newTransientValue) {
+            this._transient = newTransientValue;
+        }
+
+        private CRUDComponent getCRUDComponent() {
+            FacesContext facesContext = FacesContext.getCurrentInstance();
+            UIViewRoot view = facesContext.getViewRoot();
+            UIComponent component = view.findComponent(this.crudComponentId);
+            if (null == component) {
+                return null;
+            }
+            return (CRUDComponent) component;
+        }
+
+        @Override
         public void entityCreated(CreateEvent event) {
-            CRUDComponent.this.resetCache();
+            CRUDComponent crudComponent = getCRUDComponent();
+            crudComponent.resetCache();
             Object entity = event.getEntity();
             fireUpdates(entity);
         }
@@ -1512,7 +1581,8 @@ public class CRUDComponent extends UINamingContainer implements SystemEventListe
             fireUpdates(entity);
             EntityInspector entityInspector = new EntityInspector(entity);
             String entityHumanReadable = entityInspector.toHumanReadable(entity);
-            CRUDComponent.this.addMessage(FacesMessage.SEVERITY_INFO, "Updated " + entityHumanReadable);
+            CRUDComponent crudComponent = getCRUDComponent();
+            crudComponent.addMessage(FacesMessage.SEVERITY_INFO, "Updated " + entityHumanReadable);
         }
 
         private void fireUpdates(Object entity) {
@@ -1528,7 +1598,8 @@ public class CRUDComponent extends UINamingContainer implements SystemEventListe
 
         @Override
         public void entityDeleted(DeleteEvent event) {
-            CRUDComponent.this.resetCache();
+            CRUDComponent crudComponent = getCRUDComponent();
+            crudComponent.resetCache();
             Object entity = event.getEntity();
             fireUpdates(entity);
         }

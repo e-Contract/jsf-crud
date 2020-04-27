@@ -15,13 +15,13 @@
  * License along with this software; if not, see
  * http://www.gnu.org/licenses/.
  */
-package be.e_contract.crud.jsf.update;
+package be.e_contract.crud.jsf.api;
 
-public interface UpdateSource {
+public interface CreateSource {
 
-    void addUpdateListener(UpdateListener listener);
+    void addCreateListener(CreateListener listener);
 
-    void removeUpdateListener(UpdateListener listener);
+    void removeCreateListener(CreateListener listener);
 
-    UpdateListener[] getUpdateListeners();
+    CreateListener[] getCreateListeners();
 }

@@ -17,6 +17,7 @@
  */
 package be.e_contract.crud.jsf.update;
 
+import be.e_contract.crud.jsf.api.UpdateEvent;
 import javax.faces.view.facelets.ComponentConfig;
 import javax.faces.view.facelets.ComponentHandler;
 import javax.faces.view.facelets.MetaRule;

@@ -20,7 +20,7 @@ package be.e_contract.crud.jsf.action;
 import be.e_contract.crud.jsf.CRUDComponent;
 import be.e_contract.crud.jsf.jpa.CRUDController;
 import be.e_contract.crud.jsf.component.EntityComponent;
-import be.e_contract.crud.jsf.update.UpdateEvent;
+import be.e_contract.crud.jsf.api.UpdateEvent;
 import javax.el.ELContext;
 import javax.el.ELResolver;
 import javax.el.MethodExpression;

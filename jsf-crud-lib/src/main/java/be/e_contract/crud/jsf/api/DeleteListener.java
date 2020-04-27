@@ -15,13 +15,11 @@
  * License along with this software; if not, see
  * http://www.gnu.org/licenses/.
  */
-package be.e_contract.crud.jsf.create;
+package be.e_contract.crud.jsf.api;
 
-public interface CreateSource {
+import javax.faces.event.FacesListener;
 
-    void addCreateListener(CreateListener listener);
+public interface DeleteListener extends FacesListener {
 
-    void removeCreateListener(CreateListener listener);
-
-    CreateListener[] getCreateListeners();
+    void entityDeleted(DeleteEvent event);
 }

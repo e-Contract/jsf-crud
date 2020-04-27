@@ -17,6 +17,8 @@
  */
 package be.e_contract.crud.jsf.update;
 
+import be.e_contract.crud.jsf.api.UpdateListener;
+import be.e_contract.crud.jsf.api.UpdateEvent;
 import javax.el.ELContext;
 import javax.el.MethodExpression;
 import javax.faces.component.StateHolder;

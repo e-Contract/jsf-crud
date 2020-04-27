@@ -15,11 +15,14 @@
  * License along with this software; if not, see
  * http://www.gnu.org/licenses/.
  */
-package be.e_contract.crud.jsf.delete;
+package be.e_contract.crud.jsf;
 
-import javax.faces.event.FacesListener;
+import javax.faces.view.facelets.ComponentConfig;
+import javax.faces.view.facelets.ComponentHandler;
 
-public interface DeleteListener extends FacesListener {
+public class CRUDTagHandler extends ComponentHandler {
 
-    void entityDeleted(DeleteEvent event);
+    public CRUDTagHandler(ComponentConfig config) {
+        super(config);
+    }
 }

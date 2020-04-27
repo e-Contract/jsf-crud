@@ -17,6 +17,7 @@
  */
 package be.e_contract.crud.jsf.delete;
 
+import be.e_contract.crud.jsf.api.DeleteEvent;
 import javax.faces.view.facelets.ComponentConfig;
 import javax.faces.view.facelets.ComponentHandler;
 import javax.faces.view.facelets.MetaRule;

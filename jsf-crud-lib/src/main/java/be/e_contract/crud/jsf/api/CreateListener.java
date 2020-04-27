@@ -15,11 +15,11 @@
  * License along with this software; if not, see
  * http://www.gnu.org/licenses/.
  */
-package be.e_contract.crud.jsf.update;
+package be.e_contract.crud.jsf.api;
 
 import javax.faces.event.FacesListener;
 
-public interface UpdateListener extends FacesListener {
+public interface CreateListener extends FacesListener {
 
-    void entityUpdated(UpdateEvent event);
+    void entityCreated(CreateEvent event);
 }

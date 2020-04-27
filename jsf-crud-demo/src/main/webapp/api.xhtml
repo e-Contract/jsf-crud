@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="http://java.sun.com/jsf/html"
+      xmlns:crud="urn:be:e-contract:crud:jsf"
+      xmlns:p="http://primefaces.org/ui"
+      xmlns:f="http://xmlns.jcp.org/jsf/core">
+
+    <h:head>
+        <title>JSF CRUD Demo</title>
+    </h:head>
+
+    <f:metadata>
+        <f:event listener="#{apiDemoController.init()}" type="postAddToView" />
+    </f:metadata>
+
+    <h:body>
+        <h1>JSF CRUD Demo</h1>
+        <crud:crud entity="DemoEntity" binding="#{apiDemoController.binding}"/>
+        <h:form>
+            <p:commandLink action="/index?faces-redirect=true" value="Back"/>
+        </h:form>
+    </h:body>
+
+</html>

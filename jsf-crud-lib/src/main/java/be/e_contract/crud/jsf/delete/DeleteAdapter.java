@@ -17,6 +17,8 @@
  */
 package be.e_contract.crud.jsf.delete;
 
+import be.e_contract.crud.jsf.api.DeleteListener;
+import be.e_contract.crud.jsf.api.DeleteEvent;
 import javax.el.ELContext;
 import javax.el.MethodExpression;
 import javax.faces.component.StateHolder;
