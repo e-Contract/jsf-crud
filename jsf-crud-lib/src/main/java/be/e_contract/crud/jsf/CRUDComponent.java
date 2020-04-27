@@ -1291,7 +1291,7 @@ public class CRUDComponent extends UINamingContainer implements SystemEventListe
                 return;
             }
 
-            entityManager.persist(entity);
+            entityManager.merge(entity);
 
             try {
                 userTransaction.commit();
