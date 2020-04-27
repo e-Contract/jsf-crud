@@ -17,9 +17,12 @@
  */
 package be.e_contract.crud.jsf.create;
 
+import be.e_contract.crud.jsf.CRUDComponent;
 import be.e_contract.crud.jsf.api.CreateEvent;
+import javax.faces.component.UIComponent;
 import javax.faces.view.facelets.ComponentConfig;
 import javax.faces.view.facelets.ComponentHandler;
+import javax.faces.view.facelets.FaceletContext;
 import javax.faces.view.facelets.MetaRule;
 import javax.faces.view.facelets.MetaRuleset;
 import org.primefaces.facelets.MethodRule;
@@ -36,5 +39,13 @@ public class CreateListenerTagHandler extends ComponentHandler {
         MetaRule metaRule = new MethodRule("action", void.class, new Class[]{CreateEvent.class});
         metaRuleset.addRule(metaRule);
         return metaRuleset;
+    }
+
+    @Override
+    public void onComponentCreated(FaceletContext faceletContext, UIComponent component, UIComponent parent) {
+        super.onComponentCreated(faceletContext, component, parent);
+        CRUDComponent crudComponent = (CRUDComponent) parent;
+        CreateListenerComponent createListenerComponent = (CreateListenerComponent) component;
+        crudComponent.addCreateListener(new CreateAdapter(createListenerComponent.getAction()));
     }
 }

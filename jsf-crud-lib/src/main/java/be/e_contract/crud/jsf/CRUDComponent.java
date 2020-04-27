@@ -43,18 +43,12 @@ import be.e_contract.crud.jsf.converter.CalendarConverter;
 import be.e_contract.crud.jsf.validator.UniqueValidator;
 import be.e_contract.crud.jsf.validator.NonExistingIdentifierValidator;
 import be.e_contract.crud.jsf.validator.BeanValidationValidator;
-import be.e_contract.crud.jsf.update.UpdateAdapter;
-import be.e_contract.crud.jsf.update.UpdateListenerComponent;
 import be.e_contract.crud.jsf.api.UpdateEvent;
 import be.e_contract.crud.jsf.api.UpdateListener;
 import be.e_contract.crud.jsf.update.UpdateComponent;
 import be.e_contract.crud.jsf.api.DeleteListener;
-import be.e_contract.crud.jsf.delete.DeleteAdapter;
 import be.e_contract.crud.jsf.delete.DeleteComponent;
 import be.e_contract.crud.jsf.api.DeleteEvent;
-import be.e_contract.crud.jsf.delete.DeleteListenerComponent;
-import be.e_contract.crud.jsf.create.CreateListenerComponent;
-import be.e_contract.crud.jsf.create.CreateAdapter;
 import be.e_contract.crud.jsf.create.CreateComponent;
 import be.e_contract.crud.jsf.api.CreateListener;
 import be.e_contract.crud.jsf.api.CreateEvent;
@@ -77,7 +71,6 @@ import java.util.List;
 import java.util.Map;
 import javax.el.ELResolver;
 import javax.el.FunctionMapper;
-import javax.el.MethodExpression;
 import javax.el.ValueExpression;
 import javax.faces.FacesException;
 import javax.faces.application.FacesMessage;
@@ -318,21 +311,6 @@ public class CRUDComponent extends UINamingContainer implements SystemEventListe
             } else if (child instanceof ReadComponent) {
                 readComponent = (ReadComponent) child;
                 showView = true;
-            } else if (child instanceof CreateListenerComponent) {
-                CreateListenerComponent createListenerComponent = (CreateListenerComponent) child;
-                MethodExpression methodExpression = createListenerComponent.getAction();
-                CreateAdapter createAdapter = new CreateAdapter(methodExpression);
-                addCreateListener(createAdapter);
-            } else if (child instanceof UpdateListenerComponent) {
-                UpdateListenerComponent updateListenerComponent = (UpdateListenerComponent) child;
-                MethodExpression methodExpression = updateListenerComponent.getAction();
-                UpdateAdapter updateAdapter = new UpdateAdapter(methodExpression);
-                addUpdateListener(updateAdapter);
-            } else if (child instanceof DeleteListenerComponent) {
-                DeleteListenerComponent deleteListenerComponent = (DeleteListenerComponent) child;
-                MethodExpression methodExpresssion = deleteListenerComponent.getAction();
-                DeleteAdapter deleteAdapter = new DeleteAdapter(methodExpresssion);
-                addDeleteListener(deleteAdapter);
             } else if (child instanceof FieldComponent) {
                 FieldComponent fieldComponent = (FieldComponent) child;
                 fields.put(fieldComponent.getName(), fieldComponent);
