@@ -60,6 +60,10 @@ public class LimitingOutputText extends HtmlOutputText {
             setValue("...");
             return;
         }
+        if (value instanceof byte[]) {
+            setValue("[binary data]");
+            return;
+        }
         String strValue = value.toString();
         if (strValue.length() > 40) {
             setValue(strValue.substring(0, 40) + "...");

@@ -52,6 +52,7 @@ import be.e_contract.crud.jsf.api.DeleteEvent;
 import be.e_contract.crud.jsf.create.CreateComponent;
 import be.e_contract.crud.jsf.api.CreateListener;
 import be.e_contract.crud.jsf.api.CreateEvent;
+import be.e_contract.crud.jsf.el.FieldUploadMethodExpression;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -71,6 +72,7 @@ import java.util.List;
 import java.util.Map;
 import javax.el.ELResolver;
 import javax.el.FunctionMapper;
+import javax.el.MethodExpression;
 import javax.el.ValueExpression;
 import javax.faces.FacesException;
 import javax.faces.application.FacesMessage;
@@ -119,6 +121,7 @@ import org.primefaces.component.calendar.Calendar;
 import org.primefaces.component.column.Column;
 import org.primefaces.component.commandbutton.CommandButton;
 import org.primefaces.component.dialog.Dialog;
+import org.primefaces.component.fileupload.FileUpload;
 import org.primefaces.component.inputtext.InputText;
 import org.primefaces.component.inputtextarea.InputTextarea;
 import org.primefaces.component.message.Message;
@@ -1039,6 +1042,11 @@ public class CRUDComponent extends UINamingContainer implements SystemEventListe
                 selectItem.setItemLabel(enumConstant.toString());
                 input.getChildren().add(selectItem);
             }
+        } else if (entityField.getType() == byte[].class) {
+            FileUpload fileUpload = (FileUpload) application.createComponent(FileUpload.COMPONENT_TYPE);
+            MethodExpression fileUploadListener = new FieldUploadMethodExpression(this, entityField, addNotUpdate);
+            fileUpload.setListener(fileUploadListener);
+            input = fileUpload;
         } else if (isPasswordField(entityField, fields)) {
             input = (Password) application.createComponent(Password.COMPONENT_TYPE);
             Password password = (Password) input;

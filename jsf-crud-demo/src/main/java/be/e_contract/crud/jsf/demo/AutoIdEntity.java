@@ -83,6 +83,9 @@ public class AutoIdEntity implements Serializable {
 
     private String password;
 
+    @Column(length = 1024 * 10)
+    private byte[] certificate;
+
     public AutoIdEntity() {
         super();
     }
@@ -205,6 +208,14 @@ public class AutoIdEntity implements Serializable {
 
     public void setPassword(String password) {
         this.password = password;
+    }
+
+    public byte[] getCertificate() {
+        return this.certificate;
+    }
+
+    public void setCertificate(byte[] certificate) {
+        this.certificate = certificate;
     }
 
     @Override
