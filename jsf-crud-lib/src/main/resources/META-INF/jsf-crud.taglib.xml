@@ -32,6 +32,11 @@
             <type>java.lang.String</type>
         </attribute>
         <attribute>
+            <description>The optional ordering DESC or ASC.</description>
+            <name>ordering</name>
+            <type>java.lang.String</type>
+        </attribute>
+        <attribute>
             <description>Sets the default sort for all fields/properties within the CRUD table. Override via field/property.</description>
             <name>sort</name>
             <type>java.lang.Boolean</type>
@@ -333,6 +338,18 @@
         <attribute>
             <description>Specifies which component should get updated.</description>
             <name>update</name>
+            <type>java.lang.String</type>
+        </attribute>
+    </tag>
+    
+    <tag>
+        <description>Resets the target CRUD component view cache.</description>
+        <tag-name>reset</tag-name>
+        <handler-class>be.e_contract.crud.jsf.action.ResetTagHandler</handler-class>
+        <attribute>
+            <description>The CRUD id.</description>
+            <name>target</name>
+            <required>true</required>
             <type>java.lang.String</type>
         </attribute>
     </tag>

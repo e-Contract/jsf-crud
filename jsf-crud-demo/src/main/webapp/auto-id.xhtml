@@ -11,7 +11,7 @@
     <h:body>
         <h1>JSF CRUD Demo</h1>
         <p:growl widgetVar="growl"/>
-        <crud:crud entity="AutoIdEntity" title="A fancy title!" orderBy="amount">
+        <crud:crud entity="AutoIdEntity" title="A fancy title!" orderBy="amount" id='crud'>
             <crud:create>
                 <crud:field name="amount" hide="true"/>
             </crud:create>
@@ -40,7 +40,8 @@
             <crud:action value="Increase amount" action="#{demoController.increaseAmount}" rendered="#{row.amount lt 500}"/>
             <crud:action value="Custom Dialog" oncomplete="PF('customDialog').show()"
                          update=":customDialog"/>
-            <crud:globalAction value="Custom Action" action="#{demoController.globalAction}"/>
+            <crud:globalAction value="Custom Global Action" action="#{demoController.globalAction}"/>
+            <crud:globalAction value="Global Action Dialog" oncomplete="PF('globalActionDialog').show()"/>
         </crud:crud>
 
         <p:dialog id="customDialog" widgetVar="customDialog" header="Custom Dialog">
@@ -59,6 +60,14 @@
                     </h:panelGrid>
                 </h:form>
             </crud:entity>
+        </p:dialog>
+
+        <p:dialog id='globalActionDialog' widgetVar='globalActionDialog' header='Global Action Dialog'>
+            <h:form>
+                <p:commandButton oncomplete="PF('globalActionDialog').hide()" value='Close'>
+                    <crud:reset target=":crud"/>
+                </p:commandButton>
+            </h:form>
         </p:dialog>
 
         <crud:crud entity="DemoEntity">
