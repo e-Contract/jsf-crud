@@ -120,6 +120,7 @@ import org.primefaces.PrimeFaces;
 import org.primefaces.component.calendar.Calendar;
 import org.primefaces.component.column.Column;
 import org.primefaces.component.commandbutton.CommandButton;
+import org.primefaces.component.datalist.DataList;
 import org.primefaces.component.dialog.Dialog;
 import org.primefaces.component.fileupload.FileUpload;
 import org.primefaces.component.inputtext.InputText;
@@ -138,7 +139,8 @@ import org.slf4j.LoggerFactory;
 
 @FacesComponent(CRUDComponent.COMPONENT_TYPE)
 @ResourceDependencies(value = {
-    @ResourceDependency(library = "crud", name = "crud.js")
+    @ResourceDependency(library = "crud", name = "crud.js"),
+    @ResourceDependency(library = "crud", name = "crud.css")
 })
 public class CRUDComponent extends UINamingContainer implements SystemEventListener, CRUD {
 
@@ -405,7 +407,7 @@ public class CRUDComponent extends UINamingContainer implements SystemEventListe
             dataTable.getChildren().add(column);
             column.setHeaderText("Actions");
 
-            addViewDialog(showView, application, column, entityName, message, entityInspector, idField, fields);
+            addViewDialog(showView, application, expressionFactory, elContext, column, entityName, message, entityInspector, idField, fields);
 
             addUpdateDialog(showUpdate, application, column, entityName, message, expressionFactory, entityInspector, idField, fields, updateFields);
 
@@ -728,7 +730,9 @@ public class CRUDComponent extends UINamingContainer implements SystemEventListe
         buttonHtmlPanelGrid.getChildren().add(dismissCommandButton);
     }
 
-    private void addViewDialog(boolean showView, Application application, Column column, String entityName, Message message, EntityInspector entityInspector, Field idField, Map<String, FieldComponent> fields) throws FacesException {
+    private void addViewDialog(boolean showView, Application application,
+            ExpressionFactory expressionFactory, ELContext elContext,
+            Column column, String entityName, Message message, EntityInspector entityInspector, Field idField, Map<String, FieldComponent> fields) throws FacesException {
         if (!showView) {
             return;
         }
@@ -766,9 +770,22 @@ public class CRUDComponent extends UINamingContainer implements SystemEventListe
             htmlPanelGrid.getChildren().add(outputLabel);
             outputLabel.setValue(fieldLabel);
 
-            LimitingOutputText outputText = (LimitingOutputText) application.createComponent(LimitingOutputText.COMPONENT_TYPE);
-            htmlPanelGrid.getChildren().add(outputText);
-            outputText.setValueExpression("value", new EntityFieldValueExpression(this, entityField, false));
+            if (entityField.getType().isAssignableFrom(List.class)) {
+                DataList dataList = (DataList) application.createComponent(DataList.COMPONENT_TYPE);
+                htmlPanelGrid.getChildren().add(dataList);
+                dataList.setValueExpression("value", new EntityFieldValueExpression(this, entityField, false));
+                dataList.setVar("entity");
+                dataList.setStyleClass("crudDataList");
+
+                HtmlOutputText outputText = (HtmlOutputText) application.createComponent(HtmlOutputText.COMPONENT_TYPE);
+                dataList.getChildren().add(outputText);
+                ValueExpression outputTextValueExpression = expressionFactory.createValueExpression(elContext, "#{crud:toHumanReadable(entity)}", String.class);
+                outputText.setValueExpression("value", outputTextValueExpression);
+            } else {
+                LimitingOutputText outputText = (LimitingOutputText) application.createComponent(LimitingOutputText.COMPONENT_TYPE);
+                htmlPanelGrid.getChildren().add(outputText);
+                outputText.setValueExpression("value", new EntityFieldValueExpression(this, entityField, false));
+            }
         }
 
         HtmlPanelGrid buttonHtmlPanelGrid = (HtmlPanelGrid) application.createComponent(HtmlPanelGrid.COMPONENT_TYPE);
