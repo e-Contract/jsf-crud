@@ -21,9 +21,19 @@ import be.e_contract.crud.jsf.api.CreateEvent;
 import be.e_contract.crud.jsf.api.DeleteEvent;
 import be.e_contract.crud.jsf.api.UpdateEvent;
 import java.io.Serializable;
+import javax.annotation.Resource;
 import javax.enterprise.context.SessionScoped;
 import javax.faces.application.FacesMessage;
 import javax.inject.Named;
+import javax.persistence.EntityManager;
+import javax.persistence.PersistenceContext;
+import javax.persistence.Query;
+import javax.transaction.HeuristicMixedException;
+import javax.transaction.HeuristicRollbackException;
+import javax.transaction.NotSupportedException;
+import javax.transaction.RollbackException;
+import javax.transaction.SystemException;
+import javax.transaction.UserTransaction;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -32,6 +42,12 @@ import org.slf4j.LoggerFactory;
 public class DemoController implements Serializable {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(DemoController.class);
+
+    @PersistenceContext
+    private EntityManager entityManager;
+
+    @Resource
+    private UserTransaction userTransaction;
 
     private int amount;
 
@@ -90,5 +106,25 @@ public class DemoController implements Serializable {
     public FacesMessage globalAction() {
         FacesMessage facesMessage = new FacesMessage(FacesMessage.SEVERITY_INFO, "Custom global action", null);
         return facesMessage;
+    }
+
+    //@javax.transaction.Transactional only since JTA1.2 hence Java EE 7
+    // so for the demo we do it manually
+    public void deleteAll() {
+        try {
+            this.userTransaction.begin();
+        } catch (NotSupportedException | SystemException ex) {
+            LOGGER.error("transaction error: " + ex.getMessage(), ex);
+            return;
+        }
+        LOGGER.debug("DELETE FROM AutoIdEntity");
+        Query query = this.entityManager.createQuery("DELETE FROM AutoIdEntity");
+        query.executeUpdate();
+        try {
+            this.userTransaction.commit();
+        } catch (RollbackException | HeuristicMixedException | HeuristicRollbackException | SecurityException | IllegalStateException | SystemException ex) {
+            LOGGER.error("transaction error: " + ex.getMessage(), ex);
+            return;
+        }
     }
 }

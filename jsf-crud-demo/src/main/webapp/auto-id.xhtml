@@ -64,7 +64,7 @@
 
         <p:dialog id='globalActionDialog' widgetVar='globalActionDialog' header='Global Action Dialog'>
             <h:form>
-                <p:commandButton oncomplete="PF('globalActionDialog').hide()" value='Close'>
+                <p:commandButton oncomplete="PF('globalActionDialog').hide()" action="#{demoController.deleteAll}" value='Delete all'>
                     <crud:reset target=":crud"/>
                 </p:commandButton>
             </h:form>
