@@ -1249,6 +1249,12 @@ public class CRUDComponent extends UINamingContainer implements SystemEventListe
                 ValueExpression valueExpression = child.getValueExpression("value");
                 EntityValueExpression entityValueExpression = (EntityValueExpression) valueExpression;
                 entityValueExpression.resetCache();
+
+                String dataTableClientId = child.getClientId();
+                PrimeFaces primeFaces = PrimeFaces.current();
+                if (primeFaces.isAjaxRequest()) {
+                    primeFaces.ajax().update(dataTableClientId);
+                }
             }
             resetCache(child);
         }
