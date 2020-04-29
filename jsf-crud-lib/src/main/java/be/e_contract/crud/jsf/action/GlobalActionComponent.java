@@ -36,6 +36,7 @@ public class GlobalActionComponent extends UIComponentBase {
         oncomplete,
         update,
         icon,
+        ajax,
     }
 
     @Override
@@ -81,5 +82,13 @@ public class GlobalActionComponent extends UIComponentBase {
 
     public void setIcon(String icon) {
         getStateHelper().put(PropertyKeys.icon, icon);
+    }
+
+    public boolean isAjax() {
+        return (Boolean) getStateHelper().eval(PropertyKeys.ajax, true);
+    }
+
+    public void setAjax(boolean ajax) {
+        getStateHelper().put(PropertyKeys.ajax, ajax);
     }
 }

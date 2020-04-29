@@ -497,6 +497,7 @@ public class CRUDComponent extends UINamingContainer implements SystemEventListe
             commandButton.addActionListener(new ActionAdapter(action.getAction(), action.getUpdate(), getId()));
             commandButton.setOncomplete(action.getOncomplete());
             commandButton.setIcon(action.getIcon());
+            commandButton.setAjax(action.isAjax());
 
             ValueExpression renderedValueExpression = action.getRenderedValueExpression();
             commandButton.setRenderedValueExpression(renderedValueExpression);
@@ -518,6 +519,7 @@ public class CRUDComponent extends UINamingContainer implements SystemEventListe
         commandButton.setUpdate(dataTable.getClientId() + "," + message.getClientId());
         commandButton.setOncomplete(globalAction.getOncomplete());
         commandButton.setIcon(globalAction.getIcon());
+        commandButton.setAjax(globalAction.isAjax());
         String update = globalAction.getUpdate();
         if (null != update) {
             UIViewRoot view = facesContext.getViewRoot();

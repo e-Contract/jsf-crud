@@ -38,6 +38,7 @@ public class ActionComponent extends UIComponentBase {
         update,
         renderedValueExpression,
         icon,
+        ajax,
     }
 
     @Override
@@ -91,5 +92,13 @@ public class ActionComponent extends UIComponentBase {
 
     public void setIcon(String icon) {
         getStateHelper().put(PropertyKeys.icon, icon);
+    }
+
+    public boolean isAjax() {
+        return (Boolean) getStateHelper().eval(PropertyKeys.ajax, true);
+    }
+
+    public void setAjax(boolean ajax) {
+        getStateHelper().put(PropertyKeys.ajax, ajax);
     }
 }
