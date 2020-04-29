@@ -19,7 +19,6 @@ package be.e_contract.crud.jsf.el;
 
 import be.e_contract.crud.jsf.CRUDComponent;
 import java.lang.reflect.Field;
-import java.util.logging.Level;
 import javax.el.ELContext;
 import javax.el.MethodExpression;
 import javax.el.MethodInfo;

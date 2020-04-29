@@ -52,6 +52,7 @@ import be.e_contract.crud.jsf.api.DeleteEvent;
 import be.e_contract.crud.jsf.create.CreateComponent;
 import be.e_contract.crud.jsf.api.CreateListener;
 import be.e_contract.crud.jsf.api.CreateEvent;
+import be.e_contract.crud.jsf.el.FieldStreamedContentValueExpression;
 import be.e_contract.crud.jsf.el.FieldUploadMethodExpression;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
@@ -122,6 +123,7 @@ import org.primefaces.component.column.Column;
 import org.primefaces.component.commandbutton.CommandButton;
 import org.primefaces.component.datalist.DataList;
 import org.primefaces.component.dialog.Dialog;
+import org.primefaces.component.filedownload.FileDownloadActionListener;
 import org.primefaces.component.fileupload.FileUpload;
 import org.primefaces.component.inputtext.InputText;
 import org.primefaces.component.inputtextarea.InputTextarea;
@@ -198,6 +200,7 @@ public class CRUDComponent extends UINamingContainer implements SystemEventListe
     }
 
     void setSelection(Object entity) {
+        LOGGER.debug("setSelection: {}", entity);
         entity = eagerLoad(entity);
         getStateHelper().put(PropertyKeys.selection, entity);
         updateEntityComponents(entity, this);
@@ -453,7 +456,7 @@ public class CRUDComponent extends UINamingContainer implements SystemEventListe
             htmlPanelGrid.getChildren().add(deleteCommandButton);
             deleteCommandButton.setValue("Delete All");
             deleteCommandButton.setId("deleteAllButton");
-            deleteCommandButton.addActionListener(new DeleteAllActionListener(entityClass));
+            deleteCommandButton.addActionListener(new DeleteAllActionListener(entityClass, getId()));
             deleteCommandButton.setOncomplete("PF('deleteAllDialog').hide()");
             deleteCommandButton.setUpdate(dataTable.getClientId() + "," + message.getClientId());
 
@@ -570,7 +573,7 @@ public class CRUDComponent extends UINamingContainer implements SystemEventListe
         addCommandButton.setId("addButton");
         addCommandButton.setValue("Add");
         addCommandButton.setOncomplete("addEntityResponse(xhr, status, args)");
-        addCommandButton.addActionListener(new AddActionListener(entityInspector));
+        addCommandButton.addActionListener(new AddActionListener(getId()));
         addCommandButton.setUpdate(addDialogHtmlForm.getClientId());
 
         DismissButton dismissCommandButton = (DismissButton) application.createComponent(DismissButton.COMPONENT_TYPE);
@@ -630,14 +633,14 @@ public class CRUDComponent extends UINamingContainer implements SystemEventListe
         htmlPanelGrid.getChildren().add(deleteCommandButton);
         deleteCommandButton.setValue("Delete");
         deleteCommandButton.setId("deleteButton");
-        deleteCommandButton.addActionListener(new DeleteActionListener(entityInspector));
+        deleteCommandButton.addActionListener(new DeleteActionListener(getId()));
         deleteCommandButton.setOncomplete("PF('deleteDialog').hide()");
 
         DismissButton dismissCommandButton = (DismissButton) application.createComponent(DismissButton.COMPONENT_TYPE);
         htmlPanelGrid.getChildren().add(dismissCommandButton);
 
         commandButton.setUpdate(deleteDialog.getClientId() + "," + message.getClientId());
-        commandButton.addActionListener(new SelectRowActionListener());
+        commandButton.addActionListener(new SelectRowActionListener(getId()));
     }
 
     private boolean relocateChildren(Application application, UIComponent oldParent, UIComponent newParent) {
@@ -690,7 +693,7 @@ public class CRUDComponent extends UINamingContainer implements SystemEventListe
         updateDialogHtmlForm.setId("updateForm");
 
         commandButton.setUpdate(updateDialog.getClientId() + "," + message.getClientId());
-        commandButton.addActionListener(new SelectRowActionListener());
+        commandButton.addActionListener(new SelectRowActionListener(getId()));
         commandButton.addActionListener(new ResetInputActionListener(expressionFactory.createValueExpression(updateDialogHtmlForm.getClientId(), String.class), null));
 
         HtmlPanelGrid htmlPanelGrid = (HtmlPanelGrid) application.createComponent(HtmlPanelGrid.COMPONENT_TYPE);
@@ -723,7 +726,7 @@ public class CRUDComponent extends UINamingContainer implements SystemEventListe
         saveCommandButton.setId("saveButton");
         saveCommandButton.setValue("Save");
         saveCommandButton.setOncomplete("updateEntityResponse(xhr, status, args)");
-        saveCommandButton.addActionListener(new SaveActionListener(entityInspector));
+        saveCommandButton.addActionListener(new SaveActionListener(getId()));
         saveCommandButton.setUpdate(updateDialogHtmlForm.getClientId());
 
         DismissButton dismissCommandButton = (DismissButton) application.createComponent(DismissButton.COMPONENT_TYPE);
@@ -749,11 +752,15 @@ public class CRUDComponent extends UINamingContainer implements SystemEventListe
         viewDialog.setHeader("View " + entityName);
         viewDialog.setModal(true);
 
+        HtmlForm viewDialogHtmlForm = (HtmlForm) application.createComponent(HtmlForm.COMPONENT_TYPE);
+        viewDialog.getChildren().add(viewDialogHtmlForm);
+        viewDialogHtmlForm.setId("viewForm");
+
         commandButton.setUpdate(viewDialog.getClientId() + "," + message.getClientId());
-        commandButton.addActionListener(new SelectRowActionListener());
+        commandButton.addActionListener(new SelectRowActionListener(getId()));
 
         HtmlPanelGrid htmlPanelGrid = (HtmlPanelGrid) application.createComponent(HtmlPanelGrid.COMPONENT_TYPE);
-        viewDialog.getChildren().add(htmlPanelGrid);
+        viewDialogHtmlForm.getChildren().add(htmlPanelGrid);
         htmlPanelGrid.setColumns(2);
 
         OutputLabel idOutputLabel = (OutputLabel) application.createComponent(OutputLabel.COMPONENT_TYPE);
@@ -781,6 +788,16 @@ public class CRUDComponent extends UINamingContainer implements SystemEventListe
                 dataList.getChildren().add(outputText);
                 ValueExpression outputTextValueExpression = expressionFactory.createValueExpression(elContext, "#{crud:toHumanReadable(entity)}", String.class);
                 outputText.setValueExpression("value", outputTextValueExpression);
+            } else if (entityField.getType().equals(byte[].class)) {
+                CommandButton downloadCommandButton = (CommandButton) application.createComponent(CommandButton.COMPONENT_TYPE);
+                htmlPanelGrid.getChildren().add(downloadCommandButton);
+                downloadCommandButton.setId(entityField.getName() + "Download");
+                downloadCommandButton.setValue("Download");
+                downloadCommandButton.setUpdate(viewDialogHtmlForm.getClientId());
+                downloadCommandButton.setAjax(false);
+                ValueExpression fieldStreamedContentValueExpression = new FieldStreamedContentValueExpression(getId(), entityField);
+                FileDownloadActionListener fileDownloadActionListener = new FileDownloadActionListener(fieldStreamedContentValueExpression, null, null);
+                downloadCommandButton.addActionListener(fileDownloadActionListener);
             } else {
                 LimitingOutputText outputText = (LimitingOutputText) application.createComponent(LimitingOutputText.COMPONENT_TYPE);
                 htmlPanelGrid.getChildren().add(outputText);
@@ -789,7 +806,7 @@ public class CRUDComponent extends UINamingContainer implements SystemEventListe
         }
 
         HtmlPanelGrid buttonHtmlPanelGrid = (HtmlPanelGrid) application.createComponent(HtmlPanelGrid.COMPONENT_TYPE);
-        viewDialog.getChildren().add(buttonHtmlPanelGrid);
+        viewDialogHtmlForm.getChildren().add(buttonHtmlPanelGrid);
         buttonHtmlPanelGrid.setColumns(1);
 
         DismissButton dismissCommandButton = (DismissButton) application.createComponent(DismissButton.COMPONENT_TYPE);
@@ -1186,23 +1203,73 @@ public class CRUDComponent extends UINamingContainer implements SystemEventListe
         outputText.setValueExpression("value", expressionFactory.createValueExpression(elContext, "#{row." + property.getName() + "}", Object.class));
     }
 
-    public class SaveActionListener implements ActionListener {
+    public static class SaveActionListener implements ActionListener, StateHolder {
 
-        private final EntityInspector entityInspector;
+        private String crudComponentId;
 
-        public SaveActionListener(EntityInspector entityInspector) {
-            this.entityInspector = entityInspector;
+        private boolean _transient;
+
+        public SaveActionListener() {
+            super();
+        }
+
+        public SaveActionListener(String crudComponentId) {
+            this.crudComponentId = crudComponentId;
+        }
+
+        @Override
+        public Object saveState(FacesContext context) {
+            if (context == null) {
+                throw new NullPointerException();
+            }
+            return new Object[]{this.crudComponentId};
+        }
+
+        @Override
+        public void restoreState(FacesContext context, Object state) {
+            if (context == null) {
+                throw new NullPointerException();
+            }
+            if (state == null) {
+                return;
+            }
+            this.crudComponentId = (String) ((Object[]) state)[0];
+        }
+
+        @Override
+        public boolean isTransient() {
+            return this._transient;
+        }
+
+        @Override
+        public void setTransient(boolean newTransientValue) {
+            this._transient = newTransientValue;
+        }
+
+        private CRUDComponent getCRUDComponent() {
+            FacesContext facesContext = FacesContext.getCurrentInstance();
+            UIViewRoot view = facesContext.getViewRoot();
+            UIComponent component = view.findComponent(this.crudComponentId);
+            if (null == component) {
+                return null;
+            }
+            return (CRUDComponent) component;
         }
 
         @Override
         public void processAction(ActionEvent event) throws AbortProcessingException {
             LOGGER.debug("processAction save");
-
+            CRUDComponent crudComponent = getCRUDComponent();
             CRUDController crudController = CRUDController.getCRUDController();
             EntityManager entityManager = crudController.getEntityManager();
             UserTransaction userTransaction = crudController.getUserTransaction();
 
-            Object entity = CRUDComponent.this.getSelection();
+            Object entity = crudComponent.getSelection();
+            if (null == entity) {
+                LOGGER.error("missing selection");
+                return;
+            }
+            EntityInspector entityInspector = new EntityInspector(entity);
 
             try {
                 userTransaction.begin();
@@ -1217,18 +1284,18 @@ public class CRUDComponent extends UINamingContainer implements SystemEventListe
                 userTransaction.commit();
             } catch (RollbackException | HeuristicMixedException | HeuristicRollbackException | SecurityException | IllegalStateException | SystemException ex) {
                 LOGGER.error("error: " + ex.getMessage(), ex);
-                String entityHumanReadable = this.entityInspector.toHumanReadable(entity);
-                CRUDComponent.this.addMessage(FacesMessage.SEVERITY_ERROR, "Could not update " + entityHumanReadable);
-                CRUDComponent.this.resetCache();
+                String entityHumanReadable = entityInspector.toHumanReadable(entity);
+                crudComponent.addMessage(FacesMessage.SEVERITY_ERROR, "Could not update " + entityHumanReadable);
+                crudComponent.resetCache();
                 return;
             }
-            CRUDComponent.this.resetCache();
-            CRUDComponent.this.setSelection(null);
+            crudComponent.resetCache();
+            crudComponent.setSelection(null);
 
-            String entityHumanReadable = this.entityInspector.toHumanReadable(entity);
-            CRUDComponent.this.addMessage(FacesMessage.SEVERITY_INFO, "Updated " + entityHumanReadable);
+            String entityHumanReadable = entityInspector.toHumanReadable(entity);
+            crudComponent.addMessage(FacesMessage.SEVERITY_INFO, "Updated " + entityHumanReadable);
 
-            UpdateEvent updateEvent = new UpdateEvent(CRUDComponent.this, entity);
+            UpdateEvent updateEvent = new UpdateEvent(crudComponent, entity);
             updateEvent.queue();
         }
     }
@@ -1277,23 +1344,69 @@ public class CRUDComponent extends UINamingContainer implements SystemEventListe
         }
     }
 
-    public class AddActionListener implements ActionListener {
+    public static class AddActionListener implements ActionListener, StateHolder {
 
-        private final EntityInspector entityInspector;
+        private String crudComponentId;
 
-        public AddActionListener(EntityInspector entityInspector) {
-            this.entityInspector = entityInspector;
+        private boolean _transient;
+
+        public AddActionListener() {
+            super();
+        }
+
+        public AddActionListener(String crudComponentId) {
+            this.crudComponentId = crudComponentId;
+        }
+
+        @Override
+        public Object saveState(FacesContext context) {
+            if (context == null) {
+                throw new NullPointerException();
+            }
+            return new Object[]{this.crudComponentId};
+        }
+
+        @Override
+        public void restoreState(FacesContext context, Object state) {
+            if (context == null) {
+                throw new NullPointerException();
+            }
+            if (state == null) {
+                return;
+            }
+            this.crudComponentId = (String) ((Object[]) state)[0];
+        }
+
+        @Override
+        public boolean isTransient() {
+            return this._transient;
+        }
+
+        @Override
+        public void setTransient(boolean newTransientValue) {
+            this._transient = newTransientValue;
+        }
+
+        private CRUDComponent getCRUDComponent() {
+            FacesContext facesContext = FacesContext.getCurrentInstance();
+            UIViewRoot view = facesContext.getViewRoot();
+            UIComponent component = view.findComponent(this.crudComponentId);
+            if (null == component) {
+                return null;
+            }
+            return (CRUDComponent) component;
         }
 
         @Override
         public void processAction(ActionEvent event) throws AbortProcessingException {
             LOGGER.debug("processAction add");
-
+            CRUDComponent crudComponent = getCRUDComponent();
             CRUDController crudController = CRUDController.getCRUDController();
             EntityManager entityManager = crudController.getEntityManager();
             UserTransaction userTransaction = crudController.getUserTransaction();
 
-            Object entity = CRUDComponent.this.getNewEntity();
+            Object entity = crudComponent.getNewEntity();
+            EntityInspector entityInspector = new EntityInspector(entity);
 
             Field[] fields = entity.getClass().getDeclaredFields();
             for (Field field : fields) {
@@ -1328,32 +1441,81 @@ public class CRUDComponent extends UINamingContainer implements SystemEventListe
                 userTransaction.commit();
             } catch (RollbackException | HeuristicMixedException | HeuristicRollbackException | SecurityException | IllegalStateException | SystemException ex) {
                 LOGGER.error("error: " + ex.getMessage(), ex);
-                String entityHumanReadable = this.entityInspector.toHumanReadable(entity);
-                CRUDComponent.this.addMessage(FacesMessage.SEVERITY_ERROR, "Could not add " + entityHumanReadable);
-                CRUDComponent.this.setNewEntity(null);
+                String entityHumanReadable = entityInspector.toHumanReadable(entity);
+                crudComponent.addMessage(FacesMessage.SEVERITY_ERROR, "Could not add " + entityHumanReadable);
+                crudComponent.setNewEntity(null);
                 return;
             }
-            CRUDComponent.this.setNewEntity(null);
+            crudComponent.setNewEntity(null);
 
-            String entityHumanReadable = this.entityInspector.toHumanReadable(entity);
-            CRUDComponent.this.addMessage(FacesMessage.SEVERITY_INFO, "Added " + entityHumanReadable);
+            String entityHumanReadable = entityInspector.toHumanReadable(entity);
+            crudComponent.addMessage(FacesMessage.SEVERITY_INFO, "Added " + entityHumanReadable);
 
-            CreateEvent createEvent = new CreateEvent(CRUDComponent.this, entity);
+            CreateEvent createEvent = new CreateEvent(crudComponent, entity);
             createEvent.queue();
         }
     }
 
-    public class DeleteAllActionListener implements ActionListener {
+    public static class DeleteAllActionListener implements ActionListener, StateHolder {
 
         private final Class<?> entityClass;
 
-        public DeleteAllActionListener(Class<?> entityClass) {
+        private String crudComponentId;
+
+        private boolean _transient;
+
+        public DeleteAllActionListener() {
+            super();
+            throw new IllegalStateException("woops");
+        }
+
+        public DeleteAllActionListener(Class<?> entityClass, String crudComponentId) {
             this.entityClass = entityClass;
+            this.crudComponentId = crudComponentId;
+        }
+
+        @Override
+        public Object saveState(FacesContext context) {
+            if (context == null) {
+                throw new NullPointerException();
+            }
+            return new Object[]{this.crudComponentId};
+        }
+
+        @Override
+        public void restoreState(FacesContext context, Object state) {
+            if (context == null) {
+                throw new NullPointerException();
+            }
+            if (state == null) {
+                return;
+            }
+            this.crudComponentId = (String) ((Object[]) state)[0];
+        }
+
+        @Override
+        public boolean isTransient() {
+            return this._transient;
+        }
+
+        @Override
+        public void setTransient(boolean newTransientValue) {
+            this._transient = newTransientValue;
+        }
+
+        private CRUDComponent getCRUDComponent() {
+            FacesContext facesContext = FacesContext.getCurrentInstance();
+            UIViewRoot view = facesContext.getViewRoot();
+            UIComponent component = view.findComponent(this.crudComponentId);
+            if (null == component) {
+                return null;
+            }
+            return (CRUDComponent) component;
         }
 
         @Override
         public void processAction(ActionEvent event) throws AbortProcessingException {
-
+            CRUDComponent crudComponent = getCRUDComponent();
             CRUDController crudController = CRUDController.getCRUDController();
             EntityManager entityManager = crudController.getEntityManager();
             UserTransaction userTransaction = crudController.getUserTransaction();
@@ -1372,33 +1534,85 @@ public class CRUDComponent extends UINamingContainer implements SystemEventListe
                 userTransaction.commit();
             } catch (RollbackException | HeuristicMixedException | HeuristicRollbackException | SecurityException | IllegalStateException | SystemException ex) {
                 LOGGER.error("error: " + ex.getMessage(), ex);
-                CRUDComponent.this.addMessage(FacesMessage.SEVERITY_ERROR, "Could not delete entries.");
+                crudComponent.addMessage(FacesMessage.SEVERITY_ERROR, "Could not delete entries.");
                 return;
             }
 
-            CRUDComponent.this.addMessage(FacesMessage.SEVERITY_INFO, "Deleted " + count + " entries.");
-            CRUDComponent.this.resetCache();
+            crudComponent.addMessage(FacesMessage.SEVERITY_INFO, "Deleted " + count + " entries.");
+            crudComponent.resetCache();
         }
     }
 
-    public class DeleteActionListener implements ActionListener {
+    public static class DeleteActionListener implements ActionListener, StateHolder {
 
-        private final EntityInspector entityInspector;
+        private String crudComponentId;
 
-        public DeleteActionListener(EntityInspector entityInspector) {
-            this.entityInspector = entityInspector;
+        private boolean _transient;
+
+        public DeleteActionListener() {
+            super();
+        }
+
+        public DeleteActionListener(String crudComponentId) {
+            this.crudComponentId = crudComponentId;
+        }
+
+        @Override
+        public Object saveState(FacesContext context) {
+            if (context == null) {
+                throw new NullPointerException();
+            }
+            return new Object[]{this.crudComponentId};
+        }
+
+        @Override
+        public void restoreState(FacesContext context, Object state) {
+            if (context == null) {
+                throw new NullPointerException();
+            }
+            if (state == null) {
+                return;
+            }
+            this.crudComponentId = (String) ((Object[]) state)[0];
+        }
+
+        @Override
+        public boolean isTransient() {
+            return this._transient;
+        }
+
+        @Override
+        public void setTransient(boolean newTransientValue) {
+            this._transient = newTransientValue;
+        }
+
+        private CRUDComponent getCRUDComponent() {
+            FacesContext facesContext = FacesContext.getCurrentInstance();
+            UIViewRoot view = facesContext.getViewRoot();
+            UIComponent component = view.findComponent(this.crudComponentId);
+            if (null == component) {
+                return null;
+            }
+            return (CRUDComponent) component;
         }
 
         @Override
         public void processAction(ActionEvent event) throws AbortProcessingException {
             LOGGER.debug("processAction DeleteActionListener");
-            LOGGER.debug("delete: {}", CRUDComponent.this.getSelection());
+            CRUDComponent crudComponent = getCRUDComponent();
+            LOGGER.debug("delete: {}", crudComponent.getSelection());
 
             CRUDController crudController = CRUDController.getCRUDController();
             EntityManager entityManager = crudController.getEntityManager();
             UserTransaction userTransaction = crudController.getUserTransaction();
 
-            Object selection = CRUDComponent.this.getSelection();
+            Object selection = crudComponent.getSelection();
+
+            if (null == selection) {
+                LOGGER.error("missing selection");
+                return;
+            }
+            EntityInspector entityInspector = new EntityInspector(selection);
 
             try {
                 userTransaction.begin();
@@ -1408,14 +1622,14 @@ public class CRUDComponent extends UINamingContainer implements SystemEventListe
             }
             Object entity;
             try {
-                Object identifier = this.entityInspector.getIdentifier(selection);
+                Object identifier = entityInspector.getIdentifier(selection);
                 entity = entityManager.find(selection.getClass(), identifier);
                 if (null != entity) {
                     entityManager.remove(entity);
                 } else {
                     LOGGER.error("missing entity");
-                    String entityHumanReadable = this.entityInspector.toHumanReadable(selection);
-                    CRUDComponent.this.addMessage(FacesMessage.SEVERITY_ERROR, "Could not delete " + entityHumanReadable);
+                    String entityHumanReadable = entityInspector.toHumanReadable(selection);
+                    crudComponent.addMessage(FacesMessage.SEVERITY_ERROR, "Could not delete " + entityHumanReadable);
                     return;
                 }
             } finally {
@@ -1423,22 +1637,73 @@ public class CRUDComponent extends UINamingContainer implements SystemEventListe
                     userTransaction.commit();
                 } catch (RollbackException | HeuristicMixedException | HeuristicRollbackException | SecurityException | IllegalStateException | SystemException ex) {
                     LOGGER.error("error: " + ex.getMessage(), ex);
-                    String entityHumanReadable = this.entityInspector.toHumanReadable(selection);
-                    CRUDComponent.this.addMessage(FacesMessage.SEVERITY_ERROR, "Could not delete " + entityHumanReadable);
+                    String entityHumanReadable = entityInspector.toHumanReadable(selection);
+                    crudComponent.addMessage(FacesMessage.SEVERITY_ERROR, "Could not delete " + entityHumanReadable);
                     return;
                 }
             }
-            CRUDComponent.this.setSelection(null);
+            crudComponent.setSelection(null);
 
-            String entityHumanReadable = this.entityInspector.toHumanReadable(entity);
-            CRUDComponent.this.addMessage(FacesMessage.SEVERITY_INFO, "Deleted " + entityHumanReadable);
+            String entityHumanReadable = entityInspector.toHumanReadable(entity);
+            crudComponent.addMessage(FacesMessage.SEVERITY_INFO, "Deleted " + entityHumanReadable);
 
-            DeleteEvent deleteEvent = new DeleteEvent(CRUDComponent.this, entity);
+            DeleteEvent deleteEvent = new DeleteEvent(crudComponent, entity);
             deleteEvent.queue();
         }
     }
 
-    public class SelectRowActionListener implements ActionListener {
+    public static class SelectRowActionListener implements ActionListener, StateHolder {
+
+        private String crudComponentId;
+
+        private boolean _transient;
+
+        public SelectRowActionListener() {
+            super();
+        }
+
+        public SelectRowActionListener(String crudComponentId) {
+            this.crudComponentId = crudComponentId;
+        }
+
+        @Override
+        public Object saveState(FacesContext context) {
+            if (context == null) {
+                throw new NullPointerException();
+            }
+            return new Object[]{this.crudComponentId};
+        }
+
+        @Override
+        public void restoreState(FacesContext context, Object state) {
+            if (context == null) {
+                throw new NullPointerException();
+            }
+            if (state == null) {
+                return;
+            }
+            this.crudComponentId = (String) ((Object[]) state)[0];
+        }
+
+        @Override
+        public boolean isTransient() {
+            return this._transient;
+        }
+
+        @Override
+        public void setTransient(boolean newTransientValue) {
+            this._transient = newTransientValue;
+        }
+
+        private CRUDComponent getCRUDComponent() {
+            FacesContext facesContext = FacesContext.getCurrentInstance();
+            UIViewRoot view = facesContext.getViewRoot();
+            UIComponent component = view.findComponent(this.crudComponentId);
+            if (null == component) {
+                return null;
+            }
+            return (CRUDComponent) component;
+        }
 
         @Override
         public void processAction(ActionEvent event) throws AbortProcessingException {
@@ -1447,7 +1712,8 @@ public class CRUDComponent extends UINamingContainer implements SystemEventListe
             ELContext elContext = facesContext.getELContext();
             ELResolver elResolver = elContext.getELResolver();
             Object entity = elResolver.getValue(elContext, null, "row");
-            CRUDComponent.this.setSelection(entity);
+            CRUDComponent crudComponent = getCRUDComponent();
+            crudComponent.setSelection(entity);
         }
     }
 
