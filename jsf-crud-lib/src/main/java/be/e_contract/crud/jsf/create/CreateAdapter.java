@@ -35,7 +35,7 @@ public class CreateAdapter implements CreateListener, StateHolder {
     private boolean _transient;
 
     public CreateAdapter() {
-        // empty
+        super();
     }
 
     public CreateAdapter(MethodExpression methodExpression) {

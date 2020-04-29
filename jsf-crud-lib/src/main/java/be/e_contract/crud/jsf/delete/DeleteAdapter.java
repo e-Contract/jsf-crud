@@ -35,7 +35,7 @@ public class DeleteAdapter implements DeleteListener, StateHolder {
     private boolean _transient;
 
     public DeleteAdapter() {
-        // empty
+        super();
     }
 
     public DeleteAdapter(MethodExpression methodExpression) {

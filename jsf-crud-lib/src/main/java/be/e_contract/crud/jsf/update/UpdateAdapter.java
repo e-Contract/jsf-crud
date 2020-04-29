@@ -35,7 +35,7 @@ public class UpdateAdapter implements UpdateListener, StateHolder {
     private boolean _transient;
 
     public UpdateAdapter() {
-        // empty
+        super();
     }
 
     public UpdateAdapter(MethodExpression methodExpression) {

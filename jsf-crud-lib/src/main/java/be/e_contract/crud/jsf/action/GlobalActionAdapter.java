@@ -43,7 +43,7 @@ public class GlobalActionAdapter implements ActionListener, StateHolder {
     private boolean _transient;
 
     public GlobalActionAdapter() {
-        // empty
+        super();
     }
 
     public GlobalActionAdapter(MethodExpression methodExpression) {

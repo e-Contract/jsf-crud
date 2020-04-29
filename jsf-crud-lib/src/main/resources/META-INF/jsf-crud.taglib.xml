@@ -235,6 +235,11 @@
             <name>update</name>
             <type>java.lang.String</type>
         </attribute>
+        <attribute>
+            <description>Icon of the button.</description>
+            <name>icon</name>
+            <type>java.lang.String</type>
+        </attribute>
     </tag>
     
     <tag>
@@ -338,6 +343,11 @@
         <attribute>
             <description>Specifies which component should get updated.</description>
             <name>update</name>
+            <type>java.lang.String</type>
+        </attribute>
+        <attribute>
+            <description>Icon of the button.</description>
+            <name>icon</name>
             <type>java.lang.String</type>
         </attribute>
     </tag>

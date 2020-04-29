@@ -59,7 +59,7 @@ public class ActionAdapter implements ActionListener, StateHolder {
     private String crudComponentId;
 
     public ActionAdapter() {
-        // empty
+        super();
     }
 
     public ActionAdapter(MethodExpression methodExpression, String update, String crudComponentId) {

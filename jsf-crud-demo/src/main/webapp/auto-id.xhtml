@@ -39,8 +39,8 @@
                          oncomplete="PF('growl').renderMessage({'summary':'hello world'})"/>
             <crud:action value="Increase amount" action="#{demoController.increaseAmount}" rendered="#{row.amount lt 500}"/>
             <crud:action value="Custom Dialog" oncomplete="PF('customDialog').show()"
-                         update=":customDialog"/>
-            <crud:globalAction value="Custom Global Action" action="#{demoController.globalAction}"/>
+                         update=":customDialog" icon="fa fa-plus"/>
+            <crud:globalAction value="Custom Global Action" icon="fa fa-plus" action="#{demoController.globalAction}"/>
             <crud:globalAction value="Global Action Dialog" oncomplete="PF('globalActionDialog').show()"/>
         </crud:crud>
 

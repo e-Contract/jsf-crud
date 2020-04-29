@@ -35,6 +35,7 @@ public class GlobalActionComponent extends UIComponentBase {
         action,
         oncomplete,
         update,
+        icon,
     }
 
     @Override
@@ -72,5 +73,13 @@ public class GlobalActionComponent extends UIComponentBase {
 
     public void setUpdate(String update) {
         getStateHelper().put(PropertyKeys.update, update);
+    }
+
+    public String getIcon() {
+        return (String) getStateHelper().eval(PropertyKeys.icon, null);
+    }
+
+    public void setIcon(String icon) {
+        getStateHelper().put(PropertyKeys.icon, icon);
     }
 }

@@ -37,6 +37,7 @@ public class ActionComponent extends UIComponentBase {
         oncomplete,
         update,
         renderedValueExpression,
+        icon,
     }
 
     @Override
@@ -82,5 +83,13 @@ public class ActionComponent extends UIComponentBase {
 
     public ValueExpression getRenderedValueExpression() {
         return (ValueExpression) getStateHelper().get(PropertyKeys.renderedValueExpression);
+    }
+
+    public String getIcon() {
+        return (String) getStateHelper().eval(PropertyKeys.icon, null);
+    }
+
+    public void setIcon(String icon) {
+        getStateHelper().put(PropertyKeys.icon, icon);
     }
 }

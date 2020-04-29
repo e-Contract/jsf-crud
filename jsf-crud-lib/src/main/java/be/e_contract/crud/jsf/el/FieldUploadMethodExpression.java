@@ -26,7 +26,7 @@ import javax.faces.component.UIComponent;
 import javax.faces.component.UIViewRoot;
 import javax.faces.context.FacesContext;
 import org.primefaces.event.FileUploadEvent;
-import org.primefaces.model.file.UploadedFile;
+import org.primefaces.model.UploadedFile;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -88,7 +88,7 @@ public class FieldUploadMethodExpression extends MethodExpression {
         Field entityField = getEntityField();
         entityField.setAccessible(true);
         try {
-            entityField.set(getEntity(), uploadedFile.getContent());
+            entityField.set(getEntity(), uploadedFile.getContents());
         } catch (IllegalArgumentException | IllegalAccessException ex) {
             LOGGER.error("reflection error: " + ex.getMessage(), ex);
         }

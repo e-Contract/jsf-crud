@@ -496,6 +496,7 @@ public class CRUDComponent extends UINamingContainer implements SystemEventListe
             commandButton.setUpdate(dataTable.getClientId() + "," + message.getClientId());
             commandButton.addActionListener(new ActionAdapter(action.getAction(), action.getUpdate(), getId()));
             commandButton.setOncomplete(action.getOncomplete());
+            commandButton.setIcon(action.getIcon());
 
             ValueExpression renderedValueExpression = action.getRenderedValueExpression();
             commandButton.setRenderedValueExpression(renderedValueExpression);
@@ -516,6 +517,7 @@ public class CRUDComponent extends UINamingContainer implements SystemEventListe
         commandButton.setValue(globalAction.getValue());
         commandButton.setUpdate(dataTable.getClientId() + "," + message.getClientId());
         commandButton.setOncomplete(globalAction.getOncomplete());
+        commandButton.setIcon(globalAction.getIcon());
         String update = globalAction.getUpdate();
         if (null != update) {
             UIViewRoot view = facesContext.getViewRoot();
@@ -1093,7 +1095,7 @@ public class CRUDComponent extends UINamingContainer implements SystemEventListe
         } else if (entityField.getType() == byte[].class) {
             FileUpload fileUpload = (FileUpload) application.createComponent(FileUpload.COMPONENT_TYPE);
             MethodExpression fileUploadListener = new FieldUploadMethodExpression(getId(), entityField.getName(), addNotUpdate);
-            fileUpload.setListener(fileUploadListener);
+            fileUpload.setFileUploadListener(fileUploadListener);
             input = fileUpload;
         } else if (isPasswordField(entityField, fields)) {
             input = (Password) application.createComponent(Password.COMPONENT_TYPE);
