@@ -37,11 +37,11 @@ public class FieldStreamedContentValueExpression extends ValueExpression {
 
     private final String crudComponentId;
 
-    private final Field entityField;
+    private final String entityFieldName;
 
-    public FieldStreamedContentValueExpression(String crudComponentId, Field entityField) {
+    public FieldStreamedContentValueExpression(String crudComponentId, String entityFieldName) {
         this.crudComponentId = crudComponentId;
-        this.entityField = entityField;
+        this.entityFieldName = entityFieldName;
     }
 
     private CRUDComponent getCRUDComponent() {
@@ -54,9 +54,26 @@ public class FieldStreamedContentValueExpression extends ValueExpression {
         return (CRUDComponent) component;
     }
 
+    private Field getEntityField() {
+        CRUDComponent crudComponent = getCRUDComponent();
+        Class<?> entityClass = crudComponent.getEntityClass();
+        Field entityField;
+        try {
+            entityField = entityClass.getDeclaredField(this.entityFieldName);
+        } catch (NoSuchFieldException | SecurityException ex) {
+            LOGGER.error("error: " + ex.getMessage(), ex);
+            return null;
+        }
+        if (null == entityField) {
+            LOGGER.error("unknown entity field: {}", this.entityFieldName);
+        }
+        return entityField;
+    }
+
     @Override
     public Object getValue(ELContext elContext) {
-        LOGGER.debug("getValue: {}", this.entityField.getName());
+        Field entityField = getEntityField();
+        LOGGER.debug("getValue: {}", entityField.getName());
         CRUDComponent crudComponent = getCRUDComponent();
         Object entity = crudComponent.getSelection();
         if (null == entity) {
@@ -65,8 +82,8 @@ public class FieldStreamedContentValueExpression extends ValueExpression {
         }
         byte[] value;
         try {
-            this.entityField.setAccessible(true);
-            value = (byte[]) this.entityField.get(entity);
+            entityField.setAccessible(true);
+            value = (byte[]) entityField.get(entity);
         } catch (IllegalArgumentException | IllegalAccessException ex) {
             LOGGER.error("reflection error: " + ex.getMessage(), ex);
             return null;

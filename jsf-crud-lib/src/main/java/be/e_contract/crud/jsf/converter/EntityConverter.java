@@ -20,20 +20,57 @@ package be.e_contract.crud.jsf.converter;
 import be.e_contract.crud.jsf.jpa.EntityInspector;
 import java.util.HashMap;
 import java.util.Map;
+import javax.faces.component.StateHolder;
 import javax.faces.component.UIComponent;
 import javax.faces.context.FacesContext;
 import javax.faces.convert.Converter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class EntityConverter implements Converter {
+public class EntityConverter implements Converter, StateHolder {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(EntityConverter.class);
 
-    private final EntityInspector entityInspector;
+    private String entityClassName;
 
-    public EntityConverter(Class<?> entityClass) {
-        this.entityInspector = new EntityInspector(entityClass);
+    private boolean _transient;
+
+    public EntityConverter() {
+        super();
+        LOGGER.debug("default constructor");
+    }
+
+    public EntityConverter(String entityClassName) {
+        this.entityClassName = entityClassName;
+    }
+
+    @Override
+    public Object saveState(FacesContext context) {
+        if (context == null) {
+            throw new NullPointerException();
+        }
+        return new Object[]{this.entityClassName};
+    }
+
+    @Override
+    public void restoreState(FacesContext context, Object state) {
+        if (context == null) {
+            throw new NullPointerException();
+        }
+        if (state == null) {
+            return;
+        }
+        this.entityClassName = (String) ((Object[]) state)[0];
+    }
+
+    @Override
+    public boolean isTransient() {
+        return this._transient;
+    }
+
+    @Override
+    public void setTransient(boolean newTransientValue) {
+        this._transient = newTransientValue;
     }
 
     @Override
@@ -55,7 +92,9 @@ public class EntityConverter implements Converter {
         if (null == object) {
             return null;
         }
-        Object identifier = this.entityInspector.getIdentifier(object);
+        LOGGER.debug("getAsString: entity class name {}", this.entityClassName);
+        EntityInspector entityInspector = new EntityInspector(this.entityClassName);
+        Object identifier = entityInspector.getIdentifier(object);
         String identifierString = identifier.toString();
         Map<String, Object> viewMap = getViewMap(facesContext);
         viewMap.put(identifierString, object);

@@ -99,6 +99,12 @@ public class SaveButton extends UIComponentBase implements SystemEventListener {
         FacesContext facesContext = FacesContext.getCurrentInstance();
         Application application = facesContext.getApplication();
 
+        for (UIComponent child : getChildren()) {
+            if (child instanceof CommandButton) {
+                return;
+            }
+        }
+
         CommandButton commandButton = (CommandButton) application.createComponent(CommandButton.COMPONENT_TYPE);
         getChildren().add(commandButton);
         commandButton.setId("saveButton");
@@ -124,11 +130,15 @@ public class SaveButton extends UIComponentBase implements SystemEventListener {
         throw new AbortProcessingException();
     }
 
-    public class SaveActionListener implements ActionListener, StateHolder {
+    public static class SaveActionListener implements ActionListener, StateHolder {
 
         private boolean _transient;
 
         private MethodExpression methodExpression;
+
+        public SaveActionListener() {
+            super();
+        }
 
         public SaveActionListener(MethodExpression methodExpression) {
             this.methodExpression = methodExpression;
@@ -141,7 +151,7 @@ public class SaveButton extends UIComponentBase implements SystemEventListener {
             FacesContext facesContext = FacesContext.getCurrentInstance();
             ELContext elContext = facesContext.getELContext();
 
-            EntityComponent entityComponent = getEntityComponent();
+            EntityComponent entityComponent = getEntityComponent(event.getComponent());
             Object entity = entityComponent.getEntity();
             CRUDComponent crudComponent = entityComponent.getCRUDComponent();
 
@@ -207,8 +217,7 @@ public class SaveButton extends UIComponentBase implements SystemEventListener {
             this._transient = newTransientValue;
         }
 
-        private EntityComponent getEntityComponent() {
-            UIComponent component = getParent();
+        private EntityComponent getEntityComponent(UIComponent component) {
             while (component != null) {
                 if (component instanceof EntityComponent) {
                     EntityComponent entityComponent = (EntityComponent) component;

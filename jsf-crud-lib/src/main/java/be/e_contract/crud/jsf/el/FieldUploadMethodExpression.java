@@ -22,6 +22,9 @@ import java.lang.reflect.Field;
 import javax.el.ELContext;
 import javax.el.MethodExpression;
 import javax.el.MethodInfo;
+import javax.faces.component.UIComponent;
+import javax.faces.component.UIViewRoot;
+import javax.faces.context.FacesContext;
 import org.primefaces.event.FileUploadEvent;
 import org.primefaces.model.file.UploadedFile;
 import org.slf4j.Logger;
@@ -31,15 +34,15 @@ public class FieldUploadMethodExpression extends MethodExpression {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(FieldUploadMethodExpression.class);
 
-    private final CRUDComponent crudComponent;
+    private final String crudComponentId;
 
-    private final Field entityField;
+    private final String entityFieldName;
 
     private final boolean create;
 
-    public FieldUploadMethodExpression(CRUDComponent crudComponent, Field entityField, boolean create) {
-        this.crudComponent = crudComponent;
-        this.entityField = entityField;
+    public FieldUploadMethodExpression(String crudComponentId, String entityFieldName, boolean create) {
+        this.crudComponentId = crudComponentId;
+        this.entityFieldName = entityFieldName;
         this.create = create;
     }
 
@@ -49,6 +52,32 @@ public class FieldUploadMethodExpression extends MethodExpression {
         return null;
     }
 
+    private CRUDComponent getCRUDComponent() {
+        FacesContext facesContext = FacesContext.getCurrentInstance();
+        UIViewRoot view = facesContext.getViewRoot();
+        UIComponent component = view.findComponent(this.crudComponentId);
+        if (null == component) {
+            return null;
+        }
+        return (CRUDComponent) component;
+    }
+
+    private Field getEntityField() {
+        CRUDComponent crudComponent = getCRUDComponent();
+        Class<?> entityClass = crudComponent.getEntityClass();
+        Field entityField;
+        try {
+            entityField = entityClass.getDeclaredField(this.entityFieldName);
+        } catch (NoSuchFieldException | SecurityException ex) {
+            LOGGER.error("error: " + ex.getMessage(), ex);
+            return null;
+        }
+        if (null == entityField) {
+            LOGGER.error("unknown entity field: {}", this.entityFieldName);
+        }
+        return entityField;
+    }
+
     @Override
     public Object invoke(ELContext elContext, Object[] params) {
         LOGGER.debug("invoke");
@@ -56,9 +85,10 @@ public class FieldUploadMethodExpression extends MethodExpression {
         UploadedFile uploadedFile = fileUploadEvent.getFile();
         LOGGER.debug("filename: {}", uploadedFile.getFileName());
         LOGGER.debug("file size: {}", uploadedFile.getSize());
-        this.entityField.setAccessible(true);
+        Field entityField = getEntityField();
+        entityField.setAccessible(true);
         try {
-            this.entityField.set(getEntity(), uploadedFile.getContent());
+            entityField.set(getEntity(), uploadedFile.getContent());
         } catch (IllegalArgumentException | IllegalAccessException ex) {
             LOGGER.error("reflection error: " + ex.getMessage(), ex);
         }
@@ -67,19 +97,21 @@ public class FieldUploadMethodExpression extends MethodExpression {
 
     private Object getEntity() {
         Object entity;
+        CRUDComponent crudComponent = getCRUDComponent();
         if (this.create) {
-            entity = this.crudComponent.getNewEntity();
+            entity = crudComponent.getNewEntity();
             if (null == entity) {
+                Field entityField = getEntityField();
                 try {
-                    entity = this.entityField.getDeclaringClass().newInstance();
+                    entity = entityField.getDeclaringClass().newInstance();
                 } catch (InstantiationException | IllegalAccessException ex) {
                     LOGGER.error("error: " + ex.getMessage(), ex);
                     return null;
                 }
-                this.crudComponent.setNewEntity(entity);
+                crudComponent.setNewEntity(entity);
             }
         } else {
-            entity = this.crudComponent.getSelection();
+            entity = crudComponent.getSelection();
         }
         return entity;
     }

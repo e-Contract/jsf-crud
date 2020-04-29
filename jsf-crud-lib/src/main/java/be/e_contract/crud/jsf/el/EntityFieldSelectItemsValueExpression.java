@@ -19,9 +19,6 @@ package be.e_contract.crud.jsf.el;
 
 import be.e_contract.crud.jsf.jpa.CRUDController;
 import be.e_contract.crud.jsf.jpa.EntityInspector;
-import java.lang.reflect.Field;
-import java.lang.reflect.ParameterizedType;
-import java.lang.reflect.Type;
 import java.util.LinkedList;
 import java.util.List;
 import javax.el.ELContext;
@@ -39,32 +36,28 @@ public class EntityFieldSelectItemsValueExpression extends ValueExpression {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(EntityFieldSelectItemsValueExpression.class);
 
-    private final Field entityField;
+    private final String entityClassName;
 
-    public EntityFieldSelectItemsValueExpression(Field entityField) {
-        this.entityField = entityField;
+    public EntityFieldSelectItemsValueExpression(String entityClassName) {
+        this.entityClassName = entityClassName;
     }
 
     @Override
     public Object getValue(ELContext context) {
         LOGGER.debug("getValue");
-        Type type = this.entityField.getGenericType();
-        LOGGER.debug("type class: {}", type.getClass().getName());
-        ParameterizedType parameterizedType = (ParameterizedType) type;
-        Class<?> listTypeClass = (Class<?>) parameterizedType.getActualTypeArguments()[0];
-        LOGGER.debug("list type class: {}", listTypeClass.getName());
+        EntityInspector entityInspector = new EntityInspector(this.entityClassName);
+        Class<?> entityClass = entityInspector.getEntityClass();
         CRUDController crudController = CRUDController.getCRUDController();
         EntityManager entityManager = crudController.getEntityManager();
 
         CriteriaBuilder criteriaBuilder = entityManager.getCriteriaBuilder();
         CriteriaQuery<Object> criteriaQuery = criteriaBuilder.createQuery(Object.class);
-        Root<? extends Object> entity = criteriaQuery.from(listTypeClass);
+        Root<? extends Object> entity = criteriaQuery.from(entityClass);
         criteriaQuery.select(entity);
 
         TypedQuery<Object> query = entityManager.createQuery(criteriaQuery);
         List entities = query.getResultList();
 
-        EntityInspector entityInspector = new EntityInspector(listTypeClass);
         List<SelectItem> selectItems = new LinkedList<>();
         for (Object entityObject : entities) {
             SelectItem selectItem = new SelectItem(entityObject, entityInspector.toHumanReadable(entityObject));

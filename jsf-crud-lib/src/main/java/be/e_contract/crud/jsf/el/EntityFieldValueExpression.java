@@ -24,6 +24,9 @@ import java.util.List;
 import javax.el.ELContext;
 import javax.el.ValueExpression;
 import javax.el.ValueReference;
+import javax.faces.component.UIComponent;
+import javax.faces.component.UIViewRoot;
+import javax.faces.context.FacesContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -31,16 +34,47 @@ public class EntityFieldValueExpression extends ValueExpression {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(EntityFieldValueExpression.class);
 
-    private final CRUDComponent crudComponent;
+    private String crudComponentId;
 
-    private final Field entityField;
+    private String entityFieldName;
 
-    private final boolean create;
+    private boolean create;
 
-    public EntityFieldValueExpression(CRUDComponent crudComponent, Field entityField, boolean create) {
-        this.crudComponent = crudComponent;
-        this.entityField = entityField;
+    public EntityFieldValueExpression() {
+        super();
+        LOGGER.debug("default constructor");
+    }
+
+    public EntityFieldValueExpression(String crudComponentId, String entityFieldName, boolean create) {
+        this.crudComponentId = crudComponentId;
+        this.entityFieldName = entityFieldName;
         this.create = create;
+    }
+
+    private CRUDComponent getCRUDComponent() {
+        FacesContext facesContext = FacesContext.getCurrentInstance();
+        UIViewRoot view = facesContext.getViewRoot();
+        UIComponent component = view.findComponent(this.crudComponentId);
+        if (null == component) {
+            return null;
+        }
+        return (CRUDComponent) component;
+    }
+
+    private Field getEntityField() {
+        CRUDComponent crudComponent = getCRUDComponent();
+        Class<?> entityClass = crudComponent.getEntityClass();
+        Field entityField;
+        try {
+            entityField = entityClass.getDeclaredField(this.entityFieldName);
+        } catch (NoSuchFieldException | SecurityException ex) {
+            LOGGER.error("error: " + ex.getMessage(), ex);
+            return null;
+        }
+        if (null == entityField) {
+            LOGGER.error("unknown entity field: {}", this.entityFieldName);
+        }
+        return entityField;
     }
 
     @Override
@@ -49,9 +83,10 @@ public class EntityFieldValueExpression extends ValueExpression {
         if (null == entity) {
             return null;
         }
+        Field entityField = getEntityField();
         try {
-            this.entityField.setAccessible(true);
-            Object value = this.entityField.get(entity);
+            entityField.setAccessible(true);
+            Object value = entityField.get(entity);
             if (value instanceof List) {
                 LOGGER.debug("list class: {}", value.getClass().getName());
                 // avoid passing org.hibernate.collection.internal.PersistentBag that later on can yield 
@@ -67,39 +102,42 @@ public class EntityFieldValueExpression extends ValueExpression {
     }
 
     private Object getEntity() {
+        CRUDComponent crudComponent = getCRUDComponent();
         Object entity;
         if (this.create) {
-            entity = this.crudComponent.getNewEntity();
+            entity = crudComponent.getNewEntity();
             if (null == entity) {
+                Field entityField = getEntityField();
                 try {
-                    entity = this.entityField.getDeclaringClass().newInstance();
+                    entity = entityField.getDeclaringClass().newInstance();
                 } catch (InstantiationException | IllegalAccessException ex) {
                     LOGGER.error("error: " + ex.getMessage(), ex);
                     return null;
                 }
-                this.crudComponent.setNewEntity(entity);
+                crudComponent.setNewEntity(entity);
             }
         } else {
-            entity = this.crudComponent.getSelection();
+            entity = crudComponent.getSelection();
         }
         return entity;
     }
 
     @Override
     public void setValue(ELContext context, Object value) {
-        LOGGER.debug("setValue: {} = {}", this.entityField.getName(), value);
+        Field entityField = getEntityField();
+        LOGGER.debug("setValue: {} = {}", entityField.getName(), value);
         Object entity = getEntity();
         if (null == entity) {
             return;
         }
         try {
             if (null == value) {
-                if (this.entityField.getType().isPrimitive()) {
+                if (entityField.getType().isPrimitive()) {
                     return;
                 }
             }
-            this.entityField.setAccessible(true);
-            this.entityField.set(entity, value);
+            entityField.setAccessible(true);
+            entityField.set(entity, value);
         } catch (IllegalArgumentException | IllegalAccessException ex) {
             LOGGER.error("error: " + ex.getMessage(), ex);
         }
@@ -114,7 +152,8 @@ public class EntityFieldValueExpression extends ValueExpression {
     @Override
     public Class<?> getType(ELContext context) {
         //LOGGER.debug("getType");
-        return this.entityField.getType();
+        Field entityField = getEntityField();
+        return entityField.getType();
     }
 
     @Override
@@ -149,6 +188,7 @@ public class EntityFieldValueExpression extends ValueExpression {
 
     @Override
     public ValueReference getValueReference(ELContext context) {
-        return new ValueReference(getEntity(), this.entityField.getName());
+        Field entityField = getEntityField();
+        return new ValueReference(getEntity(), entityField.getName());
     }
 }

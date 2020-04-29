@@ -24,6 +24,7 @@ import java.util.List;
 import java.util.Map;
 import javax.el.ELContext;
 import javax.el.ValueExpression;
+import javax.faces.component.UIComponent;
 import javax.faces.component.UIInput;
 import javax.faces.component.UIViewRoot;
 import javax.faces.context.FacesContext;
@@ -46,25 +47,39 @@ public class EntityValueExpression extends ValueExpression {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(EntityValueExpression.class);
 
-    private final Class<?> entityClass;
+    private String crudComponentId;
 
-    private final CRUDComponent crudComponent;
+    public EntityValueExpression() {
+        super();
+        LOGGER.debug("default constructor");
+    }
 
-    public EntityValueExpression(Class<?> entityClass, CRUDComponent crudComponent) {
-        this.entityClass = entityClass;
-        this.crudComponent = crudComponent;
+    public EntityValueExpression(String crudComponentId) {
+        this.crudComponentId = crudComponentId;
+    }
+
+    private CRUDComponent getCRUDComponent() {
+        FacesContext facesContext = FacesContext.getCurrentInstance();
+        UIViewRoot view = facesContext.getViewRoot();
+        UIComponent component = view.findComponent(this.crudComponentId);
+        if (null == component) {
+            return null;
+        }
+        return (CRUDComponent) component;
     }
 
     @Override
     public Object getValue(ELContext context) {
         LOGGER.debug("getValue");
+        CRUDComponent crudComponent = getCRUDComponent();
+        Class<?> entityClass = crudComponent.getEntityClass();
         FacesContext facesContext = FacesContext.getCurrentInstance();
         UIViewRoot viewRoot = facesContext.getViewRoot();
         Map<String, Object> viewMap = viewRoot.getViewMap();
         String key = EntityValueExpression.class.getName();
         Map<String, Object> entityViewMap = (Map<String, Object>) viewMap.get(key);
         if (null != entityViewMap) {
-            Object cachedObject = entityViewMap.get(this.crudComponent.getId());
+            Object cachedObject = entityViewMap.get(this.crudComponentId);
             if (null != cachedObject) {
                 return cachedObject;
             }
@@ -86,12 +101,12 @@ public class EntityValueExpression extends ValueExpression {
 
         CriteriaBuilder criteriaBuilder = entityManager.getCriteriaBuilder();
         CriteriaQuery<Object> criteriaQuery = criteriaBuilder.createQuery(Object.class);
-        Root<? extends Object> entity = criteriaQuery.from(this.entityClass);
+        Root<? extends Object> entity = criteriaQuery.from(entityClass);
         criteriaQuery.select(entity);
 
-        if (!UIInput.isEmpty(this.crudComponent.getOrderBy())) {
-            Path path = entity.get(this.crudComponent.getOrderBy());
-            if (this.crudComponent.isAscending()) {
+        if (!UIInput.isEmpty(crudComponent.getOrderBy())) {
+            Path path = entity.get(crudComponent.getOrderBy());
+            if (crudComponent.isAscending()) {
                 criteriaQuery.orderBy(criteriaBuilder.asc(path));
             } else {
                 criteriaQuery.orderBy(criteriaBuilder.desc(path));
@@ -108,7 +123,7 @@ public class EntityValueExpression extends ValueExpression {
             return null;
         }
 
-        entityViewMap.put(this.crudComponent.getId(), resultList);
+        entityViewMap.put(crudComponent.getId(), resultList);
         return resultList;
     }
 
@@ -120,7 +135,7 @@ public class EntityValueExpression extends ValueExpression {
         String key = EntityValueExpression.class.getName();
         Map<String, Object> entityViewMap = (Map<String, Object>) viewMap.get(key);
         if (null != entityViewMap) {
-            entityViewMap.remove(this.crudComponent.getId());
+            entityViewMap.remove(this.crudComponentId);
             if (entityViewMap.isEmpty()) {
                 viewMap.remove(key);
             }
