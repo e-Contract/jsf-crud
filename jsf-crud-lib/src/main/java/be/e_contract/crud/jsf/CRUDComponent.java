@@ -1097,7 +1097,28 @@ public class CRUDComponent extends UINamingContainer implements SystemEventListe
         } else if (entityField.getType() == byte[].class) {
             FileUpload fileUpload = (FileUpload) application.createComponent(FileUpload.COMPONENT_TYPE);
             MethodExpression fileUploadListener = new FieldUploadMethodExpression(getId(), entityField.getName(), addNotUpdate);
-            fileUpload.setFileUploadListener(fileUploadListener);
+            Method[] fileUploadMethods = FileUpload.class.getMethods();
+            Method setFileUploadListenerMethod = null;
+            for (Method fileUploadMethod : fileUploadMethods) {
+                // primefaces 7-
+                if (fileUploadMethod.getName().equals("setFileUploadListener")) {
+                    setFileUploadListenerMethod = fileUploadMethod;
+                    break;
+                } else if (fileUploadMethod.getName().equals("setListener")) {
+                    // primefaces 8+
+                    setFileUploadListenerMethod = fileUploadMethod;
+                    break;
+                }
+            }
+            if (null != setFileUploadListenerMethod) {
+                try {
+                    setFileUploadListenerMethod.invoke(fileUpload, fileUploadListener);
+                } catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException ex) {
+                    LOGGER.error("reflection error: " + ex.getMessage(), ex);
+                }
+            } else {
+                LOGGER.error("FileUpload listener not set!");
+            }
             input = fileUpload;
         } else if (isPasswordField(entityField, fields)) {
             input = (Password) application.createComponent(Password.COMPONENT_TYPE);

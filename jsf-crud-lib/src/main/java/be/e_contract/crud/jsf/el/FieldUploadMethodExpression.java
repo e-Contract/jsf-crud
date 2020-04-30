@@ -19,6 +19,9 @@ package be.e_contract.crud.jsf.el;
 
 import be.e_contract.crud.jsf.CRUDComponent;
 import java.lang.reflect.Field;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
 import javax.el.ELContext;
 import javax.el.MethodExpression;
 import javax.el.MethodInfo;
@@ -26,7 +29,6 @@ import javax.faces.component.UIComponent;
 import javax.faces.component.UIViewRoot;
 import javax.faces.context.FacesContext;
 import org.primefaces.event.FileUploadEvent;
-import org.primefaces.model.UploadedFile;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -82,13 +84,40 @@ public class FieldUploadMethodExpression extends MethodExpression {
     public Object invoke(ELContext elContext, Object[] params) {
         LOGGER.debug("invoke");
         FileUploadEvent fileUploadEvent = (FileUploadEvent) params[0];
-        UploadedFile uploadedFile = fileUploadEvent.getFile();
-        LOGGER.debug("filename: {}", uploadedFile.getFileName());
-        LOGGER.debug("file size: {}", uploadedFile.getSize());
+        Object uploadedFile = fileUploadEvent.getFile();
+        byte[] fileContent;
+        Method getContentMethod = null;
+        Method[] uploadedFileMethods = uploadedFile.getClass().getMethods();
+        for (Method uploadedFileMethod : uploadedFileMethods) {
+            LOGGER.debug("method: {}", uploadedFileMethod.getName());
+            if (!Modifier.isPublic(uploadedFileMethod.getModifiers())) {
+                continue;
+            }
+            if (uploadedFileMethod.getName().equals("getContents")) {
+                // primefaces 7-
+                getContentMethod = uploadedFileMethod;
+                break;
+            } else if (uploadedFileMethod.getName().equals("getContent")) {
+                // primefaces 8+
+                getContentMethod = uploadedFileMethod;
+                break;
+            }
+        }
+        if (getContentMethod != null) {
+            try {
+                fileContent = (byte[]) getContentMethod.invoke(uploadedFile, new Object[]{});
+            } catch (SecurityException | IllegalAccessException | IllegalArgumentException | InvocationTargetException ex) {
+                LOGGER.error("reflection error: " + ex.getMessage(), ex);
+                return null;
+            }
+        } else {
+            LOGGER.error("UploadedFile content not retrieved");
+            return null;
+        }
         Field entityField = getEntityField();
         entityField.setAccessible(true);
         try {
-            entityField.set(getEntity(), uploadedFile.getContents());
+            entityField.set(getEntity(), fileContent);
         } catch (IllegalArgumentException | IllegalAccessException ex) {
             LOGGER.error("reflection error: " + ex.getMessage(), ex);
         }
