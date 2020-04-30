@@ -371,6 +371,19 @@
             <type>java.lang.String</type>
         </attribute>
     </tag>
+    
+    <tag>
+        <description>Binary field handler.</description>
+        <tag-name>binary</tag-name>
+        <component>
+            <component-type>crud.binary</component-type>
+        </component>
+        <attribute>
+            <description>The (download) content type of the binary field..</description>
+            <name>contentType</name>
+            <type>java.lang.String</type>
+        </attribute>
+    </tag>
 
     <function>
         <function-name>toHumanReadable</function-name>

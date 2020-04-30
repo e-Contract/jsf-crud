@@ -11,7 +11,7 @@
     <h:body>
         <h1>JSF CRUD Demo</h1>
         <p:growl widgetVar="growl"/>
-        <crud:crud entity="AutoIdEntity" title="A fancy title!" orderBy="amount" id='crud'>
+        <crud:crud entity="AutoIdEntity" title="A fancy title!" orderBy="amount" ordering="DESC" id='crud'>
             <crud:create>
                 <crud:field name="amount" hide="true"/>
             </crud:create>
@@ -33,6 +33,9 @@
             <crud:field name="description" filter="true" size="60"/>
             <crud:field name="dateOfBirth" required="true"/>
             <crud:field name="password" password="true"/>
+            <crud:field name="textFile">
+                <crud:binary contentType="text/plain"/>
+            </crud:field>
             <crud:property name="myProperty" sort="true" filter="true"/>
             <crud:action value="Custom Action" action="#{demoController.action}"/>
             <crud:action value="Action 2" action="#{demoController.messagingAction}"

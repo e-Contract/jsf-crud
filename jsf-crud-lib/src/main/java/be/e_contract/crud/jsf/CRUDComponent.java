@@ -52,6 +52,7 @@ import be.e_contract.crud.jsf.api.DeleteEvent;
 import be.e_contract.crud.jsf.create.CreateComponent;
 import be.e_contract.crud.jsf.api.CreateListener;
 import be.e_contract.crud.jsf.api.CreateEvent;
+import be.e_contract.crud.jsf.component.BinaryComponent;
 import be.e_contract.crud.jsf.el.FieldStreamedContentValueExpression;
 import be.e_contract.crud.jsf.el.FieldUploadMethodExpression;
 import java.lang.reflect.Field;
@@ -813,7 +814,8 @@ public class CRUDComponent extends UINamingContainer implements SystemEventListe
                 downloadCommandButton.setValue("Download");
                 downloadCommandButton.setUpdate(viewDialogHtmlForm.getClientId());
                 downloadCommandButton.setAjax(false);
-                ValueExpression fieldStreamedContentValueExpression = new FieldStreamedContentValueExpression(getId(), entityField.getName());
+                String contentType = getContentType(entityField, fields);
+                ValueExpression fieldStreamedContentValueExpression = new FieldStreamedContentValueExpression(getId(), entityField.getName(), contentType);
                 FileDownloadActionListener fileDownloadActionListener = new FileDownloadActionListener(fieldStreamedContentValueExpression, null, null);
                 downloadCommandButton.addActionListener(fileDownloadActionListener);
             } else {
@@ -936,6 +938,21 @@ public class CRUDComponent extends UINamingContainer implements SystemEventListe
             return false;
         }
         return fieldComponent.isFilter();
+    }
+
+    private String getContentType(Field entityField, Map<String, FieldComponent> fields) {
+        final String defaultContentType = "application/octet-stream";
+        FieldComponent fieldComponent = fields.get(entityField.getName());
+        if (null == fieldComponent) {
+            return defaultContentType;
+        }
+        for (UIComponent fieldChild : fieldComponent.getChildren()) {
+            if (fieldChild instanceof BinaryComponent) {
+                BinaryComponent binaryComponent = (BinaryComponent) fieldChild;
+                return binaryComponent.getContentType();
+            }
+        }
+        return defaultContentType;
     }
 
     private boolean isPasswordField(Field entityField, Map<String, FieldComponent> fields) {
@@ -1096,6 +1113,7 @@ public class CRUDComponent extends UINamingContainer implements SystemEventListe
             }
         } else if (entityField.getType() == byte[].class) {
             FileUpload fileUpload = (FileUpload) application.createComponent(FileUpload.COMPONENT_TYPE);
+            fileUpload.setAuto(true);
             MethodExpression fileUploadListener = new FieldUploadMethodExpression(getId(), entityField.getName(), addNotUpdate);
             Method[] fileUploadMethods = FileUpload.class.getMethods();
             Method setFileUploadListenerMethod = null;

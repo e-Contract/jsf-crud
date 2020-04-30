@@ -40,9 +40,12 @@ public class FieldStreamedContentValueExpression extends ValueExpression {
 
     private final String entityFieldName;
 
-    public FieldStreamedContentValueExpression(String crudComponentId, String entityFieldName) {
+    private final String contentType;
+
+    public FieldStreamedContentValueExpression(String crudComponentId, String entityFieldName, String contentType) {
         this.crudComponentId = crudComponentId;
         this.entityFieldName = entityFieldName;
+        this.contentType = contentType;
     }
 
     private CRUDComponent getCRUDComponent() {
@@ -95,7 +98,7 @@ public class FieldStreamedContentValueExpression extends ValueExpression {
         LOGGER.debug("getValue: {} bytes", value.length);
         EntityInspector entityInspector = new EntityInspector(entity);
         String name = entityInspector.toHumanReadable(entity) + "-" + entityField.getName();
-        StreamedContent streamedContent = new DefaultStreamedContent(new ByteArrayInputStream(value), "application/octet-stream", name);
+        StreamedContent streamedContent = new DefaultStreamedContent(new ByteArrayInputStream(value), this.contentType, name);
         return streamedContent;
     }
 
