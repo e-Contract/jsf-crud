@@ -55,6 +55,7 @@ import be.e_contract.crud.jsf.api.CreateEvent;
 import be.e_contract.crud.jsf.component.BinaryComponent;
 import be.e_contract.crud.jsf.el.FieldStreamedContentValueExpression;
 import be.e_contract.crud.jsf.el.FieldUploadMethodExpression;
+import java.io.Serializable;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -145,7 +146,7 @@ import org.slf4j.LoggerFactory;
     @ResourceDependency(library = "crud", name = "crud.js"),
     @ResourceDependency(library = "crud", name = "crud.css")
 })
-public class CRUDComponent extends UINamingContainer implements SystemEventListener, CRUD {
+public class CRUDComponent extends UINamingContainer implements SystemEventListener, CRUD, Serializable {
 
     public static final String COMPONENT_TYPE = "crud.crud";
 
