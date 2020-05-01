@@ -34,6 +34,7 @@ public class SelectRowActionListener implements ActionListener, StateHolder {
     private static final Logger LOGGER = LoggerFactory.getLogger(SelectRowActionListener.class);
 
     private String crudComponentId;
+
     private boolean _transient;
 
     public SelectRowActionListener() {

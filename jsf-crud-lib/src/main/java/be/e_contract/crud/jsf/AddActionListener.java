@@ -45,6 +45,7 @@ public class AddActionListener implements ActionListener, StateHolder {
     private static final Logger LOGGER = LoggerFactory.getLogger(AddActionListener.class);
 
     private String crudComponentId;
+
     private boolean _transient;
 
     public AddActionListener() {

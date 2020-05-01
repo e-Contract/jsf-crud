@@ -41,7 +41,9 @@ public class AjaxUpdateListener implements CreateListener, UpdateListener, Delet
     private static final Logger LOGGER = LoggerFactory.getLogger(AjaxUpdateListener.class);
 
     private List<String> clientIds;
+
     private String crudComponentId;
+
     private boolean _transient;
 
     public AjaxUpdateListener() {

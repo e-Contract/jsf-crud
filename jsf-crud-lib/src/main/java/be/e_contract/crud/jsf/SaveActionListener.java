@@ -43,6 +43,7 @@ public class SaveActionListener implements ActionListener, StateHolder {
     private static final Logger LOGGER = LoggerFactory.getLogger(SaveActionListener.class);
 
     private String crudComponentId;
+
     private boolean _transient;
 
     public SaveActionListener() {

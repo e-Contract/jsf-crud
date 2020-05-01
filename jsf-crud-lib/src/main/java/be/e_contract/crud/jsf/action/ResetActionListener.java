@@ -18,9 +18,9 @@
 package be.e_contract.crud.jsf.action;
 
 import be.e_contract.crud.jsf.CRUDComponent;
-import java.io.Serializable;
 import javax.el.ELContext;
 import javax.el.ValueExpression;
+import javax.faces.component.StateHolder;
 import javax.faces.component.UIComponent;
 import javax.faces.component.UIViewRoot;
 import javax.faces.context.FacesContext;
@@ -30,11 +30,13 @@ import javax.faces.event.ActionListener;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class ResetActionListener implements ActionListener, Serializable {
+public class ResetActionListener implements ActionListener, StateHolder {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ResetActionListener.class);
 
     private ValueExpression target;
+
+    private boolean _transient;
 
     public ResetActionListener() {
         super();
@@ -42,6 +44,35 @@ public class ResetActionListener implements ActionListener, Serializable {
 
     public ResetActionListener(ValueExpression target) {
         this.target = target;
+    }
+
+    @Override
+    public Object saveState(FacesContext context) {
+        if (context == null) {
+            throw new NullPointerException();
+        }
+        return new Object[]{this.target};
+    }
+
+    @Override
+    public void restoreState(FacesContext context, Object state) {
+        if (context == null) {
+            throw new NullPointerException();
+        }
+        if (state == null) {
+            return;
+        }
+        this.target = (ValueExpression) ((Object[]) state)[0];
+    }
+
+    @Override
+    public boolean isTransient() {
+        return this._transient;
+    }
+
+    @Override
+    public void setTransient(boolean newTransientValue) {
+        this._transient = newTransientValue;
     }
 
     @Override

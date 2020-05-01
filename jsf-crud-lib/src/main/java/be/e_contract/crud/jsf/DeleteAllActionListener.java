@@ -42,6 +42,7 @@ public class DeleteAllActionListener implements ActionListener, StateHolder {
     private static final Logger LOGGER = LoggerFactory.getLogger(DeleteAllActionListener.class);
 
     private String crudComponentId;
+
     private boolean _transient;
 
     public DeleteAllActionListener() {
