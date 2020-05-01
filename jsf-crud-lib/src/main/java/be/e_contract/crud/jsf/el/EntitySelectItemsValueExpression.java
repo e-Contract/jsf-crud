@@ -32,13 +32,13 @@ import javax.persistence.criteria.Root;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class EntityFieldSelectItemsValueExpression extends ValueExpression {
+public class EntitySelectItemsValueExpression extends ValueExpression {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(EntityFieldSelectItemsValueExpression.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(EntitySelectItemsValueExpression.class);
 
     private final String entityClassName;
 
-    public EntityFieldSelectItemsValueExpression(String entityClassName) {
+    public EntitySelectItemsValueExpression(String entityClassName) {
         this.entityClassName = entityClassName;
     }
 

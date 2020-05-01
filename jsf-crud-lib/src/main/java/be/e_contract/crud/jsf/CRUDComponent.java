@@ -42,7 +42,7 @@ import be.e_contract.crud.jsf.create.CreateComponent;
 import be.e_contract.crud.jsf.delete.DeleteComponent;
 import be.e_contract.crud.jsf.el.CRUDELContext;
 import be.e_contract.crud.jsf.el.CRUDFunctions;
-import be.e_contract.crud.jsf.el.EntityFieldSelectItemsValueExpression;
+import be.e_contract.crud.jsf.el.EntitySelectItemsValueExpression;
 import be.e_contract.crud.jsf.el.EntityFieldValueExpression;
 import be.e_contract.crud.jsf.el.EntityValueExpression;
 import be.e_contract.crud.jsf.el.FieldStreamedContentValueExpression;
@@ -99,11 +99,8 @@ import javax.persistence.EntityManager;
 import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
+import javax.persistence.OneToOne;
 import javax.persistence.Temporal;
-import javax.persistence.TypedQuery;
-import javax.persistence.criteria.CriteriaBuilder;
-import javax.persistence.criteria.CriteriaQuery;
-import javax.persistence.criteria.Root;
 import javax.servlet.http.HttpServletRequest;
 import javax.transaction.HeuristicMixedException;
 import javax.transaction.HeuristicRollbackException;
@@ -1023,6 +1020,7 @@ public class CRUDComponent extends UINamingContainer implements SystemEventListe
         }
 
         UIInput input;
+        OneToOne oneToOneAnnotation = entityInspector.getAnnotation(entityField, OneToOne.class);
         ManyToOne manyToOneAnnotation = entityInspector.getAnnotation(entityField, ManyToOne.class);
         OneToMany oneToManyAnnotation = entityInspector.getAnnotation(entityField, OneToMany.class);
         ManyToMany manyToManyAnnotation = entityInspector.getAnnotation(entityField, ManyToMany.class);
@@ -1038,8 +1036,8 @@ public class CRUDComponent extends UINamingContainer implements SystemEventListe
             ParameterizedType parameterizedType = (ParameterizedType) type;
             Class<?> listTypeClass = (Class<?>) parameterizedType.getActualTypeArguments()[0];
             selectManyMenu.setConverter(new EntityConverter(listTypeClass.getName()));
-            selectItems.setValueExpression("value", new EntityFieldSelectItemsValueExpression(listTypeClass.getName()));
-        } else if (null != manyToOneAnnotation) {
+            selectItems.setValueExpression("value", new EntitySelectItemsValueExpression(listTypeClass.getName()));
+        } else if (null != manyToOneAnnotation || null != oneToOneAnnotation) {
             input = (SelectOneMenu) application.createComponent(SelectOneMenu.COMPONENT_TYPE);
             SelectOneMenu selectOneMenu = (SelectOneMenu) input;
             selectOneMenu.setDisabled(disabled);
@@ -1047,25 +1045,9 @@ public class CRUDComponent extends UINamingContainer implements SystemEventListe
             input.getChildren().add(emptySelectItem);
             input.setConverter(new EntityConverter(entityField.getType().getName()));
 
-            CRUDController crudController = CRUDController.getCRUDController();
-            EntityManager entityManager = crudController.getEntityManager();
-
-            EntityInspector otherEntityInspector = new EntityInspector(CRUDController.getMetamodel(), entityField.getType());
-
-            CriteriaBuilder criteriaBuilder = entityManager.getCriteriaBuilder();
-            CriteriaQuery<Object> criteriaQuery = criteriaBuilder.createQuery(Object.class);
-            Root<? extends Object> entity = criteriaQuery.from(entityField.getType());
-            criteriaQuery.select(entity);
-
-            TypedQuery<Object> query = entityManager.createQuery(criteriaQuery);
-            List resultList = query.getResultList();
-
-            for (Object otherEntity : resultList) {
-                UISelectItem selectItem = (UISelectItem) application.createComponent(UISelectItem.COMPONENT_TYPE);
-                selectItem.setItemValue(otherEntity);
-                selectItem.setItemLabel(otherEntityInspector.toHumanReadable(otherEntity));
-                input.getChildren().add(selectItem);
-            }
+            UISelectItems selectItems = (UISelectItems) application.createComponent(UISelectItems.COMPONENT_TYPE);
+            input.getChildren().add(selectItems);
+            selectItems.setValueExpression("value", new EntitySelectItemsValueExpression(entityField.getType().getName()));
         } else if (null != oneToManyAnnotation) {
             input = (SelectManyMenu) application.createComponent(SelectManyMenu.COMPONENT_TYPE);
             SelectManyMenu selectManyMenu = (SelectManyMenu) input;
@@ -1078,7 +1060,7 @@ public class CRUDComponent extends UINamingContainer implements SystemEventListe
             ParameterizedType parameterizedType = (ParameterizedType) type;
             Class<?> listTypeClass = (Class<?>) parameterizedType.getActualTypeArguments()[0];
             selectManyMenu.setConverter(new EntityConverter(listTypeClass.getName()));
-            selectItems.setValueExpression("value", new EntityFieldSelectItemsValueExpression(listTypeClass.getName()));
+            selectItems.setValueExpression("value", new EntitySelectItemsValueExpression(listTypeClass.getName()));
         } else if (entityField.getType() == Boolean.TYPE) {
             input = (SelectBooleanCheckbox) application.createComponent(SelectBooleanCheckbox.COMPONENT_TYPE);
             SelectBooleanCheckbox selectBooleanCheckbox = (SelectBooleanCheckbox) input;

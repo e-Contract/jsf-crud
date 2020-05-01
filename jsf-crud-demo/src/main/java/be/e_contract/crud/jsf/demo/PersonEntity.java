@@ -22,6 +22,7 @@ import java.util.List;
 import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.OneToMany;
+import javax.persistence.OneToOne;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 
@@ -33,6 +34,9 @@ public class PersonEntity implements Serializable {
 
     @OneToMany
     private List<CarEntity> cars;
+
+    @OneToOne
+    private PersonEntity partner;
 
     public PersonEntity() {
         super();
@@ -48,6 +52,22 @@ public class PersonEntity implements Serializable {
 
     public void setCars(List<CarEntity> cars) {
         this.cars = cars;
+    }
+
+    public String getName() {
+        return this.name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public PersonEntity getPartner() {
+        return this.partner;
+    }
+
+    public void setPartner(PersonEntity partner) {
+        this.partner = partner;
     }
 
     @Override
