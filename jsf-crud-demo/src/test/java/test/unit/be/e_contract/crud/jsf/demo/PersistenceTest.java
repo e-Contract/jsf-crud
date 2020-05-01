@@ -17,10 +17,14 @@
  */
 package test.unit.be.e_contract.crud.jsf.demo;
 
+import be.e_contract.crud.jsf.demo.AutoIdEntity;
 import be.e_contract.crud.jsf.demo.CarEntity;
 import be.e_contract.crud.jsf.demo.PersonEntity;
+import be.e_contract.crud.jsf.demo.PropertyAccessTypeEntity;
+import java.lang.reflect.Member;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Set;
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
 import javax.persistence.EntityTransaction;
@@ -29,9 +33,12 @@ import javax.persistence.Query;
 import javax.persistence.TypedQuery;
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
+import javax.persistence.criteria.Join;
 import javax.persistence.criteria.Root;
+import javax.persistence.metamodel.Attribute;
 import javax.persistence.metamodel.EntityType;
 import javax.persistence.metamodel.Metamodel;
+import javax.persistence.metamodel.SingularAttribute;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -100,9 +107,17 @@ public class PersistenceTest {
         entityTransaction.begin();
         {
             CriteriaBuilder criteriaBuilder = this.entityManager.getCriteriaBuilder();
+            CriteriaQuery<CarEntity> innerCriteriaQuery = criteriaBuilder.createQuery(CarEntity.class);
+            Root<PersonEntity> person = innerCriteriaQuery.from(PersonEntity.class); // FROM PersonEntity AS person
+            Join<PersonEntity, CarEntity> cars2 = person.join("cars"); // JOIN person.cars AS car2
+            innerCriteriaQuery.select(cars2); // SELECT DISTINCT car2
+            innerCriteriaQuery.distinct(true);
+
             CriteriaQuery<CarEntity> criteriaQuery = criteriaBuilder.createQuery(CarEntity.class);
-            Root<CarEntity> car = criteriaQuery.from(CarEntity.class);
-            criteriaQuery.select(car);
+            Root<CarEntity> car = criteriaQuery.from(CarEntity.class); // FROM CarEntity AS car
+            criteriaQuery.select(car); // SELECT car
+            //criteriaQuery.where(criteriaBuilder.not(criteriaBuilder.in(cars2))); // WHERE car NOT IN
+            //criteriaQuery.where(criteriaBuilder.not(car.in(cars2))); // WHERE car NOT IN
 
             Metamodel metamodel = this.entityManager.getMetamodel();
             EntityType<CarEntity> entityType = metamodel.entity(CarEntity.class);
@@ -115,6 +130,46 @@ public class PersistenceTest {
             LOGGER.debug("result list: {}", newEntityQuery.getResultList());
         }
         entityTransaction.commit();
+    }
 
+    @Test
+    public void testMetadata() throws Exception {
+        Metamodel metamodel = this.entityManager.getMetamodel();
+        EntityType<PropertyAccessTypeEntity> entityType = metamodel.entity(PropertyAccessTypeEntity.class);
+        LOGGER.debug("hasSingleIdAttribute: {} ", entityType.hasSingleIdAttribute());
+        SingularAttribute idAttribute = entityType.getId(entityType.getIdType().getJavaType());
+        LOGGER.debug("id attribute: {}", idAttribute.getName());
+        LOGGER.debug("id attribute type: {}", idAttribute.getType().getJavaType().getName());
+
+        PropertyAccessTypeEntity entity = new PropertyAccessTypeEntity();
+        String name = "Alice";
+
+        Member idMember = idAttribute.getJavaMember();
+        LOGGER.debug("id member: {}", idMember);
+
+    }
+
+    @Test
+    public void testMetadata2() throws Exception {
+        Metamodel metamodel = this.entityManager.getMetamodel();
+        EntityType<AutoIdEntity> entityType = metamodel.entity(AutoIdEntity.class);
+        LOGGER.debug("hasSingleIdAttribute: {} ", entityType.hasSingleIdAttribute());
+        SingularAttribute idAttribute = entityType.getId(entityType.getIdType().getJavaType());
+        LOGGER.debug("id attribute: {}", idAttribute.getName());
+        LOGGER.debug("id attribute type: {}", idAttribute.getType().getJavaType().getName());
+
+        Member idMember = idAttribute.getJavaMember();
+        LOGGER.debug("id member: {}", idMember);
+
+        Set<Attribute<? super AutoIdEntity, ?>> attributes = entityType.getAttributes();
+        for (Attribute<? super AutoIdEntity, ?> attribute : attributes) {
+            LOGGER.debug("attribute: {}", attribute.getName());
+            LOGGER.debug("persistent attribute type: {}", attribute.getPersistentAttributeType());
+            LOGGER.debug("attribute class: {}", attribute.getClass().getName());
+            if (attribute instanceof SingularAttribute) {
+                SingularAttribute singularAttribute = (SingularAttribute) attribute;
+                LOGGER.debug("optional: {}", singularAttribute.isOptional());
+            }
+        }
     }
 }

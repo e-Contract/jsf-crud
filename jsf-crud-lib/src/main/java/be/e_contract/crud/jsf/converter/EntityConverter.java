@@ -17,6 +17,7 @@
  */
 package be.e_contract.crud.jsf.converter;
 
+import be.e_contract.crud.jsf.jpa.CRUDController;
 import be.e_contract.crud.jsf.jpa.EntityInspector;
 import java.util.HashMap;
 import java.util.Map;
@@ -93,7 +94,7 @@ public class EntityConverter implements Converter, StateHolder {
             return null;
         }
         LOGGER.debug("getAsString: entity class name {}", this.entityClassName);
-        EntityInspector entityInspector = new EntityInspector(this.entityClassName);
+        EntityInspector entityInspector = new EntityInspector(CRUDController.getMetamodel(), this.entityClassName);
         Object identifier = entityInspector.getIdentifier(object);
         String identifierString = identifier.toString();
         Map<String, Object> viewMap = getViewMap(facesContext);

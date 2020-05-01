@@ -12,9 +12,11 @@ The component has been tested on the following application servers:
 * Open Liberty 20.0.0.4 (EL FunctionMapper not available)
 
 The component has been tested with PrimeFaces versions:
+* 6.2.27
 * 7.0
-* 7.0.12
+* 7.0.13
 * 8.0
+* 8.0.1
 
 # Usage
 

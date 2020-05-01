@@ -17,6 +17,7 @@
  */
 package be.e_contract.crud.jsf.validator;
 
+import be.e_contract.crud.jsf.jpa.CRUDController;
 import be.e_contract.crud.jsf.jpa.EntityInspector;
 import java.util.LinkedHashSet;
 import java.util.Set;
@@ -58,7 +59,7 @@ public class BeanValidationValidator implements Validator {
         if (null == property) {
             return;
         }
-        EntityInspector entityInspector = new EntityInspector(entity);
+        EntityInspector entityInspector = new EntityInspector(CRUDController.getMetamodel(), entity);
         Class<?> entityClass = entityInspector.getEntityClass();
 
         ValidatorFactory validatorFactory = Validation.buildDefaultValidatorFactory();

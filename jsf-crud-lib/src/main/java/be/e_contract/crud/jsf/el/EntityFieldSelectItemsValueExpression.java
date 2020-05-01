@@ -45,7 +45,7 @@ public class EntityFieldSelectItemsValueExpression extends ValueExpression {
     @Override
     public Object getValue(ELContext context) {
         LOGGER.debug("getValue");
-        EntityInspector entityInspector = new EntityInspector(this.entityClassName);
+        EntityInspector entityInspector = new EntityInspector(CRUDController.getMetamodel(), this.entityClassName);
         Class<?> entityClass = entityInspector.getEntityClass();
         CRUDController crudController = CRUDController.getCRUDController();
         EntityManager entityManager = crudController.getEntityManager();

@@ -70,7 +70,7 @@ public class UniqueValidator implements Validator {
         if (null == property) {
             return;
         }
-        EntityInspector entityInspector = new EntityInspector(entity);
+        EntityInspector entityInspector = new EntityInspector(CRUDController.getMetamodel(), entity);
         Class<?> entityClass = entityInspector.getEntityClass();
         Field field;
         try {

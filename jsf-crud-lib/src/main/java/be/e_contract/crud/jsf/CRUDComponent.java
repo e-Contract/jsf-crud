@@ -195,7 +195,7 @@ public class CRUDComponent extends UINamingContainer implements SystemEventListe
 
     public Class<?> getEntityClass() {
         String entityClassName = getEntity();
-        EntityInspector entityInspector = new EntityInspector(entityClassName);
+        EntityInspector entityInspector = new EntityInspector(CRUDController.getMetamodel(), entityClassName);
         Class<?> entityClass = entityInspector.getEntityClass();
         return entityClass;
     }
@@ -354,18 +354,17 @@ public class CRUDComponent extends UINamingContainer implements SystemEventListe
             }
         }
 
-        String entityClassName = getEntity();
-        EntityInspector entityInspector = new EntityInspector(entityClassName);
-        Class<?> entityClass = entityInspector.getEntityClass();
-
-        String entityName = entityInspector.getEntityName();
-
         for (UIComponent child : getChildren()) {
             if (child instanceof HtmlForm) {
                 // already initialized
                 return;
             }
         }
+
+        String entityClassName = getEntity();
+        EntityInspector entityInspector = new EntityInspector(CRUDController.getMetamodel(), entityClassName);
+        Class<?> entityClass = entityInspector.getEntityClass();
+        String entityName = entityInspector.getEntityName();
 
         HtmlForm htmlForm = (HtmlForm) application.createComponent(HtmlForm.COMPONENT_TYPE);
         getChildren().add(htmlForm);
@@ -1030,7 +1029,7 @@ public class CRUDComponent extends UINamingContainer implements SystemEventListe
             CRUDController crudController = CRUDController.getCRUDController();
             EntityManager entityManager = crudController.getEntityManager();
 
-            EntityInspector otherEntityInspector = new EntityInspector(entityField.getType());
+            EntityInspector otherEntityInspector = new EntityInspector(CRUDController.getMetamodel(), entityField.getType());
 
             CriteriaBuilder criteriaBuilder = entityManager.getCriteriaBuilder();
             CriteriaQuery<Object> criteriaQuery = criteriaBuilder.createQuery(Object.class);
@@ -1327,7 +1326,7 @@ public class CRUDComponent extends UINamingContainer implements SystemEventListe
                 LOGGER.error("missing selection");
                 return;
             }
-            EntityInspector entityInspector = new EntityInspector(entity);
+            EntityInspector entityInspector = new EntityInspector(CRUDController.getMetamodel(), entity);
 
             try {
                 userTransaction.begin();
@@ -1464,7 +1463,7 @@ public class CRUDComponent extends UINamingContainer implements SystemEventListe
             UserTransaction userTransaction = crudController.getUserTransaction();
 
             Object entity = crudComponent.getNewEntity();
-            EntityInspector entityInspector = new EntityInspector(entity);
+            EntityInspector entityInspector = new EntityInspector(CRUDController.getMetamodel(), entity);
 
             Field[] fields = entity.getClass().getDeclaredFields();
             for (Field field : fields) {
@@ -1667,7 +1666,7 @@ public class CRUDComponent extends UINamingContainer implements SystemEventListe
                 LOGGER.error("missing selection");
                 return;
             }
-            EntityInspector entityInspector = new EntityInspector(selection);
+            EntityInspector entityInspector = new EntityInspector(CRUDController.getMetamodel(), selection);
 
             try {
                 userTransaction.begin();
@@ -1909,7 +1908,7 @@ public class CRUDComponent extends UINamingContainer implements SystemEventListe
         public void entityUpdated(UpdateEvent event) {
             Object entity = event.getEntity();
             fireUpdates(entity);
-            EntityInspector entityInspector = new EntityInspector(entity);
+            EntityInspector entityInspector = new EntityInspector(CRUDController.getMetamodel(), entity);
             String entityHumanReadable = entityInspector.toHumanReadable(entity);
             CRUDComponent crudComponent = getCRUDComponent();
             crudComponent.addMessage(FacesMessage.SEVERITY_INFO, "Updated " + entityHumanReadable);
@@ -1939,7 +1938,7 @@ public class CRUDComponent extends UINamingContainer implements SystemEventListe
         if (null == entity) {
             return null;
         }
-        EntityInspector entityInspector = new EntityInspector(entity);
+        EntityInspector entityInspector = new EntityInspector(CRUDController.getMetamodel(), entity);
         Class<?> entityClass = entityInspector.getEntityClass();
         Object identifier = entityInspector.getIdentifier(entity);
         CRUDController crudController = CRUDController.getCRUDController();

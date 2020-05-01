@@ -18,6 +18,7 @@
 package be.e_contract.crud.jsf.component;
 
 import be.e_contract.crud.jsf.CRUDComponent;
+import be.e_contract.crud.jsf.jpa.CRUDController;
 import be.e_contract.crud.jsf.jpa.EntityInspector;
 import java.io.IOException;
 import java.util.Map;
@@ -87,7 +88,7 @@ public class EntityComponent extends UIComponentBase {
         Map<String, Object> requestMap = externalContext.getRequestMap();
         Object entity = getEntity();
         if (null != entity) {
-            EntityInspector entityInspector = new EntityInspector(entity);
+            EntityInspector entityInspector = new EntityInspector(CRUDController.getMetamodel(), entity);
             LOGGER.debug("setting variable: {} = {}", var, entityInspector.toHumanReadable(entity));
         }
         Object oldVar = requestMap.get(var);

@@ -19,68 +19,73 @@ package test.unit.be.e_contract.crud.jsf;
 
 import be.e_contract.crud.jsf.jpa.EntityInspector;
 import java.lang.reflect.Field;
-import javax.persistence.Entity;
-import javax.persistence.Id;
+import javax.persistence.EntityManager;
+import javax.persistence.EntityManagerFactory;
+import javax.persistence.Persistence;
+import javax.persistence.metamodel.Metamodel;
+import org.junit.After;
 import static org.junit.Assert.assertEquals;
+import org.junit.Before;
 import org.junit.Test;
 
 public class EntityInspectorTest {
 
-    @Entity
-    public static class MyEntity {
+    private EntityManager entityManager;
 
-        @Id
-        private String name;
+    private Metamodel metamodel;
+
+    @Before
+    public void setUp() throws Exception {
+        EntityManagerFactory entityManagerFactory = Persistence
+                .createEntityManagerFactory("test");
+        this.entityManager = entityManagerFactory.createEntityManager();
+        this.metamodel = this.entityManager.getMetamodel();
     }
 
-    @Entity
-    public static class MyToStringEntity {
-
-        @Id
-        private String name;
-
-        private String aFunnyField;
-
-        private String aFunnyWTFField;
-
-        @Override
-        public String toString() {
-            return "test: " + name;
-        }
+    @After
+    public void tearDown() throws Exception {
+        this.entityManager.close();
     }
 
     @Test
     public void testGetEntityName() throws Exception {
-        EntityInspector entityInspector = new EntityInspector(MyEntity.class.getName() + ".class");
+        EntityInspector entityInspector = new EntityInspector(this.metamodel, MyEntity.class.getSimpleName());
         String result = entityInspector.getEntityName();
         assertEquals("My", result);
     }
 
     @Test
     public void testGetIdField() throws Exception {
-        EntityInspector entityInspector = new EntityInspector(MyEntity.class.getName() + ".class");
+        EntityInspector entityInspector = new EntityInspector(this.metamodel, MyEntity.class.getName() + ".class");
+        Field result = entityInspector.getIdField();
+        assertEquals("name", result.getName());
+    }
+
+    @Test
+    public void testGetIdFieldPropertyAccessType() throws Exception {
+        EntityInspector entityInspector = new EntityInspector(this.metamodel, PropertyAccessTypeEntity.class.getSimpleName());
         Field result = entityInspector.getIdField();
         assertEquals("name", result.getName());
     }
 
     @Test
     public void testToHumanReadable() throws Exception {
-        EntityInspector entityInspector = new EntityInspector(MyEntity.class.getName() + ".class");
+        EntityInspector entityInspector = new EntityInspector(this.metamodel, MyEntity.class.getName() + ".class");
         MyEntity entity = new MyEntity();
         entity.name = "frank";
         String result = entityInspector.toHumanReadable(entity);
         assertEquals("frank", result);
 
-        EntityInspector entityInspector2 = new EntityInspector(MyToStringEntity.class.getName() + ".class");
+        EntityInspector entityInspector2 = new EntityInspector(this.metamodel, MyToStringEntity.class.getName() + ".class");
         MyToStringEntity entity2 = new MyToStringEntity();
-        entity2.name = "frank";
+        entity2.setName("frank");
         String result2 = entityInspector2.toHumanReadable(entity2);
         assertEquals("test: frank", result2);
     }
 
     @Test
     public void testFieldToHumanReadable() throws Exception {
-        EntityInspector entityInspector = new EntityInspector(MyEntity.class.getName() + ".class");
+        EntityInspector entityInspector = new EntityInspector(this.metamodel, MyEntity.class.getName() + ".class");
         Field name = MyToStringEntity.class.getDeclaredField("name");
         String nameHumanReadable = entityInspector.toHumanReadable(name);
         assertEquals("Name", nameHumanReadable);

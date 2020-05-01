@@ -15,18 +15,30 @@
  * License along with this software; if not, see
  * http://www.gnu.org/licenses/.
  */
-package be.e_contract.crud.jsf.el;
+package test.unit.be.e_contract.crud.jsf;
 
-import be.e_contract.crud.jsf.jpa.CRUDController;
-import be.e_contract.crud.jsf.jpa.EntityInspector;
+import javax.persistence.Entity;
+import javax.persistence.Id;
 
-public class CRUDFunctions {
+@Entity
+public class MyToStringEntity {
 
-    public static String toHumanReadable(Object entity) {
-        if (null == entity) {
-            return null;
-        }
-        EntityInspector entityInspector = new EntityInspector(CRUDController.getMetamodel(), entity);
-        return entityInspector.toHumanReadable(entity);
+    @Id
+    private String name;
+
+    private String aFunnyField;
+    private String aFunnyWTFField;
+
+    public String getName() {
+        return this.name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    @Override
+    public String toString() {
+        return "test: " + this.name;
     }
 }

@@ -18,6 +18,7 @@
 package be.e_contract.crud.jsf.el;
 
 import be.e_contract.crud.jsf.CRUDComponent;
+import be.e_contract.crud.jsf.jpa.CRUDController;
 import be.e_contract.crud.jsf.jpa.EntityInspector;
 import java.io.ByteArrayInputStream;
 import java.lang.reflect.Field;
@@ -96,7 +97,7 @@ public class FieldStreamedContentValueExpression extends ValueExpression {
             return null;
         }
         LOGGER.debug("getValue: {} bytes", value.length);
-        EntityInspector entityInspector = new EntityInspector(entity);
+        EntityInspector entityInspector = new EntityInspector(CRUDController.getMetamodel(), entity);
         String name = entityInspector.toHumanReadable(entity) + "-" + entityField.getName();
         StreamedContent streamedContent = new DefaultStreamedContent(new ByteArrayInputStream(value), this.contentType, name);
         return streamedContent;

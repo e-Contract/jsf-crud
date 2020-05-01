@@ -27,10 +27,10 @@ import java.util.Map;
 import java.util.Set;
 import java.util.regex.Pattern;
 import javax.persistence.Entity;
-import javax.persistence.EntityManager;
 import javax.persistence.Id;
 import javax.persistence.metamodel.EntityType;
 import javax.persistence.metamodel.Metamodel;
+import javax.persistence.metamodel.SingularAttribute;
 import org.apache.commons.text.WordUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -47,7 +47,10 @@ public class EntityInspector {
 
     private Class<?> entityClass;
 
-    public EntityInspector(String entityClassName) {
+    private final Metamodel metamodel;
+
+    public EntityInspector(Metamodel metamodel, String entityClassName) {
+        this.metamodel = metamodel;
         if (entityClassName.endsWith(".class")) {
             entityClassName = entityClassName.substring(0, entityClassName.indexOf(".class"));
         }
@@ -58,10 +61,7 @@ public class EntityInspector {
         try {
             this.entityClass = Class.forName(entityClassName);
         } catch (ClassNotFoundException ex) {
-            CRUDController crudController = CRUDController.getCRUDController();
-            EntityManager entityManager = crudController.getEntityManager();
-            Metamodel metamodel = entityManager.getMetamodel();
-            Set<EntityType<?>> entities = metamodel.getEntities();
+            Set<EntityType<?>> entities = this.metamodel.getEntities();
             for (EntityType<?> entity : entities) {
                 String entityName = entity.getName();
                 if (entityClassName.equals(entityName)) {
@@ -87,7 +87,8 @@ public class EntityInspector {
         return this.entityClass;
     }
 
-    public EntityInspector(Class<?> entityClass) {
+    public EntityInspector(Metamodel metamodel, Class<?> entityClass) {
+        this.metamodel = metamodel;
         this.entityClass = entityClass;
         Entity entityAnnotation = this.entityClass.getAnnotation(Entity.class);
         if (null == entityAnnotation) {
@@ -96,8 +97,8 @@ public class EntityInspector {
         }
     }
 
-    public EntityInspector(Object entity) {
-        this(entity.getClass());
+    public EntityInspector(Metamodel metamodel, Object entity) {
+        this(metamodel, entity.getClass());
     }
 
     public String getEntityName() {
@@ -109,11 +110,15 @@ public class EntityInspector {
     }
 
     public Field getIdField() {
-        Field[] entityFields = this.entityClass.getDeclaredFields();
-        for (Field entityField : entityFields) {
-            Id idAnnotation = entityField.getAnnotation(Id.class);
-            if (idAnnotation != null) {
-                return entityField;
+        EntityType<?> entityType = this.metamodel.entity(this.entityClass);
+        if (entityType.hasSingleIdAttribute()) {
+            SingularAttribute idAttribute = entityType.getId(entityType.getIdType().getJavaType());
+            String name = idAttribute.getName();
+            try {
+                return this.entityClass.getDeclaredField(name);
+            } catch (NoSuchFieldException | SecurityException ex) {
+                LOGGER.error("reflection error: " + ex.getMessage(), ex);
+                throw new RuntimeException("@Id field not present");
             }
         }
         throw new RuntimeException("@Id field not present");
@@ -162,6 +167,9 @@ public class EntityInspector {
     }
 
     public List<Field> getOtherFields() {
+        EntityType<?> entityType = this.metamodel.entity(this.entityClass);
+        SingularAttribute idAttribute = entityType.getId(entityType.getIdType().getJavaType());
+        String idName = idAttribute.getName();
         List<Field> otherFields = new LinkedList<>();
         Field[] entityFields = this.entityClass.getDeclaredFields();
         for (Field entityField : entityFields) {
@@ -177,6 +185,9 @@ public class EntityInspector {
             }
             if (entityField.getName().startsWith("_persistence_")) {
                 // payara
+                continue;
+            }
+            if (entityField.getName().equals(idName)) {
                 continue;
             }
             otherFields.add(entityField);

@@ -26,6 +26,7 @@ import javax.faces.context.FacesContext;
 import javax.inject.Named;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
+import javax.persistence.metamodel.Metamodel;
 import javax.transaction.UserTransaction;
 
 @Named("crudController")
@@ -53,5 +54,17 @@ public class CRUDController {
         ValueExpression valueExpression = expressionFactory.createValueExpression(elContext, "#{crudController}", CRUDController.class);
         CRUDController crudController = (CRUDController) valueExpression.getValue(elContext);
         return crudController;
+    }
+
+    public static Metamodel getMetamodel() {
+        FacesContext facesContext = FacesContext.getCurrentInstance();
+        Application application = facesContext.getApplication();
+        ExpressionFactory expressionFactory = application.getExpressionFactory();
+        ELContext elContext = facesContext.getELContext();
+        ValueExpression valueExpression = expressionFactory.createValueExpression(elContext, "#{crudController}", CRUDController.class);
+        CRUDController crudController = (CRUDController) valueExpression.getValue(elContext);
+        EntityManager entityManager = crudController.getEntityManager();
+        Metamodel metamodel = entityManager.getMetamodel();
+        return metamodel;
     }
 }

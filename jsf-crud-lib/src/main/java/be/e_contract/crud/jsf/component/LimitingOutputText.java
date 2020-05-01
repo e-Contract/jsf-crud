@@ -17,6 +17,7 @@
  */
 package be.e_contract.crud.jsf.component;
 
+import be.e_contract.crud.jsf.jpa.CRUDController;
 import be.e_contract.crud.jsf.jpa.EntityInspector;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
@@ -45,7 +46,7 @@ public class LimitingOutputText extends HtmlOutputText {
         }
         Entity entityAnnotation = value.getClass().getAnnotation(Entity.class);
         if (null != entityAnnotation) {
-            EntityInspector entityInspector = new EntityInspector(value.getClass());
+            EntityInspector entityInspector = new EntityInspector(CRUDController.getMetamodel(), value.getClass());
             setValue(entityInspector.toHumanReadable(value));
             return;
         }
