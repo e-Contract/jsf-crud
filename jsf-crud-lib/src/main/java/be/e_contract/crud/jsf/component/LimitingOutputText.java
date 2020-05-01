@@ -33,6 +33,18 @@ public class LimitingOutputText extends HtmlOutputText {
 
     public static final String COMPONENT_TYPE = "crud.limitingOutputText";
 
+    public enum PropertyKeys {
+        password,
+    }
+
+    public boolean isPassword() {
+        return (Boolean) getStateHelper().eval(PropertyKeys.password, false);
+    }
+
+    public void setPassword(boolean password) {
+        getStateHelper().put(PropertyKeys.password, password);
+    }
+
     @Override
     public void encodeBegin(FacesContext context) throws IOException {
         limitValue();
@@ -63,6 +75,10 @@ public class LimitingOutputText extends HtmlOutputText {
         }
         if (value instanceof byte[]) {
             setValue("[binary data]");
+            return;
+        }
+        if (isPassword()) {
+            setValue("...");
             return;
         }
         String strValue = value.toString();

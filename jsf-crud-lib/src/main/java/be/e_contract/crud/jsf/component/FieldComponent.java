@@ -33,7 +33,6 @@ public class FieldComponent extends UIComponentBase {
         filter,
         size,
         required,
-        password,
     }
 
     @Override
@@ -102,17 +101,5 @@ public class FieldComponent extends UIComponentBase {
 
     public void setRequired(Boolean required) {
         getStateHelper().put(PropertyKeys.required, required);
-    }
-
-    public boolean isPassword() {
-        Boolean password = (Boolean) getStateHelper().get(PropertyKeys.password);
-        if (null == password) {
-            return false;
-        }
-        return password;
-    }
-
-    public void setPassword(boolean password) {
-        getStateHelper().put(PropertyKeys.password, password);
     }
 }

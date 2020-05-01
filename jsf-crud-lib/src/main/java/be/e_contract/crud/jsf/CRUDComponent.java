@@ -32,6 +32,7 @@ import be.e_contract.crud.jsf.component.DismissButton;
 import be.e_contract.crud.jsf.component.EntityComponent;
 import be.e_contract.crud.jsf.component.FieldComponent;
 import be.e_contract.crud.jsf.component.LimitingOutputText;
+import be.e_contract.crud.jsf.component.PasswordComponent;
 import be.e_contract.crud.jsf.component.PropertyComponent;
 import be.e_contract.crud.jsf.component.ReadComponent;
 import be.e_contract.crud.jsf.converter.CalendarConverter;
@@ -819,6 +820,9 @@ public class CRUDComponent extends UINamingContainer implements SystemEventListe
                 LimitingOutputText outputText = (LimitingOutputText) application.createComponent(LimitingOutputText.COMPONENT_TYPE);
                 htmlPanelGrid.getChildren().add(outputText);
                 outputText.setValueExpression("value", new EntityFieldValueExpression(getId(), entityField.getName(), false));
+                if (isPasswordField(entityField, fields)) {
+                    outputText.setPassword(true);
+                }
             }
         }
 
@@ -957,7 +961,26 @@ public class CRUDComponent extends UINamingContainer implements SystemEventListe
         if (null == fieldComponent) {
             return false;
         }
-        return fieldComponent.isPassword();
+        for (UIComponent child : fieldComponent.getChildren()) {
+            if (child instanceof PasswordComponent) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private boolean isFeedbackPassword(Field entityField, Map<String, FieldComponent> fields) {
+        FieldComponent fieldComponent = fields.get(entityField.getName());
+        if (null == fieldComponent) {
+            return false;
+        }
+        for (UIComponent child : fieldComponent.getChildren()) {
+            if (child instanceof PasswordComponent) {
+                PasswordComponent passwordComponent = (PasswordComponent) child;
+                return passwordComponent.isFeedback();
+            }
+        }
+        return false;
     }
 
     private Integer getFieldSize(Field entityField, Map<String, FieldComponent> fields, Map<String, FieldComponent> overrideFields) {
@@ -1140,6 +1163,9 @@ public class CRUDComponent extends UINamingContainer implements SystemEventListe
             input = (Password) application.createComponent(Password.COMPONENT_TYPE);
             Password password = (Password) input;
             password.setDisabled(disabled);
+            if (isFeedbackPassword(entityField, fields)) {
+                password.setFeedback(true);
+            }
             Integer size = getFieldSize(entityField, fields, overrideFields);
             if (null != size) {
                 password.setSize(size);
@@ -1227,6 +1253,9 @@ public class CRUDComponent extends UINamingContainer implements SystemEventListe
 
         LimitingOutputText outputText = (LimitingOutputText) application.createComponent(LimitingOutputText.COMPONENT_TYPE);
         column.getChildren().add(outputText);
+        if (isPasswordField(field, fields)) {
+            outputText.setPassword(true);
+        }
         outputText.setValueExpression("value", expressionFactory.createValueExpression(elContext, "#{row." + field.getName() + "}", field.getType()));
     }
 

@@ -198,11 +198,6 @@
             <name>required</name>
             <type>java.lang.Boolean</type>
         </attribute>
-        <attribute>
-            <description>Set to true to handle this field as a password.</description>
-            <name>password</name>
-            <type>java.lang.Boolean</type>
-        </attribute>
     </tag>
     
     <tag>
@@ -373,15 +368,28 @@
     </tag>
     
     <tag>
-        <description>Binary field handler.</description>
+        <description>Marks a field as binary.</description>
         <tag-name>binary</tag-name>
         <component>
             <component-type>crud.binary</component-type>
         </component>
         <attribute>
-            <description>The (download) content type of the binary field..</description>
+            <description>The (download) content type of the binary field.</description>
             <name>contentType</name>
             <type>java.lang.String</type>
+        </attribute>
+    </tag>
+    
+    <tag>
+        <description>Marks a field as password.</description>
+        <tag-name>password</tag-name>
+        <component>
+            <component-type>crud.password</component-type>
+        </component>
+        <attribute>
+            <description>Set to true to give feedback on password strength.</description>
+            <name>feedback</name>
+            <type>java.lang.Boolean</type>
         </attribute>
     </tag>
 

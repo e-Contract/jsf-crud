@@ -32,7 +32,9 @@
             <crud:field name="threeValuedLogic" hide="true"/>
             <crud:field name="description" filter="true" size="60"/>
             <crud:field name="dateOfBirth" required="true"/>
-            <crud:field name="password" password="true"/>
+            <crud:field name="password">
+                <crud:password feedback="true"/>
+            </crud:field>
             <crud:field name="textFile">
                 <crud:binary contentType="text/plain"/>
             </crud:field>
