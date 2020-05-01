@@ -22,7 +22,6 @@ import be.e_contract.crud.jsf.jpa.CRUDController;
 import be.e_contract.crud.jsf.jpa.EntityInspector;
 import java.io.ByteArrayInputStream;
 import java.lang.reflect.Field;
-
 import javax.el.ELContext;
 import javax.el.ValueExpression;
 import javax.faces.component.UIComponent;

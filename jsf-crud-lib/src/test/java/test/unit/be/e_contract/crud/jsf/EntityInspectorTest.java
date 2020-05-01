@@ -22,13 +22,20 @@ import java.lang.reflect.Field;
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
 import javax.persistence.Persistence;
+import javax.persistence.metamodel.EntityType;
 import javax.persistence.metamodel.Metamodel;
+import javax.persistence.metamodel.SingularAttribute;
 import org.junit.After;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 import org.junit.Before;
 import org.junit.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class EntityInspectorTest {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(EntityInspectorTest.class);
 
     private EntityManager entityManager;
 
@@ -66,6 +73,12 @@ public class EntityInspectorTest {
         EntityInspector entityInspector = new EntityInspector(this.metamodel, PropertyAccessTypeEntity.class.getSimpleName());
         Field result = entityInspector.getIdField();
         assertEquals("name", result.getName());
+
+        EntityType entityType = this.metamodel.entity(PropertyAccessTypeEntity.class);
+        SingularAttribute singularAttribute = entityType.getId(entityType.getIdType().getJavaType());
+        LOGGER.debug("attribute: {}", singularAttribute);
+        LOGGER.debug("attribute class: {}", singularAttribute.getClass().getName());
+        assertTrue(entityInspector.isIdGeneratedValue());
     }
 
     @Test

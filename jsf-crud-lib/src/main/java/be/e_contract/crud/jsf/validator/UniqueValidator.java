@@ -79,7 +79,7 @@ public class UniqueValidator implements Validator {
             LOGGER.error("reflection error: " + ex.getMessage(), ex);
             return;
         }
-        Column columnAnnotation = field.getAnnotation(Column.class);
+        Column columnAnnotation = entityInspector.getAnnotation(field, Column.class);
         if (null == columnAnnotation) {
             return;
         }

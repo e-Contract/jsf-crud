@@ -17,71 +17,64 @@
  */
 package be.e_contract.crud.jsf;
 
-import be.e_contract.crud.jsf.jpa.EntityInspector;
-import be.e_contract.crud.jsf.jpa.CRUDController;
-import be.e_contract.crud.jsf.component.ContainerComponent;
-import be.e_contract.crud.jsf.component.DismissButton;
-import be.e_contract.crud.jsf.component.CRUDCommandButton;
-import be.e_contract.crud.jsf.component.LimitingOutputText;
-import be.e_contract.crud.jsf.component.ReadComponent;
-import be.e_contract.crud.jsf.component.EntityComponent;
-import be.e_contract.crud.jsf.component.FieldComponent;
-import be.e_contract.crud.jsf.component.PropertyComponent;
-import be.e_contract.crud.jsf.action.ActionComponent;
 import be.e_contract.crud.jsf.action.ActionAdapter;
+import be.e_contract.crud.jsf.action.ActionComponent;
 import be.e_contract.crud.jsf.action.GlobalActionAdapter;
 import be.e_contract.crud.jsf.action.GlobalActionComponent;
 import be.e_contract.crud.jsf.api.CRUD;
+import be.e_contract.crud.jsf.api.CreateListener;
+import be.e_contract.crud.jsf.api.DeleteListener;
+import be.e_contract.crud.jsf.api.UpdateListener;
+import be.e_contract.crud.jsf.component.BinaryComponent;
+import be.e_contract.crud.jsf.component.CRUDCommandButton;
+import be.e_contract.crud.jsf.component.ContainerComponent;
+import be.e_contract.crud.jsf.component.DismissButton;
+import be.e_contract.crud.jsf.component.EntityComponent;
+import be.e_contract.crud.jsf.component.FieldComponent;
+import be.e_contract.crud.jsf.component.LimitingOutputText;
+import be.e_contract.crud.jsf.component.PropertyComponent;
+import be.e_contract.crud.jsf.component.ReadComponent;
+import be.e_contract.crud.jsf.converter.CalendarConverter;
+import be.e_contract.crud.jsf.converter.EntityConverter;
+import be.e_contract.crud.jsf.converter.TriStateBooleanConverter;
+import be.e_contract.crud.jsf.create.CreateComponent;
+import be.e_contract.crud.jsf.delete.DeleteComponent;
+import be.e_contract.crud.jsf.el.CRUDELContext;
+import be.e_contract.crud.jsf.el.CRUDFunctions;
 import be.e_contract.crud.jsf.el.EntityFieldSelectItemsValueExpression;
 import be.e_contract.crud.jsf.el.EntityFieldValueExpression;
 import be.e_contract.crud.jsf.el.EntityValueExpression;
-import be.e_contract.crud.jsf.el.CRUDFunctions;
-import be.e_contract.crud.jsf.el.CRUDELContext;
-import be.e_contract.crud.jsf.converter.EntityConverter;
-import be.e_contract.crud.jsf.converter.TriStateBooleanConverter;
-import be.e_contract.crud.jsf.converter.CalendarConverter;
-import be.e_contract.crud.jsf.validator.UniqueValidator;
-import be.e_contract.crud.jsf.validator.NonExistingIdentifierValidator;
-import be.e_contract.crud.jsf.validator.BeanValidationValidator;
-import be.e_contract.crud.jsf.api.UpdateEvent;
-import be.e_contract.crud.jsf.api.UpdateListener;
-import be.e_contract.crud.jsf.update.UpdateComponent;
-import be.e_contract.crud.jsf.api.DeleteListener;
-import be.e_contract.crud.jsf.delete.DeleteComponent;
-import be.e_contract.crud.jsf.api.DeleteEvent;
-import be.e_contract.crud.jsf.create.CreateComponent;
-import be.e_contract.crud.jsf.api.CreateListener;
-import be.e_contract.crud.jsf.api.CreateEvent;
-import be.e_contract.crud.jsf.component.BinaryComponent;
 import be.e_contract.crud.jsf.el.FieldStreamedContentValueExpression;
 import be.e_contract.crud.jsf.el.FieldUploadMethodExpression;
+import be.e_contract.crud.jsf.jpa.CRUDController;
+import be.e_contract.crud.jsf.jpa.EntityInspector;
+import be.e_contract.crud.jsf.update.UpdateComponent;
+import be.e_contract.crud.jsf.validator.BeanValidationValidator;
+import be.e_contract.crud.jsf.validator.NonExistingIdentifierValidator;
+import be.e_contract.crud.jsf.validator.UniqueValidator;
 import java.io.Serializable;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.LinkedList;
-import javax.el.ELContext;
-import javax.el.ExpressionFactory;
-import javax.faces.application.Application;
-import javax.faces.component.FacesComponent;
-import javax.faces.context.FacesContext;
-import javax.faces.event.AbortProcessingException;
-import org.primefaces.component.datatable.DataTable;
 import java.util.List;
 import java.util.Map;
-import javax.el.ELResolver;
+import javax.el.ELContext;
+import javax.el.ExpressionFactory;
 import javax.el.FunctionMapper;
 import javax.el.MethodExpression;
 import javax.el.ValueExpression;
 import javax.faces.FacesException;
+import javax.faces.application.Application;
 import javax.faces.application.FacesMessage;
 import javax.faces.application.ResourceDependencies;
 import javax.faces.application.ResourceDependency;
-import javax.faces.component.StateHolder;
+import javax.faces.component.FacesComponent;
 import javax.faces.component.UIComponent;
 import javax.faces.component.UIInput;
 import javax.faces.component.UINamingContainer;
@@ -93,8 +86,8 @@ import javax.faces.component.html.HtmlOutputText;
 import javax.faces.component.html.HtmlPanelGrid;
 import javax.faces.component.html.HtmlPanelGroup;
 import javax.faces.context.ExternalContext;
-import javax.faces.event.ActionEvent;
-import javax.faces.event.ActionListener;
+import javax.faces.context.FacesContext;
+import javax.faces.event.AbortProcessingException;
 import javax.faces.event.FacesListener;
 import javax.faces.event.PostAddToViewEvent;
 import javax.faces.event.SystemEvent;
@@ -102,11 +95,9 @@ import javax.faces.event.SystemEventListener;
 import javax.faces.validator.LengthValidator;
 import javax.persistence.Basic;
 import javax.persistence.EntityManager;
-import javax.persistence.GeneratedValue;
 import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
-import javax.persistence.Query;
 import javax.persistence.Temporal;
 import javax.persistence.TypedQuery;
 import javax.persistence.criteria.CriteriaBuilder;
@@ -124,6 +115,7 @@ import org.primefaces.component.calendar.Calendar;
 import org.primefaces.component.column.Column;
 import org.primefaces.component.commandbutton.CommandButton;
 import org.primefaces.component.datalist.DataList;
+import org.primefaces.component.datatable.DataTable;
 import org.primefaces.component.dialog.Dialog;
 import org.primefaces.component.filedownload.FileDownloadActionListener;
 import org.primefaces.component.fileupload.FileUpload;
@@ -276,6 +268,14 @@ public class CRUDComponent extends UINamingContainer implements SystemEventListe
 
     @Override
     public void processEvent(SystemEvent event) throws AbortProcessingException {
+
+        for (UIComponent child : getChildren()) {
+            if (child instanceof HtmlForm) {
+                // already initialized
+                return;
+            }
+        }
+
         FacesContext facesContext = FacesContext.getCurrentInstance();
         LOGGER.debug("constructing component");
         Application application = facesContext.getApplication();
@@ -354,13 +354,6 @@ public class CRUDComponent extends UINamingContainer implements SystemEventListe
             }
         }
 
-        for (UIComponent child : getChildren()) {
-            if (child instanceof HtmlForm) {
-                // already initialized
-                return;
-            }
-        }
-
         String entityClassName = getEntity();
         EntityInspector entityInspector = new EntityInspector(CRUDController.getMetamodel(), entityClassName);
         Class<?> entityClass = entityInspector.getEntityClass();
@@ -429,7 +422,7 @@ public class CRUDComponent extends UINamingContainer implements SystemEventListe
 
             addUpdateDialog(showUpdate, application, column, entityName, message, expressionFactory, entityInspector, idField, fields, updateFields);
 
-            addDeleteDialog(showDelete, application, column, deleteComponent, entityName, elContext, expressionFactory, entityInspector, dataTable, message);
+            addDeleteDialog(showDelete, application, column, deleteComponent, entityName, elContext, expressionFactory, message);
 
             addCustomActions(actions, application, column, dataTable, message, facesContext);
         }
@@ -438,7 +431,7 @@ public class CRUDComponent extends UINamingContainer implements SystemEventListe
         dataTable.getFacets().put("footer", footerHtmlPanelGroup);
         footerHtmlPanelGroup.setStyle("display:block; text-align: left;");
 
-        addCreateDialog(showCreate, application, footerHtmlPanelGroup, entityName, message, expressionFactory, idField, entityInspector, entityClass, fields, createFields);
+        addCreateDialog(showCreate, application, footerHtmlPanelGroup, entityName, message, expressionFactory, idField, entityInspector, fields, createFields);
 
         if (null != deleteComponent && deleteComponent.isDeleteAll()) {
             CommandButton commandButton = (CommandButton) application.createComponent(CommandButton.COMPONENT_TYPE);
@@ -532,7 +525,7 @@ public class CRUDComponent extends UINamingContainer implements SystemEventListe
 
     private void addCreateDialog(boolean showCreate, Application application, HtmlPanelGroup footerHtmlPanelGroup, String entityName,
             Message message, ExpressionFactory expressionFactory, Field idField, EntityInspector entityInspector,
-            Class<?> entityClass, Map<String, FieldComponent> fields, Map<String, FieldComponent> createFields) throws FacesException {
+            Map<String, FieldComponent> fields, Map<String, FieldComponent> createFields) throws FacesException {
         if (!showCreate) {
             return;
         }
@@ -560,8 +553,8 @@ public class CRUDComponent extends UINamingContainer implements SystemEventListe
         addDialogHtmlForm.getChildren().add(htmlPanelGrid);
         htmlPanelGrid.setColumns(3);
 
-        GeneratedValue generatedValue = idField.getAnnotation(GeneratedValue.class);
-        if (null == generatedValue) {
+        boolean isIdGeneratedValue = entityInspector.isIdGeneratedValue();
+        if (!isIdGeneratedValue) {
             OutputLabel idOutputLabel = (OutputLabel) application.createComponent(OutputLabel.COMPONENT_TYPE);
             htmlPanelGrid.getChildren().add(idOutputLabel);
             idOutputLabel.setValue(entityInspector.toHumanReadable(idField));
@@ -599,7 +592,9 @@ public class CRUDComponent extends UINamingContainer implements SystemEventListe
         buttonHtmlPanelGrid.getChildren().add(dismissCommandButton);
     }
 
-    private void addDeleteDialog(boolean showDelete, Application application, Column column, DeleteComponent deleteComponent, String entityName, ELContext elContext, ExpressionFactory expressionFactory, EntityInspector entityInspector, DataTable dataTable, Message message) throws FacesException {
+    private void addDeleteDialog(boolean showDelete, Application application, Column column, DeleteComponent deleteComponent,
+            String entityName, ELContext elContext, ExpressionFactory expressionFactory,
+            Message message) throws FacesException {
         if (!showDelete) {
             return;
         }
@@ -689,7 +684,8 @@ public class CRUDComponent extends UINamingContainer implements SystemEventListe
     }
 
     private void addUpdateDialog(boolean showUpdate, Application application, Column column, String entityName, Message message,
-            ExpressionFactory expressionFactory, EntityInspector entityInspector, Field idField, Map<String, FieldComponent> fields, Map<String, FieldComponent> updateFields) throws FacesException {
+            ExpressionFactory expressionFactory, EntityInspector entityInspector, Field idField, Map<String, FieldComponent> fields,
+            Map<String, FieldComponent> updateFields) throws FacesException {
         if (!showUpdate) {
             return;
         }
@@ -754,7 +750,8 @@ public class CRUDComponent extends UINamingContainer implements SystemEventListe
 
     private void addViewDialog(boolean showView, Application application,
             ExpressionFactory expressionFactory, ELContext elContext,
-            Column column, String entityName, Message message, EntityInspector entityInspector, Field idField, Map<String, FieldComponent> fields) throws FacesException {
+            Column column, String entityName, Message message, EntityInspector entityInspector,
+            Field idField, Map<String, FieldComponent> fields) throws FacesException {
         if (!showView) {
             return;
         }
@@ -981,7 +978,8 @@ public class CRUDComponent extends UINamingContainer implements SystemEventListe
         return size;
     }
 
-    private void addInputComponent(Field entityField, boolean addNotUpdate, EntityInspector entityInspector, Map<String, FieldComponent> fields, Map<String, FieldComponent> overrideFields, HtmlPanelGrid htmlPanelGrid) {
+    private void addInputComponent(Field entityField, boolean addNotUpdate, EntityInspector entityInspector,
+            Map<String, FieldComponent> fields, Map<String, FieldComponent> overrideFields, HtmlPanelGrid htmlPanelGrid) {
         if (isHideField(entityField, fields, overrideFields)) {
             return;
         }
@@ -996,15 +994,15 @@ public class CRUDComponent extends UINamingContainer implements SystemEventListe
         outputLabel.setFor(entityField.getName());
 
         boolean disabled = false;
-        javax.persistence.Column columnAnnotation = entityField.getAnnotation(javax.persistence.Column.class);
+        javax.persistence.Column columnAnnotation = entityInspector.getAnnotation(entityField, javax.persistence.Column.class);
         if (null != columnAnnotation && !addNotUpdate) {
             disabled = !columnAnnotation.updatable();
         }
 
         UIInput input;
-        ManyToOne manyToOneAnnotation = entityField.getAnnotation(ManyToOne.class);
-        OneToMany oneToManyAnnotation = entityField.getAnnotation(OneToMany.class);
-        ManyToMany manyToManyAnnotation = entityField.getAnnotation(ManyToMany.class);
+        ManyToOne manyToOneAnnotation = entityInspector.getAnnotation(entityField, ManyToOne.class);
+        OneToMany oneToManyAnnotation = entityInspector.getAnnotation(entityField, OneToMany.class);
+        ManyToMany manyToManyAnnotation = entityInspector.getAnnotation(entityField, ManyToMany.class);
         if (null != manyToManyAnnotation) {
             input = (SelectManyMenu) application.createComponent(SelectManyMenu.COMPONENT_TYPE);
             SelectManyMenu selectManyMenu = (SelectManyMenu) input;
@@ -1071,9 +1069,9 @@ public class CRUDComponent extends UINamingContainer implements SystemEventListe
             input = (Calendar) application.createComponent(Calendar.COMPONENT_TYPE);
             Calendar calendarComponent = (Calendar) input;
             calendarComponent.setDisabled(disabled);
-            Temporal temporal = entityField.getAnnotation(Temporal.class);
-            if (null != temporal) {
+            if (entityInspector.isTemporal(entityField)) {
                 Calendar calendar = (Calendar) input;
+                Temporal temporal = entityInspector.getAnnotation(entityField, Temporal.class);
                 if (null == temporal.value()) {
                     calendar.setPattern("dd/MM/yyyy");
                 } else {
@@ -1182,7 +1180,7 @@ public class CRUDComponent extends UINamingContainer implements SystemEventListe
                 input.setRequired(true);
             }
         }
-        Basic basicAnnotation = entityField.getAnnotation(Basic.class);
+        Basic basicAnnotation = entityInspector.getAnnotation(entityField, Basic.class);
         if (null != basicAnnotation) {
             if (!basicAnnotation.optional()) {
                 input.setRequired(true);
@@ -1260,103 +1258,6 @@ public class CRUDComponent extends UINamingContainer implements SystemEventListe
         outputText.setValueExpression("value", expressionFactory.createValueExpression(elContext, "#{row." + property.getName() + "}", Object.class));
     }
 
-    public static class SaveActionListener implements ActionListener, StateHolder {
-
-        private String crudComponentId;
-
-        private boolean _transient;
-
-        public SaveActionListener() {
-            super();
-        }
-
-        public SaveActionListener(String crudComponentId) {
-            this.crudComponentId = crudComponentId;
-        }
-
-        @Override
-        public Object saveState(FacesContext context) {
-            if (context == null) {
-                throw new NullPointerException();
-            }
-            return new Object[]{this.crudComponentId};
-        }
-
-        @Override
-        public void restoreState(FacesContext context, Object state) {
-            if (context == null) {
-                throw new NullPointerException();
-            }
-            if (state == null) {
-                return;
-            }
-            this.crudComponentId = (String) ((Object[]) state)[0];
-        }
-
-        @Override
-        public boolean isTransient() {
-            return this._transient;
-        }
-
-        @Override
-        public void setTransient(boolean newTransientValue) {
-            this._transient = newTransientValue;
-        }
-
-        private CRUDComponent getCRUDComponent() {
-            FacesContext facesContext = FacesContext.getCurrentInstance();
-            UIViewRoot view = facesContext.getViewRoot();
-            UIComponent component = view.findComponent(this.crudComponentId);
-            if (null == component) {
-                return null;
-            }
-            return (CRUDComponent) component;
-        }
-
-        @Override
-        public void processAction(ActionEvent event) throws AbortProcessingException {
-            LOGGER.debug("processAction save");
-            CRUDComponent crudComponent = getCRUDComponent();
-            CRUDController crudController = CRUDController.getCRUDController();
-            EntityManager entityManager = crudController.getEntityManager();
-            UserTransaction userTransaction = crudController.getUserTransaction();
-
-            Object entity = crudComponent.getSelection();
-            if (null == entity) {
-                LOGGER.error("missing selection");
-                return;
-            }
-            EntityInspector entityInspector = new EntityInspector(CRUDController.getMetamodel(), entity);
-
-            try {
-                userTransaction.begin();
-            } catch (NotSupportedException | SystemException ex) {
-                LOGGER.error("error: " + ex.getMessage(), ex);
-                return;
-            }
-
-            entityManager.merge(entity);
-
-            try {
-                userTransaction.commit();
-            } catch (RollbackException | HeuristicMixedException | HeuristicRollbackException | SecurityException | IllegalStateException | SystemException ex) {
-                LOGGER.error("error: " + ex.getMessage(), ex);
-                String entityHumanReadable = entityInspector.toHumanReadable(entity);
-                crudComponent.addMessage(FacesMessage.SEVERITY_ERROR, "Could not update " + entityHumanReadable);
-                crudComponent.resetCache();
-                return;
-            }
-            crudComponent.resetCache();
-            crudComponent.setSelection(null);
-
-            String entityHumanReadable = entityInspector.toHumanReadable(entity);
-            crudComponent.addMessage(FacesMessage.SEVERITY_INFO, "Updated " + entityHumanReadable);
-
-            UpdateEvent updateEvent = new UpdateEvent(crudComponent, entity);
-            updateEvent.queue();
-        }
-    }
-
     public void addMessage(FacesMessage.Severity severity, String message) {
         FacesContext facesContext = FacesContext.getCurrentInstance();
         String dataTableClientId = null;
@@ -1398,376 +1299,6 @@ public class CRUDComponent extends UINamingContainer implements SystemEventListe
                 }
             }
             resetCache(child);
-        }
-    }
-
-    public static class AddActionListener implements ActionListener, StateHolder {
-
-        private String crudComponentId;
-
-        private boolean _transient;
-
-        public AddActionListener() {
-            super();
-        }
-
-        public AddActionListener(String crudComponentId) {
-            this.crudComponentId = crudComponentId;
-        }
-
-        @Override
-        public Object saveState(FacesContext context) {
-            if (context == null) {
-                throw new NullPointerException();
-            }
-            return new Object[]{this.crudComponentId};
-        }
-
-        @Override
-        public void restoreState(FacesContext context, Object state) {
-            if (context == null) {
-                throw new NullPointerException();
-            }
-            if (state == null) {
-                return;
-            }
-            this.crudComponentId = (String) ((Object[]) state)[0];
-        }
-
-        @Override
-        public boolean isTransient() {
-            return this._transient;
-        }
-
-        @Override
-        public void setTransient(boolean newTransientValue) {
-            this._transient = newTransientValue;
-        }
-
-        private CRUDComponent getCRUDComponent() {
-            FacesContext facesContext = FacesContext.getCurrentInstance();
-            UIViewRoot view = facesContext.getViewRoot();
-            UIComponent component = view.findComponent(this.crudComponentId);
-            if (null == component) {
-                return null;
-            }
-            return (CRUDComponent) component;
-        }
-
-        @Override
-        public void processAction(ActionEvent event) throws AbortProcessingException {
-            LOGGER.debug("processAction add");
-            CRUDComponent crudComponent = getCRUDComponent();
-            CRUDController crudController = CRUDController.getCRUDController();
-            EntityManager entityManager = crudController.getEntityManager();
-            UserTransaction userTransaction = crudController.getUserTransaction();
-
-            Object entity = crudComponent.getNewEntity();
-            EntityInspector entityInspector = new EntityInspector(CRUDController.getMetamodel(), entity);
-
-            Field[] fields = entity.getClass().getDeclaredFields();
-            for (Field field : fields) {
-                if (field.getType().equals(List.class)) {
-                    field.setAccessible(true);
-                    try {
-                        List listValue = (List) field.get(entity);
-                        int listSize;
-                        if (null == listValue) {
-                            listSize = 0;
-                        } else {
-                            listSize = listValue.size();
-                        }
-                        LOGGER.debug("field {} list size {}", field.getName(), listSize);
-                    } catch (IllegalArgumentException | IllegalAccessException ex) {
-                        LOGGER.error("reflection error: " + ex.getMessage(), ex);
-                        return;
-                    }
-                }
-            }
-
-            try {
-                userTransaction.begin();
-            } catch (NotSupportedException | SystemException ex) {
-                LOGGER.error("error: " + ex.getMessage(), ex);
-                return;
-            }
-
-            entityManager.merge(entity);
-
-            try {
-                userTransaction.commit();
-            } catch (RollbackException | HeuristicMixedException | HeuristicRollbackException | SecurityException | IllegalStateException | SystemException ex) {
-                LOGGER.error("error: " + ex.getMessage(), ex);
-                String entityHumanReadable = entityInspector.toHumanReadable(entity);
-                crudComponent.addMessage(FacesMessage.SEVERITY_ERROR, "Could not add " + entityHumanReadable);
-                crudComponent.setNewEntity(null);
-                return;
-            }
-            crudComponent.setNewEntity(null);
-
-            String entityHumanReadable = entityInspector.toHumanReadable(entity);
-            crudComponent.addMessage(FacesMessage.SEVERITY_INFO, "Added " + entityHumanReadable);
-
-            CreateEvent createEvent = new CreateEvent(crudComponent, entity);
-            createEvent.queue();
-        }
-    }
-
-    public static class DeleteAllActionListener implements ActionListener, StateHolder {
-
-        private String crudComponentId;
-
-        private boolean _transient;
-
-        public DeleteAllActionListener() {
-            super();
-        }
-
-        public DeleteAllActionListener(String crudComponentId) {
-            this.crudComponentId = crudComponentId;
-        }
-
-        @Override
-        public Object saveState(FacesContext context) {
-            if (context == null) {
-                throw new NullPointerException();
-            }
-            return new Object[]{this.crudComponentId};
-        }
-
-        @Override
-        public void restoreState(FacesContext context, Object state) {
-            if (context == null) {
-                throw new NullPointerException();
-            }
-            if (state == null) {
-                return;
-            }
-            this.crudComponentId = (String) ((Object[]) state)[0];
-        }
-
-        @Override
-        public boolean isTransient() {
-            return this._transient;
-        }
-
-        @Override
-        public void setTransient(boolean newTransientValue) {
-            this._transient = newTransientValue;
-        }
-
-        private CRUDComponent getCRUDComponent() {
-            FacesContext facesContext = FacesContext.getCurrentInstance();
-            UIViewRoot view = facesContext.getViewRoot();
-            UIComponent component = view.findComponent(this.crudComponentId);
-            if (null == component) {
-                return null;
-            }
-            return (CRUDComponent) component;
-        }
-
-        @Override
-        public void processAction(ActionEvent event) throws AbortProcessingException {
-            CRUDComponent crudComponent = getCRUDComponent();
-            CRUDController crudController = CRUDController.getCRUDController();
-            EntityManager entityManager = crudController.getEntityManager();
-            UserTransaction userTransaction = crudController.getUserTransaction();
-
-            try {
-                userTransaction.begin();
-            } catch (NotSupportedException | SystemException ex) {
-                LOGGER.error("error: " + ex.getMessage(), ex);
-                return;
-            }
-
-            Class<?> entityClass = crudComponent.getEntityClass();
-            Query query = entityManager.createQuery("DELETE FROM " + entityClass.getSimpleName());
-            int count = query.executeUpdate();
-
-            try {
-                userTransaction.commit();
-            } catch (RollbackException | HeuristicMixedException | HeuristicRollbackException | SecurityException | IllegalStateException | SystemException ex) {
-                LOGGER.error("error: " + ex.getMessage(), ex);
-                crudComponent.addMessage(FacesMessage.SEVERITY_ERROR, "Could not delete entries.");
-                return;
-            }
-
-            crudComponent.addMessage(FacesMessage.SEVERITY_INFO, "Deleted " + count + " entries.");
-            crudComponent.resetCache();
-        }
-    }
-
-    public static class DeleteActionListener implements ActionListener, StateHolder {
-
-        private String crudComponentId;
-
-        private boolean _transient;
-
-        public DeleteActionListener() {
-            super();
-        }
-
-        public DeleteActionListener(String crudComponentId) {
-            this.crudComponentId = crudComponentId;
-        }
-
-        @Override
-        public Object saveState(FacesContext context) {
-            if (context == null) {
-                throw new NullPointerException();
-            }
-            return new Object[]{this.crudComponentId};
-        }
-
-        @Override
-        public void restoreState(FacesContext context, Object state) {
-            if (context == null) {
-                throw new NullPointerException();
-            }
-            if (state == null) {
-                return;
-            }
-            this.crudComponentId = (String) ((Object[]) state)[0];
-        }
-
-        @Override
-        public boolean isTransient() {
-            return this._transient;
-        }
-
-        @Override
-        public void setTransient(boolean newTransientValue) {
-            this._transient = newTransientValue;
-        }
-
-        private CRUDComponent getCRUDComponent() {
-            FacesContext facesContext = FacesContext.getCurrentInstance();
-            UIViewRoot view = facesContext.getViewRoot();
-            UIComponent component = view.findComponent(this.crudComponentId);
-            if (null == component) {
-                return null;
-            }
-            return (CRUDComponent) component;
-        }
-
-        @Override
-        public void processAction(ActionEvent event) throws AbortProcessingException {
-            LOGGER.debug("processAction DeleteActionListener");
-            CRUDComponent crudComponent = getCRUDComponent();
-            LOGGER.debug("delete: {}", crudComponent.getSelection());
-
-            CRUDController crudController = CRUDController.getCRUDController();
-            EntityManager entityManager = crudController.getEntityManager();
-            UserTransaction userTransaction = crudController.getUserTransaction();
-
-            Object selection = crudComponent.getSelection();
-
-            if (null == selection) {
-                LOGGER.error("missing selection");
-                return;
-            }
-            EntityInspector entityInspector = new EntityInspector(CRUDController.getMetamodel(), selection);
-
-            try {
-                userTransaction.begin();
-            } catch (NotSupportedException | SystemException ex) {
-                LOGGER.error("error: " + ex.getMessage(), ex);
-                return;
-            }
-            Object entity;
-            try {
-                Object identifier = entityInspector.getIdentifier(selection);
-                entity = entityManager.find(selection.getClass(), identifier);
-                if (null != entity) {
-                    entityManager.remove(entity);
-                } else {
-                    LOGGER.error("missing entity");
-                    String entityHumanReadable = entityInspector.toHumanReadable(selection);
-                    crudComponent.addMessage(FacesMessage.SEVERITY_ERROR, "Could not delete " + entityHumanReadable);
-                    return;
-                }
-            } finally {
-                try {
-                    userTransaction.commit();
-                } catch (RollbackException | HeuristicMixedException | HeuristicRollbackException | SecurityException | IllegalStateException | SystemException ex) {
-                    LOGGER.error("error: " + ex.getMessage(), ex);
-                    String entityHumanReadable = entityInspector.toHumanReadable(selection);
-                    crudComponent.addMessage(FacesMessage.SEVERITY_ERROR, "Could not delete " + entityHumanReadable);
-                    return;
-                }
-            }
-            crudComponent.setSelection(null);
-
-            String entityHumanReadable = entityInspector.toHumanReadable(entity);
-            crudComponent.addMessage(FacesMessage.SEVERITY_INFO, "Deleted " + entityHumanReadable);
-
-            DeleteEvent deleteEvent = new DeleteEvent(crudComponent, entity);
-            deleteEvent.queue();
-        }
-    }
-
-    public static class SelectRowActionListener implements ActionListener, StateHolder {
-
-        private String crudComponentId;
-
-        private boolean _transient;
-
-        public SelectRowActionListener() {
-            super();
-        }
-
-        public SelectRowActionListener(String crudComponentId) {
-            this.crudComponentId = crudComponentId;
-        }
-
-        @Override
-        public Object saveState(FacesContext context) {
-            if (context == null) {
-                throw new NullPointerException();
-            }
-            return new Object[]{this.crudComponentId};
-        }
-
-        @Override
-        public void restoreState(FacesContext context, Object state) {
-            if (context == null) {
-                throw new NullPointerException();
-            }
-            if (state == null) {
-                return;
-            }
-            this.crudComponentId = (String) ((Object[]) state)[0];
-        }
-
-        @Override
-        public boolean isTransient() {
-            return this._transient;
-        }
-
-        @Override
-        public void setTransient(boolean newTransientValue) {
-            this._transient = newTransientValue;
-        }
-
-        private CRUDComponent getCRUDComponent() {
-            FacesContext facesContext = FacesContext.getCurrentInstance();
-            UIViewRoot view = facesContext.getViewRoot();
-            UIComponent component = view.findComponent(this.crudComponentId);
-            if (null == component) {
-                return null;
-            }
-            return (CRUDComponent) component;
-        }
-
-        @Override
-        public void processAction(ActionEvent event) throws AbortProcessingException {
-            LOGGER.debug("processAction");
-            FacesContext facesContext = FacesContext.getCurrentInstance();
-            ELContext elContext = facesContext.getELContext();
-            ELResolver elResolver = elContext.getELResolver();
-            Object entity = elResolver.getValue(elContext, null, "row");
-            CRUDComponent crudComponent = getCRUDComponent();
-            crudComponent.setSelection(entity);
         }
     }
 
@@ -1834,106 +1365,6 @@ public class CRUDComponent extends UINamingContainer implements SystemEventListe
         return (DeleteListener[]) getFacesListeners(DeleteListener.class);
     }
 
-    public static class AjaxUpdateListener implements CreateListener, UpdateListener, DeleteListener, StateHolder {
-
-        private List<String> clientIds;
-
-        private String crudComponentId;
-
-        private boolean _transient;
-
-        public AjaxUpdateListener() {
-            LOGGER.debug("AjaxUpdateListener default constructor");
-            this.clientIds = new LinkedList<>();
-        }
-
-        public AjaxUpdateListener(String crudComponentId) {
-            this.crudComponentId = crudComponentId;
-            this.clientIds = new LinkedList<>();
-        }
-
-        public void addClientId(String clientId) {
-            this.clientIds.add(clientId);
-        }
-
-        @Override
-        public Object saveState(FacesContext context) {
-            if (context == null) {
-                throw new NullPointerException();
-            }
-            return new Object[]{this.crudComponentId, this.clientIds};
-        }
-
-        @Override
-        public void restoreState(FacesContext context, Object state) {
-            if (context == null) {
-                throw new NullPointerException();
-            }
-            if (state == null) {
-                return;
-            }
-            this.crudComponentId = (String) ((Object[]) state)[0];
-            this.clientIds = (List<String>) ((Object[]) state)[1];
-        }
-
-        @Override
-        public boolean isTransient() {
-            return this._transient;
-        }
-
-        @Override
-        public void setTransient(boolean newTransientValue) {
-            this._transient = newTransientValue;
-        }
-
-        private CRUDComponent getCRUDComponent() {
-            FacesContext facesContext = FacesContext.getCurrentInstance();
-            UIViewRoot view = facesContext.getViewRoot();
-            UIComponent component = view.findComponent(this.crudComponentId);
-            if (null == component) {
-                return null;
-            }
-            return (CRUDComponent) component;
-        }
-
-        @Override
-        public void entityCreated(CreateEvent event) {
-            CRUDComponent crudComponent = getCRUDComponent();
-            crudComponent.resetCache();
-            Object entity = event.getEntity();
-            fireUpdates(entity);
-        }
-
-        @Override
-        public void entityUpdated(UpdateEvent event) {
-            Object entity = event.getEntity();
-            fireUpdates(entity);
-            EntityInspector entityInspector = new EntityInspector(CRUDController.getMetamodel(), entity);
-            String entityHumanReadable = entityInspector.toHumanReadable(entity);
-            CRUDComponent crudComponent = getCRUDComponent();
-            crudComponent.addMessage(FacesMessage.SEVERITY_INFO, "Updated " + entityHumanReadable);
-        }
-
-        private void fireUpdates(Object entity) {
-            if (null == entity) {
-                return;
-            }
-            PrimeFaces primeFaces = PrimeFaces.current();
-            if (primeFaces.isAjaxRequest()) {
-                LOGGER.debug("firing updates: {}", this.clientIds);
-                primeFaces.ajax().update(this.clientIds);
-            }
-        }
-
-        @Override
-        public void entityDeleted(DeleteEvent event) {
-            CRUDComponent crudComponent = getCRUDComponent();
-            crudComponent.resetCache();
-            Object entity = event.getEntity();
-            fireUpdates(entity);
-        }
-    }
-
     private Object eagerLoad(Object entity) {
         if (null == entity) {
             return null;
@@ -1960,8 +1391,11 @@ public class CRUDComponent extends UINamingContainer implements SystemEventListe
             }
             Field[] fields = entityClass.getDeclaredFields();
             for (Field field : fields) {
-                OneToMany oneToManyAnnotation = field.getAnnotation(OneToMany.class);
-                ManyToMany manyToManyAnnotation = field.getAnnotation(ManyToMany.class);
+                if (Modifier.isStatic(field.getModifiers())) {
+                    continue;
+                }
+                OneToMany oneToManyAnnotation = entityInspector.getAnnotation(field, OneToMany.class);
+                ManyToMany manyToManyAnnotation = entityInspector.getAnnotation(field, ManyToMany.class);
                 if (null == oneToManyAnnotation && null == manyToManyAnnotation) {
                     continue;
                 }

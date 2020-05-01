@@ -17,34 +17,18 @@
  */
 package be.e_contract.crud.jsf.update;
 
-import be.e_contract.crud.jsf.api.UpdateEvent;
-import be.e_contract.crud.jsf.CRUDComponent;
-import be.e_contract.crud.jsf.jpa.CRUDController;
-import be.e_contract.crud.jsf.component.EntityComponent;
-import javax.el.ELContext;
 import javax.el.MethodExpression;
 import javax.faces.application.Application;
-import javax.faces.application.FacesMessage;
 import javax.faces.component.FacesComponent;
-import javax.faces.component.StateHolder;
 import javax.faces.component.UIComponent;
 import javax.faces.component.UIComponentBase;
 import javax.faces.component.UIInput;
 import javax.faces.component.UIViewRoot;
 import javax.faces.context.FacesContext;
 import javax.faces.event.AbortProcessingException;
-import javax.faces.event.ActionEvent;
-import javax.faces.event.ActionListener;
 import javax.faces.event.PostAddToViewEvent;
 import javax.faces.event.SystemEvent;
 import javax.faces.event.SystemEventListener;
-import javax.persistence.EntityManager;
-import javax.transaction.HeuristicMixedException;
-import javax.transaction.HeuristicRollbackException;
-import javax.transaction.NotSupportedException;
-import javax.transaction.RollbackException;
-import javax.transaction.SystemException;
-import javax.transaction.UserTransaction;
 import org.primefaces.component.commandbutton.CommandButton;
 import org.primefaces.component.dialog.Dialog;
 import org.slf4j.Logger;
@@ -128,104 +112,5 @@ public class SaveButton extends UIComponentBase implements SystemEventListener {
             parent = parent.getParent();
         }
         throw new AbortProcessingException();
-    }
-
-    public static class SaveActionListener implements ActionListener, StateHolder {
-
-        private boolean _transient;
-
-        private MethodExpression methodExpression;
-
-        public SaveActionListener() {
-            super();
-        }
-
-        public SaveActionListener(MethodExpression methodExpression) {
-            this.methodExpression = methodExpression;
-        }
-
-        @Override
-        public void processAction(ActionEvent event) throws AbortProcessingException {
-            LOGGER.debug("processAction save");
-
-            FacesContext facesContext = FacesContext.getCurrentInstance();
-            ELContext elContext = facesContext.getELContext();
-
-            EntityComponent entityComponent = getEntityComponent(event.getComponent());
-            Object entity = entityComponent.getEntity();
-            CRUDComponent crudComponent = entityComponent.getCRUDComponent();
-
-            if (null != this.methodExpression) {
-                this.methodExpression.invoke(elContext, new Object[]{entity});
-
-            }
-
-            CRUDController crudController = CRUDController.getCRUDController();
-            EntityManager entityManager = crudController.getEntityManager();
-            UserTransaction userTransaction = crudController.getUserTransaction();
-
-            try {
-                userTransaction.begin();
-            } catch (NotSupportedException | SystemException ex) {
-                LOGGER.error("error: " + ex.getMessage(), ex);
-                crudComponent.addMessage(FacesMessage.SEVERITY_ERROR, "Could not save entity.");
-                crudComponent.resetCache();
-                return;
-            }
-
-            entityManager.merge(entity);
-
-            try {
-                userTransaction.commit();
-            } catch (RollbackException | HeuristicMixedException | HeuristicRollbackException | SecurityException | IllegalStateException | SystemException ex) {
-                LOGGER.error("error: " + ex.getMessage(), ex);
-                crudComponent.addMessage(FacesMessage.SEVERITY_ERROR, "Could not save entity.");
-                crudComponent.resetCache();
-                return;
-            }
-
-            UpdateEvent updateEvent = new UpdateEvent(crudComponent, entity);
-            updateEvent.queue();
-        }
-
-        @Override
-        public Object saveState(FacesContext context) {
-            if (context == null) {
-                throw new NullPointerException();
-            }
-            return new Object[]{this.methodExpression};
-        }
-
-        @Override
-        public void restoreState(FacesContext context, Object state) {
-            if (context == null) {
-                throw new NullPointerException();
-            }
-            if (state == null) {
-                return;
-            }
-            this.methodExpression = (MethodExpression) ((Object[]) state)[0];
-        }
-
-        @Override
-        public boolean isTransient() {
-            return this._transient;
-        }
-
-        @Override
-        public void setTransient(boolean newTransientValue) {
-            this._transient = newTransientValue;
-        }
-
-        private EntityComponent getEntityComponent(UIComponent component) {
-            while (component != null) {
-                if (component instanceof EntityComponent) {
-                    EntityComponent entityComponent = (EntityComponent) component;
-                    return entityComponent;
-                }
-                component = component.getParent();
-            }
-            throw new AbortProcessingException();
-        }
     }
 }

@@ -17,7 +17,9 @@
  */
 package be.e_contract.crud.jsf.jpa;
 
+import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
+import java.lang.reflect.Member;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.util.HashMap;
@@ -27,7 +29,10 @@ import java.util.Map;
 import java.util.Set;
 import java.util.regex.Pattern;
 import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
+import javax.persistence.Temporal;
+import javax.persistence.metamodel.Attribute;
 import javax.persistence.metamodel.EntityType;
 import javax.persistence.metamodel.Metamodel;
 import javax.persistence.metamodel.SingularAttribute;
@@ -47,21 +52,21 @@ public class EntityInspector {
 
     private Class<?> entityClass;
 
-    private final Metamodel metamodel;
+    private final EntityType<?> entityType;
 
     public EntityInspector(Metamodel metamodel, String entityClassName) {
-        this.metamodel = metamodel;
         if (entityClassName.endsWith(".class")) {
             entityClassName = entityClassName.substring(0, entityClassName.indexOf(".class"));
         }
         this.entityClass = ENTITY_CLASS_MAP.get(entityClassName);
         if (null != this.entityClass) {
+            this.entityType = metamodel.entity(this.entityClass);
             return;
         }
         try {
             this.entityClass = Class.forName(entityClassName);
         } catch (ClassNotFoundException ex) {
-            Set<EntityType<?>> entities = this.metamodel.getEntities();
+            Set<EntityType<?>> entities = metamodel.getEntities();
             for (EntityType<?> entity : entities) {
                 String entityName = entity.getName();
                 if (entityClassName.equals(entityName)) {
@@ -81,6 +86,7 @@ public class EntityInspector {
             throw new IllegalArgumentException("class is not a JPA entity: " + entityClassName);
         }
         ENTITY_CLASS_MAP.put(entityClassName, this.entityClass);
+        this.entityType = metamodel.entity(this.entityClass);
     }
 
     public Class<?> getEntityClass() {
@@ -88,8 +94,8 @@ public class EntityInspector {
     }
 
     public EntityInspector(Metamodel metamodel, Class<?> entityClass) {
-        this.metamodel = metamodel;
         this.entityClass = entityClass;
+        this.entityType = metamodel.entity(this.entityClass);
         Entity entityAnnotation = this.entityClass.getAnnotation(Entity.class);
         if (null == entityAnnotation) {
             LOGGER.error("class is not a JPA entity: {}", entityClass.getName());
@@ -106,13 +112,12 @@ public class EntityInspector {
         if (entityName.endsWith("Entity")) {
             entityName = entityName.substring(0, entityName.indexOf("Entity"));
         }
-        return entityName;
+        return toHumanReadable(entityName);
     }
 
     public Field getIdField() {
-        EntityType<?> entityType = this.metamodel.entity(this.entityClass);
-        if (entityType.hasSingleIdAttribute()) {
-            SingularAttribute idAttribute = entityType.getId(entityType.getIdType().getJavaType());
+        if (this.entityType.hasSingleIdAttribute()) {
+            SingularAttribute idAttribute = this.entityType.getId(this.entityType.getIdType().getJavaType());
             String name = idAttribute.getName();
             try {
                 return this.entityClass.getDeclaredField(name);
@@ -122,6 +127,38 @@ public class EntityInspector {
             }
         }
         throw new RuntimeException("@Id field not present");
+    }
+
+    public boolean isIdGeneratedValue() {
+        Field idField = getIdField();
+        String idAttribute = idField.getName();
+        return getAnnotation(idAttribute, GeneratedValue.class) != null;
+    }
+
+    public <T extends Annotation> T getAnnotation(Field entityField, Class<T> annotationClass) {
+        return getAnnotation(entityField.getName(), annotationClass);
+    }
+
+    public <T extends Annotation> T getAnnotation(String attributeName, Class<T> annotationClass) {
+        Attribute attribute = this.entityType.getAttribute(attributeName);
+        if (null == attribute) {
+            LOGGER.error("unknown attribute: {}", attributeName);
+            return null;
+        }
+        Member member = attribute.getJavaMember();
+        if (member instanceof Field) {
+            Field field = (Field) member;
+            return field.getAnnotation(annotationClass);
+        }
+        if (member instanceof Method) {
+            Method method = (Method) member;
+            return method.getAnnotation(annotationClass);
+        }
+        throw new RuntimeException("could not retrieve annoation for attribute: " + attributeName);
+    }
+
+    public boolean isTemporal(Field field) {
+        return null != getAnnotation(field.getName(), Temporal.class);
     }
 
     public Object getIdentifier(Object entity) {
@@ -167,8 +204,7 @@ public class EntityInspector {
     }
 
     public List<Field> getOtherFields() {
-        EntityType<?> entityType = this.metamodel.entity(this.entityClass);
-        SingularAttribute idAttribute = entityType.getId(entityType.getIdType().getJavaType());
+        SingularAttribute idAttribute = this.entityType.getId(this.entityType.getIdType().getJavaType());
         String idName = idAttribute.getName();
         List<Field> otherFields = new LinkedList<>();
         Field[] entityFields = this.entityClass.getDeclaredFields();
