@@ -136,4 +136,14 @@ public class DemoController implements Serializable {
         StreamedContent streamedContent = new DefaultStreamedContent(new ByteArrayInputStream("hello world".getBytes()), "text/plain", "filename.txt");
         return streamedContent;
     }
+
+    public StreamedContent downloadTextFile(AutoIdEntity entity) {
+        LOGGER.debug("download");
+        byte[] textFile = entity.getTextFile();
+        if (null == textFile) {
+            return null;
+        }
+        StreamedContent streamedContent = new DefaultStreamedContent(new ByteArrayInputStream(textFile), "text/plain", "filename.txt");
+        return streamedContent;
+    }
 }

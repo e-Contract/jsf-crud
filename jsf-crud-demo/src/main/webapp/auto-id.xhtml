@@ -45,6 +45,9 @@
             <crud:action value="Increase amount" action="#{demoController.increaseAmount}" rendered="#{row.amount lt 500}"/>
             <crud:action value="Custom Dialog" oncomplete="PF('customDialog').show()"
                          update=":customDialog" icon="fa fa-plus"/>
+            <crud:action value="Download text file">
+                <crud:fileDownload value="#{demoController.downloadTextFile}"/>
+            </crud:action>
             <crud:globalAction value="Custom Global Action" icon="fa fa-plus" action="#{demoController.globalAction}"/>
             <crud:globalAction value="Global Action Dialog" oncomplete="PF('globalActionDialog').show()"/>
             <crud:globalAction value="Download">

@@ -17,14 +17,19 @@
  */
 package be.e_contract.crud.jsf.action;
 
+import be.e_contract.crud.jsf.el.EntityMethodStreamedContentValueExpression;
 import javax.el.ELContext;
+import javax.el.MethodExpression;
 import javax.el.ValueExpression;
 import javax.faces.component.UIComponent;
 import javax.faces.context.FacesContext;
 import javax.faces.view.facelets.ComponentConfig;
 import javax.faces.view.facelets.ComponentHandler;
 import javax.faces.view.facelets.FaceletContext;
+import javax.faces.view.facelets.MetaRule;
+import javax.faces.view.facelets.MetaRuleset;
 import javax.faces.view.facelets.TagAttribute;
+import org.primefaces.facelets.MethodRule;
 import org.primefaces.model.StreamedContent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -38,13 +43,34 @@ public class FileDownloadTagHandler extends ComponentHandler {
     }
 
     @Override
+    protected MetaRuleset createMetaRuleset(Class type) {
+        MetaRuleset metaRuleset = super.createMetaRuleset(type);
+        MetaRule metaRule = new MethodRule("value", StreamedContent.class, new Class[]{Object.class});
+        metaRuleset.addRule(metaRule);
+        return metaRuleset;
+    }
+
+    @Override
     public void onComponentCreated(FaceletContext faceletContext, UIComponent component, UIComponent parent) {
+        if (!ComponentHandler.isNew(parent)) {
+            return;
+        }
         TagAttribute valueTagAttribute = getTagAttribute("value");
         String valueValue = valueTagAttribute.getValue();
+        LOGGER.debug("value: {}", valueValue);
         FileDownloadComponent fileDownloadComponent = (FileDownloadComponent) component;
         FacesContext facesContext = faceletContext.getFacesContext();
         ELContext elContext = facesContext.getELContext();
-        ValueExpression valueExpression = faceletContext.getExpressionFactory().createValueExpression(elContext, valueValue, StreamedContent.class);
+        ValueExpression valueExpression;
+        if (parent instanceof GlobalActionComponent) {
+            valueExpression = faceletContext.getExpressionFactory().createValueExpression(elContext, valueValue, StreamedContent.class);
+        } else if (parent instanceof ActionComponent) {
+            MethodExpression methodExpression = faceletContext.getExpressionFactory().createMethodExpression(elContext, valueValue, StreamedContent.class, new Class[]{Object.class});
+            valueExpression = new EntityMethodStreamedContentValueExpression(methodExpression);
+        } else {
+            LOGGER.error("unsupported parent: {}", parent);
+            return;
+        }
         fileDownloadComponent.setValue(valueExpression);
     }
 }

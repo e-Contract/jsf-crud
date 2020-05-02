@@ -18,7 +18,9 @@
 package be.e_contract.crud.jsf.action;
 
 import javax.el.MethodExpression;
+import javax.el.ValueExpression;
 import javax.faces.component.FacesComponent;
+import javax.faces.component.UIComponent;
 import javax.faces.component.UIComponentBase;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -90,5 +92,15 @@ public class GlobalActionComponent extends UIComponentBase {
 
     public void setAjax(boolean ajax) {
         getStateHelper().put(PropertyKeys.ajax, ajax);
+    }
+
+    public ValueExpression findDownloadValueExpression() {
+        for (UIComponent child : getChildren()) {
+            if (child instanceof FileDownloadComponent) {
+                FileDownloadComponent fileDownloadComponent = (FileDownloadComponent) child;
+                return fileDownloadComponent.getValue();
+            }
+        }
+        return null;
     }
 }

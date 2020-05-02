@@ -394,14 +394,14 @@
     </tag>
     
     <tag>
-        <description>Marks an action as a download.</description>
+        <description>Marks an action or globalAction as a download.</description>
         <tag-name>fileDownload</tag-name>
         <component>
             <component-type>crud.fileDownload</component-type>
             <handler-class>be.e_contract.crud.jsf.action.FileDownloadTagHandler</handler-class>
         </component>
         <attribute>
-            <description>A streamed content instance.</description>
+            <description>A streamed content instance in case of globalAction. In case of action, a method expression with entity parameter.</description>
             <name>value</name>
             <required>true</required>
             <type>org.primefaces.model.StreamedContent</type>
