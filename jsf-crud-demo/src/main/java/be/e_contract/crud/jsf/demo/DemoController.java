@@ -20,6 +20,7 @@ package be.e_contract.crud.jsf.demo;
 import be.e_contract.crud.jsf.api.CreateEvent;
 import be.e_contract.crud.jsf.api.DeleteEvent;
 import be.e_contract.crud.jsf.api.UpdateEvent;
+import java.io.ByteArrayInputStream;
 import java.io.Serializable;
 import javax.annotation.Resource;
 import javax.enterprise.context.SessionScoped;
@@ -34,6 +35,8 @@ import javax.transaction.NotSupportedException;
 import javax.transaction.RollbackException;
 import javax.transaction.SystemException;
 import javax.transaction.UserTransaction;
+import org.primefaces.model.DefaultStreamedContent;
+import org.primefaces.model.StreamedContent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -126,5 +129,11 @@ public class DemoController implements Serializable {
             LOGGER.error("transaction error: " + ex.getMessage(), ex);
             return;
         }
+    }
+
+    public StreamedContent download() {
+        LOGGER.debug("download");
+        StreamedContent streamedContent = new DefaultStreamedContent(new ByteArrayInputStream("hello world".getBytes()), "text/plain", "filename.txt");
+        return streamedContent;
     }
 }

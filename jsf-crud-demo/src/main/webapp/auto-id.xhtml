@@ -47,6 +47,9 @@
                          update=":customDialog" icon="fa fa-plus"/>
             <crud:globalAction value="Custom Global Action" icon="fa fa-plus" action="#{demoController.globalAction}"/>
             <crud:globalAction value="Global Action Dialog" oncomplete="PF('globalActionDialog').show()"/>
+            <crud:globalAction value="Download">
+                <crud:fileDownload value="#{demoController.download()}"/>
+            </crud:globalAction>
         </crud:crud>
 
         <p:dialog id="customDialog" widgetVar="customDialog" header="Custom Dialog">

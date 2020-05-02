@@ -19,6 +19,7 @@ package be.e_contract.crud.jsf;
 
 import be.e_contract.crud.jsf.action.ActionAdapter;
 import be.e_contract.crud.jsf.action.ActionComponent;
+import be.e_contract.crud.jsf.action.FileDownloadComponent;
 import be.e_contract.crud.jsf.action.GlobalActionAdapter;
 import be.e_contract.crud.jsf.action.GlobalActionComponent;
 import be.e_contract.crud.jsf.api.CRUD;
@@ -503,6 +504,16 @@ public class CRUDComponent extends UINamingContainer implements SystemEventListe
         }
     }
 
+    private ValueExpression findDownloadValueExpression(GlobalActionComponent globalAction) {
+        for (UIComponent child : globalAction.getChildren()) {
+            if (child instanceof FileDownloadComponent) {
+                FileDownloadComponent fileDownloadComponent = (FileDownloadComponent) child;
+                return fileDownloadComponent.getValue();
+            }
+        }
+        return null;
+    }
+
     private void addGlobalAction(GlobalActionComponent globalAction, int globalActionIdx, Application application, DataTable dataTable, Message message, FacesContext facesContext, HtmlPanelGroup footerHtmlPanelGroup) {
         CommandButton commandButton = (CommandButton) application.createComponent(CommandButton.COMPONENT_TYPE);
         footerHtmlPanelGroup.getChildren().add(commandButton);
@@ -519,6 +530,12 @@ public class CRUDComponent extends UINamingContainer implements SystemEventListe
             commandButton.setUpdate(dataTable.getClientId() + "," + message.getClientId() + "," + component.getClientId());
         }
         commandButton.addActionListener(new GlobalActionAdapter(globalAction.getAction()));
+        ValueExpression fileDownloadValueExpression = findDownloadValueExpression(globalAction);
+        if (null != fileDownloadValueExpression) {
+            LOGGER.debug("fileDownload ValueExpression: {}", fileDownloadValueExpression);
+            commandButton.addActionListener(new FileDownloadActionListener(fileDownloadValueExpression, null, null));
+            commandButton.setAjax(false);
+        }
     }
 
     private void addCreateDialog(boolean showCreate, Application application, HtmlPanelGroup footerHtmlPanelGroup, String entityName,

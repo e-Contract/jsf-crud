@@ -392,6 +392,21 @@
             <type>java.lang.Boolean</type>
         </attribute>
     </tag>
+    
+    <tag>
+        <description>Marks an action as a download.</description>
+        <tag-name>fileDownload</tag-name>
+        <component>
+            <component-type>crud.fileDownload</component-type>
+            <handler-class>be.e_contract.crud.jsf.action.FileDownloadTagHandler</handler-class>
+        </component>
+        <attribute>
+            <description>A streamed content instance.</description>
+            <name>value</name>
+            <required>true</required>
+            <type>org.primefaces.model.StreamedContent</type>
+        </attribute>
+    </tag>
 
     <function>
         <function-name>toHumanReadable</function-name>
