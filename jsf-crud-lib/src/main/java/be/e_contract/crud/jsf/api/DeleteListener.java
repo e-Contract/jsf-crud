@@ -17,9 +17,7 @@
  */
 package be.e_contract.crud.jsf.api;
 
-import javax.faces.event.FacesListener;
-
-public interface DeleteListener extends FacesListener {
+public interface DeleteListener extends EntityListener {
 
     void entityDeleted(DeleteEvent event);
 }

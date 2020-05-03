@@ -38,7 +38,7 @@ public class EntityELResolver extends ELResolver {
 
     @Override
     public Object getValue(ELContext context, Object base, Object property) {
-        LOGGER.debug("getValue: {} {}", base, property);
+        //LOGGER.debug("getValue: {} {}", base, property);
         if (null == base) {
             return null;
         }

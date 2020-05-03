@@ -19,10 +19,6 @@ package be.e_contract.crud.jsf;
 
 import be.e_contract.crud.jsf.jpa.CRUDController;
 import javax.faces.application.FacesMessage;
-import javax.faces.component.StateHolder;
-import javax.faces.component.UIComponent;
-import javax.faces.component.UIViewRoot;
-import javax.faces.context.FacesContext;
 import javax.faces.event.AbortProcessingException;
 import javax.faces.event.ActionEvent;
 import javax.faces.event.ActionListener;
@@ -37,64 +33,21 @@ import javax.transaction.UserTransaction;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class DeleteAllActionListener implements ActionListener, StateHolder {
+public class DeleteAllActionListener extends AbstractCRUDComponentStateHolder implements ActionListener {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(DeleteAllActionListener.class);
-
-    private String crudComponentId;
-
-    private boolean _transient;
 
     public DeleteAllActionListener() {
         super();
     }
 
     public DeleteAllActionListener(String crudComponentId) {
-        this.crudComponentId = crudComponentId;
-    }
-
-    @Override
-    public Object saveState(FacesContext context) {
-        if (context == null) {
-            throw new NullPointerException();
-        }
-        return new Object[]{this.crudComponentId};
-    }
-
-    @Override
-    public void restoreState(FacesContext context, Object state) {
-        if (context == null) {
-            throw new NullPointerException();
-        }
-        if (state == null) {
-            return;
-        }
-        this.crudComponentId = (String) ((Object[]) state)[0];
-    }
-
-    @Override
-    public boolean isTransient() {
-        return this._transient;
-    }
-
-    @Override
-    public void setTransient(boolean newTransientValue) {
-        this._transient = newTransientValue;
-    }
-
-    private CRUDComponent getCRUDComponent() {
-        FacesContext facesContext = FacesContext.getCurrentInstance();
-        UIViewRoot view = facesContext.getViewRoot();
-        UIComponent component = view.findComponent(this.crudComponentId);
-        if (null == component) {
-            return null;
-        }
-        return (CRUDComponent) component;
+        super(crudComponentId);
     }
 
     @Override
     public void processAction(ActionEvent event) throws AbortProcessingException {
-        CRUDComponent crudComponent = getCRUDComponent();
+        CRUDComponent crudComponent = super.getCRUDComponent();
         CRUDController crudController = CRUDController.getCRUDController();
         EntityManager entityManager = crudController.getEntityManager();
         UserTransaction userTransaction = crudController.getUserTransaction();

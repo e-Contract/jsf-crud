@@ -13,7 +13,6 @@
         <tag-name>crud</tag-name>
         <component>
             <component-type>crud.crud</component-type>
-            <handler-class>be.e_contract.crud.jsf.CRUDTagHandler</handler-class>
         </component>
         <attribute>
             <description>The class name or entity name of the JPA entity.</description>

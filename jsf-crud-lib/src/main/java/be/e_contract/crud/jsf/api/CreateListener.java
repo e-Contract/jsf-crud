@@ -17,9 +17,7 @@
  */
 package be.e_contract.crud.jsf.api;
 
-import javax.faces.event.FacesListener;
-
-public interface CreateListener extends FacesListener {
+public interface CreateListener extends EntityListener {
 
     void entityCreated(CreateEvent event);
 }

@@ -15,14 +15,10 @@
  * License along with this software; if not, see
  * http://www.gnu.org/licenses/.
  */
-package be.e_contract.crud.jsf;
+package be.e_contract.crud.jsf.api;
 
-import javax.faces.view.facelets.ComponentConfig;
-import javax.faces.view.facelets.ComponentHandler;
+import javax.faces.event.FacesListener;
 
-public class CRUDTagHandler extends ComponentHandler {
+public interface EntityListener extends FacesListener {
 
-    public CRUDTagHandler(ComponentConfig config) {
-        super(config);
-    }
 }

@@ -239,10 +239,7 @@ public class CRUDComponent extends UINamingContainer implements SystemEventListe
         if (UIInput.isEmpty(ordering)) {
             return true;
         }
-        if (ordering.toLowerCase().equals("desc")) {
-            return false;
-        }
-        return true;
+        return !ordering.toLowerCase().equals("desc");
     }
 
     public boolean isSort() {
@@ -288,7 +285,6 @@ public class CRUDComponent extends UINamingContainer implements SystemEventListe
         CreateComponent createComponent = null;
         DeleteComponent deleteComponent = null;
         UpdateComponent updateComponent = null;
-        ReadComponent readComponent = null;
         Map<String, FieldComponent> fields = new HashMap<>();
         Map<String, FieldComponent> createFields = new HashMap<>();
         Map<String, FieldComponent> updateFields = new HashMap<>();
@@ -325,7 +321,6 @@ public class CRUDComponent extends UINamingContainer implements SystemEventListe
                     }
                 }
             } else if (child instanceof ReadComponent) {
-                readComponent = (ReadComponent) child;
                 showView = true;
             } else if (child instanceof FieldComponent) {
                 FieldComponent fieldComponent = (FieldComponent) child;
@@ -503,7 +498,6 @@ public class CRUDComponent extends UINamingContainer implements SystemEventListe
 
             ValueExpression fileDownloadValueExpression = action.findDownloadValueExpression();
             if (null != fileDownloadValueExpression) {
-                LOGGER.debug("fileDownload ValueExpression: {}", fileDownloadValueExpression);
                 commandButton.addActionListener(new FileDownloadActionListener(fileDownloadValueExpression, null, null));
                 commandButton.setAjax(false);
             }
@@ -528,7 +522,6 @@ public class CRUDComponent extends UINamingContainer implements SystemEventListe
         commandButton.addActionListener(new GlobalActionAdapter(globalAction.getAction()));
         ValueExpression fileDownloadValueExpression = globalAction.findDownloadValueExpression();
         if (null != fileDownloadValueExpression) {
-            LOGGER.debug("fileDownload ValueExpression: {}", fileDownloadValueExpression);
             commandButton.addActionListener(new FileDownloadActionListener(fileDownloadValueExpression, null, null));
             commandButton.setAjax(false);
         }
@@ -596,8 +589,10 @@ public class CRUDComponent extends UINamingContainer implements SystemEventListe
             fieldset.getChildren().add(embeddedHtmlPanelGrid);
             embeddedHtmlPanelGrid.setColumns(3);
 
+            Map<String, FieldComponent> embeddableFields = getEmbeddableFields(embeddedField, fields);
+
             for (Field embeddableField : embeddedField.getType().getDeclaredFields()) {
-                addInputComponent(embeddedField, embeddableField, true, entityInspector, fields, createFields, embeddedHtmlPanelGrid);
+                addInputComponent(embeddedField, embeddableField, true, entityInspector, embeddableFields, null, embeddedHtmlPanelGrid);
             }
         }
 
@@ -766,8 +761,10 @@ public class CRUDComponent extends UINamingContainer implements SystemEventListe
             fieldset.getChildren().add(embeddedHtmlPanelGrid);
             embeddedHtmlPanelGrid.setColumns(3);
 
+            Map<String, FieldComponent> embeddableFields = getEmbeddableFields(embeddedField, fields);
+
             for (Field embeddableField : embeddedField.getType().getDeclaredFields()) {
-                addInputComponent(embeddedField, embeddableField, false, entityInspector, fields, updateFields, embeddedHtmlPanelGrid);
+                addInputComponent(embeddedField, embeddableField, false, entityInspector, embeddableFields, null, embeddedHtmlPanelGrid);
             }
         }
 
@@ -1019,6 +1016,22 @@ public class CRUDComponent extends UINamingContainer implements SystemEventListe
             }
         }
         return false;
+    }
+
+    private Map<String, FieldComponent> getEmbeddableFields(Field entityField, Map<String, FieldComponent> fields) {
+        Map<String, FieldComponent> embeddableFields = new HashMap<>();
+        FieldComponent fieldComponent = fields.get(entityField.getName());
+        if (null == fieldComponent) {
+            return embeddableFields;
+        }
+        for (UIComponent fieldComponentChild : fieldComponent.getChildren()) {
+            if (!(fieldComponentChild instanceof FieldComponent)) {
+                continue;
+            }
+            FieldComponent childFieldComponent = (FieldComponent) fieldComponentChild;
+            embeddableFields.put(childFieldComponent.getName(), childFieldComponent);
+        }
+        return embeddableFields;
     }
 
     private Integer getFieldSize(Field entityField, Map<String, FieldComponent> fields, Map<String, FieldComponent> overrideFields) {
@@ -1489,5 +1502,15 @@ public class CRUDComponent extends UINamingContainer implements SystemEventListe
                 return entity;
             }
         }
+    }
+
+    public static CRUDComponent getCRUDComponent(String crudComponentId) {
+        FacesContext facesContext = FacesContext.getCurrentInstance();
+        UIViewRoot view = facesContext.getViewRoot();
+        UIComponent component = view.findComponent(crudComponentId);
+        if (null == component) {
+            return null;
+        }
+        return (CRUDComponent) component;
     }
 }

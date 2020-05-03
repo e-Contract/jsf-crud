@@ -18,35 +18,20 @@
 package be.e_contract.crud.jsf.api;
 
 import javax.faces.component.UIComponent;
-import javax.faces.event.FacesEvent;
-import javax.faces.event.FacesListener;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class UpdateEvent extends FacesEvent {
+public class UpdateEvent extends AbstractEntityEvent<UpdateListener> {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(UpdateEvent.class);
 
-    private final Object entity;
-
     public UpdateEvent(UIComponent component, Object entity) {
-        super(component);
-        this.entity = entity;
+        super(component, entity, UpdateListener.class);
     }
 
     @Override
-    public boolean isAppropriateListener(FacesListener listener) {
-        return (listener instanceof UpdateListener);
-    }
-
-    @Override
-    public void processListener(FacesListener listener) {
+    public void processEntityListener(UpdateListener listener) {
         LOGGER.debug("processListener: {}", listener);
-        UpdateListener updateListener = (UpdateListener) listener;
-        updateListener.entityUpdated(this);
-    }
-
-    public Object getEntity() {
-        return this.entity;
+        listener.entityUpdated(this);
     }
 }

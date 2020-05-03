@@ -29,8 +29,6 @@ import java.util.LinkedList;
 import java.util.List;
 import javax.faces.application.FacesMessage;
 import javax.faces.component.StateHolder;
-import javax.faces.component.UIComponent;
-import javax.faces.component.UIViewRoot;
 import javax.faces.context.FacesContext;
 import org.primefaces.PrimeFaces;
 import org.slf4j.Logger;
@@ -90,19 +88,9 @@ public class AjaxUpdateListener implements CreateListener, UpdateListener, Delet
         this._transient = newTransientValue;
     }
 
-    private CRUDComponent getCRUDComponent() {
-        FacesContext facesContext = FacesContext.getCurrentInstance();
-        UIViewRoot view = facesContext.getViewRoot();
-        UIComponent component = view.findComponent(this.crudComponentId);
-        if (null == component) {
-            return null;
-        }
-        return (CRUDComponent) component;
-    }
-
     @Override
     public void entityCreated(CreateEvent event) {
-        CRUDComponent crudComponent = getCRUDComponent();
+        CRUDComponent crudComponent = CRUDComponent.getCRUDComponent(this.crudComponentId);
         crudComponent.resetCache();
         Object entity = event.getEntity();
         fireUpdates(entity);
@@ -114,7 +102,7 @@ public class AjaxUpdateListener implements CreateListener, UpdateListener, Delet
         fireUpdates(entity);
         EntityInspector entityInspector = new EntityInspector(CRUDController.getMetamodel(), entity);
         String entityHumanReadable = entityInspector.toHumanReadable(entity);
-        CRUDComponent crudComponent = getCRUDComponent();
+        CRUDComponent crudComponent = CRUDComponent.getCRUDComponent(this.crudComponentId);
         crudComponent.addMessage(FacesMessage.SEVERITY_INFO, "Updated " + entityHumanReadable);
     }
 
@@ -131,7 +119,7 @@ public class AjaxUpdateListener implements CreateListener, UpdateListener, Delet
 
     @Override
     public void entityDeleted(DeleteEvent event) {
-        CRUDComponent crudComponent = getCRUDComponent();
+        CRUDComponent crudComponent = CRUDComponent.getCRUDComponent(this.crudComponentId);
         crudComponent.resetCache();
         Object entity = event.getEntity();
         fireUpdates(entity);
