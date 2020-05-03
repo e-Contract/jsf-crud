@@ -40,15 +40,20 @@ public class EntityFieldValueExpression extends ValueExpression {
 
     private boolean create;
 
+    private String embeddableFieldname;
+
     public EntityFieldValueExpression() {
         super();
         LOGGER.debug("default constructor");
     }
 
-    public EntityFieldValueExpression(String crudComponentId, String entityFieldName, boolean create) {
+    public EntityFieldValueExpression(String crudComponentId, Field entityField, Field embeddableField, boolean create) {
         this.crudComponentId = crudComponentId;
-        this.entityFieldName = entityFieldName;
+        this.entityFieldName = entityField.getName();
         this.create = create;
+        if (null != embeddableField) {
+            this.embeddableFieldname = embeddableField.getName();
+        }
     }
 
     private CRUDComponent getCRUDComponent() {
@@ -94,8 +99,17 @@ public class EntityFieldValueExpression extends ValueExpression {
                 LinkedList newList = new LinkedList((List) value);
                 return newList;
             }
+            if (null == value) {
+                return null;
+            }
+            if (null != this.embeddableFieldname) {
+                // navigate deeper
+                Field embeddableField = entityField.getType().getDeclaredField(this.embeddableFieldname);
+                embeddableField.setAccessible(true);
+                value = embeddableField.get(value);
+            }
             return value;
-        } catch (IllegalArgumentException | IllegalAccessException ex) {
+        } catch (IllegalArgumentException | IllegalAccessException | NoSuchFieldException | SecurityException ex) {
             LOGGER.error("error: " + ex.getMessage(), ex);
             return null;
         }
@@ -125,7 +139,7 @@ public class EntityFieldValueExpression extends ValueExpression {
     @Override
     public void setValue(ELContext context, Object value) {
         Field entityField = getEntityField();
-        LOGGER.debug("setValue: {} = {}", entityField.getName(), value);
+        LOGGER.debug("setValue: {} {} = {}", entityField.getName(), this.embeddableFieldname, value);
         Object entity = getEntity();
         if (null == entity) {
             return;
@@ -136,9 +150,22 @@ public class EntityFieldValueExpression extends ValueExpression {
                     return;
                 }
             }
-            entityField.setAccessible(true);
-            entityField.set(entity, value);
-        } catch (IllegalArgumentException | IllegalAccessException ex) {
+            if (null == this.embeddableFieldname) {
+                entityField.setAccessible(true);
+                entityField.set(entity, value);
+            } else {
+                entityField.setAccessible(true);
+                Object embedded = entityField.get(entity);
+                if (null == embedded) {
+                    embedded = entityField.getType().newInstance();
+                    entityField.setAccessible(true);
+                    entityField.set(entity, embedded);
+                }
+                Field embeddableField = entityField.getType().getDeclaredField(this.embeddableFieldname);
+                embeddableField.setAccessible(true);
+                embeddableField.set(embedded, value);
+            }
+        } catch (IllegalArgumentException | IllegalAccessException | InstantiationException | NoSuchFieldException | SecurityException ex) {
             LOGGER.error("error: " + ex.getMessage(), ex);
         }
     }

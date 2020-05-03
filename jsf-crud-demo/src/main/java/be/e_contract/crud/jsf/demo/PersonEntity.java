@@ -19,6 +19,7 @@ package be.e_contract.crud.jsf.demo;
 
 import java.io.Serializable;
 import java.util.List;
+import javax.persistence.Embedded;
 import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.OneToMany;
@@ -37,6 +38,9 @@ public class PersonEntity implements Serializable {
 
     @OneToOne
     private PersonEntity partner;
+
+    @Embedded
+    private Address address;
 
     public PersonEntity() {
         super();
@@ -68,6 +72,14 @@ public class PersonEntity implements Serializable {
 
     public void setPartner(PersonEntity partner) {
         this.partner = partner;
+    }
+
+    public Address getAddress() {
+        return this.address;
+    }
+
+    public void setAddress(Address address) {
+        this.address = address;
     }
 
     @Override

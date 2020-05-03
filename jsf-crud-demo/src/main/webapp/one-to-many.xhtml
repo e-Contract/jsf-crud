@@ -14,6 +14,9 @@
             <crud:read/>
         </crud:crud>
         <crud:crud entity="PersonEntity" title="Persons">
+            <crud:field name="address" label="Person address">
+                <crud:field name="zip" label="ZIP code"/>
+            </crud:field>
             <crud:read/>
         </crud:crud>
         <h:form>

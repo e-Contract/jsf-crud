@@ -30,9 +30,9 @@ import java.util.Set;
 import java.util.regex.Pattern;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
-import javax.persistence.Id;
 import javax.persistence.Temporal;
 import javax.persistence.metamodel.Attribute;
+import javax.persistence.metamodel.EmbeddableType;
 import javax.persistence.metamodel.EntityType;
 import javax.persistence.metamodel.Metamodel;
 import javax.persistence.metamodel.SingularAttribute;
@@ -54,11 +54,14 @@ public class EntityInspector {
 
     private final EntityType<?> entityType;
 
+    private final Metamodel metamodel;
+
     public EntityInspector(Metamodel metamodel, String entityClassName) {
         if (entityClassName.endsWith(".class")) {
             entityClassName = entityClassName.substring(0, entityClassName.indexOf(".class"));
         }
         this.entityClass = ENTITY_CLASS_MAP.get(entityClassName);
+        this.metamodel = metamodel;
         if (null != this.entityClass) {
             this.entityType = metamodel.entity(this.entityClass);
             return;
@@ -96,6 +99,7 @@ public class EntityInspector {
     public EntityInspector(Metamodel metamodel, Class<?> entityClass) {
         this.entityClass = entityClass;
         this.entityType = metamodel.entity(this.entityClass);
+        this.metamodel = metamodel;
         Entity entityAnnotation = this.entityClass.getAnnotation(Entity.class);
         if (null == entityAnnotation) {
             LOGGER.error("class is not a JPA entity: {}", entityClass.getName());
@@ -135,15 +139,38 @@ public class EntityInspector {
         return getAnnotation(idAttribute, GeneratedValue.class) != null;
     }
 
+    public <T extends Annotation> T getAnnotation(Field entityField, Field embeddableField, Class<T> annotationClass) {
+        String attributeName = entityField.getName();
+        String embeddedAttributeName;
+        if (null != embeddableField) {
+            embeddedAttributeName = embeddableField.getName();
+        } else {
+            embeddedAttributeName = null;
+        }
+        return getAnnotation(attributeName, embeddedAttributeName, annotationClass);
+    }
+
     public <T extends Annotation> T getAnnotation(Field entityField, Class<T> annotationClass) {
         return getAnnotation(entityField.getName(), annotationClass);
     }
 
     public <T extends Annotation> T getAnnotation(String attributeName, Class<T> annotationClass) {
+        return getAnnotation(attributeName, null, annotationClass);
+    }
+
+    public <T extends Annotation> T getAnnotation(String attributeName, String embeddableAttributeName, Class<T> annotationClass) {
         Attribute attribute = this.entityType.getAttribute(attributeName);
         if (null == attribute) {
             LOGGER.error("unknown attribute: {}", attributeName);
             return null;
+        }
+        if (embeddableAttributeName != null) {
+            if (attribute.getPersistentAttributeType() != Attribute.PersistentAttributeType.EMBEDDED) {
+                LOGGER.error("attribute {} is not embedded", attributeName);
+                return null;
+            }
+            EmbeddableType embeddableType = this.metamodel.embeddable(attribute.getJavaType());
+            attribute = embeddableType.getAttribute(embeddableAttributeName);
         }
         Member member = attribute.getJavaMember();
         if (member instanceof Field) {
@@ -187,7 +214,7 @@ public class EntityInspector {
         return identifier.toString();
     }
 
-    public String toHumanReadable(Field field) {
+    public static String toHumanReadable(Field field) {
         return toHumanReadable(field.getName());
     }
 
@@ -209,8 +236,7 @@ public class EntityInspector {
         List<Field> otherFields = new LinkedList<>();
         Field[] entityFields = this.entityClass.getDeclaredFields();
         for (Field entityField : entityFields) {
-            Id idAnnotation = entityField.getAnnotation(Id.class);
-            if (idAnnotation != null) {
+            if (entityField.getName().equals(idName)) {
                 continue;
             }
             if (Modifier.isStatic(entityField.getModifiers())) {
@@ -223,11 +249,27 @@ public class EntityInspector {
                 // payara
                 continue;
             }
-            if (entityField.getName().equals(idName)) {
+            Attribute attribute = this.entityType.getAttribute(entityField.getName());
+            if (null != attribute && attribute.getPersistentAttributeType() == Attribute.PersistentAttributeType.EMBEDDED) {
                 continue;
             }
             otherFields.add(entityField);
         }
         return otherFields;
+    }
+
+    public List<Field> getEmbeddedFields() {
+        List<Field> embeddedFields = new LinkedList<>();
+        Field[] entityFields = this.entityClass.getDeclaredFields();
+        for (Field entityField : entityFields) {
+            Attribute attribute = this.entityType.getAttribute(entityField.getName());
+            if (null == attribute) {
+                continue;
+            }
+            if (attribute.getPersistentAttributeType() == Attribute.PersistentAttributeType.EMBEDDED) {
+                embeddedFields.add(entityField);
+            }
+        }
+        return embeddedFields;
     }
 }

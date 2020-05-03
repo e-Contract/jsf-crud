@@ -17,17 +17,22 @@
  */
 package test.unit.be.e_contract.crud.jsf.demo;
 
+import be.e_contract.crud.jsf.demo.Address;
 import be.e_contract.crud.jsf.demo.AutoIdEntity;
 import be.e_contract.crud.jsf.demo.CarEntity;
 import be.e_contract.crud.jsf.demo.PersonEntity;
 import be.e_contract.crud.jsf.demo.PropertyAccessTypeEntity;
+import be.e_contract.crud.jsf.jpa.EntityInspector;
+import java.lang.reflect.Field;
 import java.lang.reflect.Member;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
+import javax.persistence.Basic;
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
 import javax.persistence.EntityTransaction;
+import javax.persistence.Id;
 import javax.persistence.Persistence;
 import javax.persistence.Query;
 import javax.persistence.TypedQuery;
@@ -36,10 +41,12 @@ import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Join;
 import javax.persistence.criteria.Root;
 import javax.persistence.metamodel.Attribute;
+import javax.persistence.metamodel.EmbeddableType;
 import javax.persistence.metamodel.EntityType;
 import javax.persistence.metamodel.Metamodel;
 import javax.persistence.metamodel.SingularAttribute;
 import org.junit.After;
+import static org.junit.Assert.assertNotNull;
 import org.junit.Before;
 import org.junit.Test;
 import org.slf4j.Logger;
@@ -100,6 +107,9 @@ public class PersistenceTest {
             PersonEntity person = new PersonEntity("Alice");
             person.setCars(new LinkedList<>());
             person.getCars().add(car1);
+            Address address = new Address();
+            address.setZip("1234");
+            person.setAddress(address);
             this.entityManager.persist(person);
         }
         entityTransaction.commit();
@@ -171,5 +181,35 @@ public class PersistenceTest {
                 LOGGER.debug("optional: {}", singularAttribute.isOptional());
             }
         }
+    }
+
+    @Test
+    public void testEmbeddableAnnotation() throws Exception {
+        Metamodel metamodel = this.entityManager.getMetamodel();
+        EntityType<PersonEntity> entityType = metamodel.entity(PersonEntity.class);
+        Set<Attribute<? super PersonEntity, ?>> attributes = entityType.getAttributes();
+        for (Attribute<? super PersonEntity, ?> attribute : attributes) {
+            LOGGER.debug("attribute: {}", attribute.getName());
+            LOGGER.debug("persistent attribute type: {}", attribute.getPersistentAttributeType());
+            if (attribute.getPersistentAttributeType() == Attribute.PersistentAttributeType.EMBEDDED) {
+                LOGGER.debug("attribute class: {}", attribute.getClass().getName());
+                SingularAttribute singularAttribute = (SingularAttribute) attribute;
+                LOGGER.debug("declaring type: {}", singularAttribute.getDeclaringType());
+                LOGGER.debug("java type: {}", singularAttribute.getJavaType());
+                EmbeddableType embeddableType = metamodel.embeddable(singularAttribute.getJavaType());
+                for (Object embeddableAttributeObject : embeddableType.getAttributes()) {
+                    Attribute embeddableAttribute = (Attribute) embeddableAttributeObject;
+                    LOGGER.debug("embeddable attribute: {}", embeddableAttribute.getName());
+                }
+            }
+        }
+        EntityInspector entityInspector = new EntityInspector(metamodel, PersonEntity.class);
+        Field nameField = PersonEntity.class.getDeclaredField("name");
+        Id idAnnotation = entityInspector.getAnnotation(nameField, Id.class);
+        assertNotNull(idAnnotation);
+        Field addressField = PersonEntity.class.getDeclaredField("address");
+        Field zipField = Address.class.getDeclaredField("zip");
+        Basic basicAnnotation = entityInspector.getAnnotation(addressField, zipField, Basic.class);
+        assertNotNull(basicAnnotation);
     }
 }
