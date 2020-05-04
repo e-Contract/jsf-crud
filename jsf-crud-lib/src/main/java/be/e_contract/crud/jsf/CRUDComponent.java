@@ -610,7 +610,7 @@ public class CRUDComponent extends UINamingContainer implements SystemEventListe
         buttonHtmlPanelGrid.getChildren().add(addCommandButton);
         addCommandButton.setId("addButton");
         addCommandButton.setValue("Add");
-        addCommandButton.setOncomplete("addEntityResponse(xhr, status, args)");
+        addCommandButton.setOncomplete("crudDialogResponse(xhr, status, args, 'addDialog')");
         addCommandButton.addActionListener(new AddActionListener(getId()));
         addCommandButton.setUpdate(addDialogHtmlForm.getClientId());
 
@@ -788,7 +788,7 @@ public class CRUDComponent extends UINamingContainer implements SystemEventListe
         buttonHtmlPanelGrid.getChildren().add(saveCommandButton);
         saveCommandButton.setId("saveButton");
         saveCommandButton.setValue("Save");
-        saveCommandButton.setOncomplete("updateEntityResponse(xhr, status, args)");
+        saveCommandButton.setOncomplete("crudDialogResponse(xhr, status, args, 'updateDialog')");
         saveCommandButton.addActionListener(new SaveActionListener(getId()));
         saveCommandButton.setUpdate(updateDialogHtmlForm.getClientId());
 

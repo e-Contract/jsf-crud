@@ -87,6 +87,7 @@ public class SaveActionListener implements ActionListener, StateHolder {
             crudComponent.resetCache();
             return;
         }
+        crudComponent.resetCache();
         UpdateEvent updateEvent = new UpdateEvent(crudComponent, entity);
         updateEvent.queue();
     }

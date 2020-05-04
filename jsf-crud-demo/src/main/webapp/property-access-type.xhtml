@@ -10,10 +10,28 @@
 
     <h:body>
         <h1>JSF CRUD Demo</h1>
-        <crud:crud entity="PropertyAccessTypeEntity"/>
+        <crud:crud entity="PropertyAccessTypeEntity">
+            <crud:action value="Update Description" oncomplete="PF('customDialog').show()" update=":customDialog"/>
+        </crud:crud>
         <h:form>
             <p:commandLink action="/index?faces-redirect=true" value="Back"/>
         </h:form>
     </h:body>
+
+    <p:dialog id='customDialog' widgetVar="customDialog" header="Update description" modal="true">
+        <h:form>
+            <crud:entity var="entity">
+                <h:panelGrid columns="3">
+                    <p:outputLabel for='description' value="Description"/>
+                    <p:inputText id="description" value='#{entity.description}' required="true"/>
+                    <p:message for='description'/>
+                </h:panelGrid>
+                <h:panelGrid columns="2">
+                    <crud:saveButton/>
+                    <crud:dismissButton/>
+                </h:panelGrid>
+            </crud:entity>
+        </h:form>
+    </p:dialog>
 
 </html>

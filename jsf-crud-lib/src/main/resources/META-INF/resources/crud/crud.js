@@ -16,17 +16,10 @@
  * http://www.gnu.org/licenses/.
  */
 
-function addEntityResponse(xhr, status, args) {
+function crudDialogResponse(xhr, status, args, dialogWidgetVar) {
+    console.dir(args);
     if (args.validationFailed) {
         return;
     }
-    PF('addDialog').hide();
-}
-
-
-function updateEntityResponse(xhr, status, args) {
-    if (args.validationFailed) {
-        return;
-    }
-    PF('updateDialog').hide();
+    PF(dialogWidgetVar).hide();
 }

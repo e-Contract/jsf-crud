@@ -19,11 +19,14 @@ package be.e_contract.crud.jsf.update;
 
 import javax.el.MethodExpression;
 import javax.faces.application.Application;
+import javax.faces.application.ResourceDependencies;
+import javax.faces.application.ResourceDependency;
 import javax.faces.component.FacesComponent;
 import javax.faces.component.UIComponent;
 import javax.faces.component.UIComponentBase;
 import javax.faces.component.UIInput;
 import javax.faces.component.UIViewRoot;
+import javax.faces.component.html.HtmlForm;
 import javax.faces.context.FacesContext;
 import javax.faces.event.AbortProcessingException;
 import javax.faces.event.PostAddToViewEvent;
@@ -35,6 +38,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 @FacesComponent(SaveButton.COMPONENT_TYPE)
+@ResourceDependencies(value = {
+    @ResourceDependency(library = "crud", name = "crud.js")
+})
 public class SaveButton extends UIComponentBase implements SystemEventListener {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(SaveButton.class);
@@ -98,16 +104,30 @@ public class SaveButton extends UIComponentBase implements SystemEventListener {
         }
         commandButton.setValue(commandButtonValue);
         commandButton.addActionListener(new SaveActionListener(getAction()));
-        String dialogWidgetVar = getDialogWidgetVar();
-        commandButton.setOncomplete("PF('" + dialogWidgetVar + "').hide()");
+        Dialog dialog = getDialog();
+        String dialogWidgetVar = dialog.getWidgetVar();
+        commandButton.setOncomplete("crudDialogResponse(xhr, status, args, '" + dialogWidgetVar + "')");
+        HtmlForm htmlForm = getHtmlForm();
+        String htmlFormClientId = htmlForm.getClientId();
+        commandButton.setUpdate(htmlFormClientId);
     }
 
-    private String getDialogWidgetVar() {
+    private Dialog getDialog() {
         UIComponent parent = getParent();
         while (parent != null) {
             if (parent instanceof Dialog) {
-                Dialog dialog = (Dialog) parent;
-                return dialog.getWidgetVar();
+                return (Dialog) parent;
+            }
+            parent = parent.getParent();
+        }
+        throw new AbortProcessingException();
+    }
+
+    private HtmlForm getHtmlForm() {
+        UIComponent parent = getParent();
+        while (parent != null) {
+            if (parent instanceof HtmlForm) {
+                return (HtmlForm) parent;
             }
             parent = parent.getParent();
         }
