@@ -27,6 +27,7 @@ public class PasswordComponent extends UIComponentBase {
 
     public enum PropertyKeys {
         feedback,
+        match,
     }
 
     @Override
@@ -40,5 +41,13 @@ public class PasswordComponent extends UIComponentBase {
 
     public void setFeedback(boolean feedback) {
         getStateHelper().put(PropertyKeys.feedback, feedback);
+    }
+
+    public boolean isMatch() {
+        return (Boolean) getStateHelper().eval(PropertyKeys.match, false);
+    }
+
+    public void setMatch(boolean match) {
+        getStateHelper().put(PropertyKeys.match, match);
     }
 }

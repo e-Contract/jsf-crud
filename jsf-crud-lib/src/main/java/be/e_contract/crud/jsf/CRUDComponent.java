@@ -1031,6 +1031,20 @@ public class CRUDComponent extends UINamingContainer implements SystemEventListe
         return false;
     }
 
+    private boolean isMatchPassword(Field entityField, Map<String, FieldComponent> fields) {
+        FieldComponent fieldComponent = fields.get(entityField.getName());
+        if (null == fieldComponent) {
+            return false;
+        }
+        for (UIComponent child : fieldComponent.getChildren()) {
+            if (child instanceof PasswordComponent) {
+                PasswordComponent passwordComponent = (PasswordComponent) child;
+                return passwordComponent.isMatch();
+            }
+        }
+        return false;
+    }
+
     private Map<String, FieldComponent> getEmbeddableFields(Field entityField, Map<String, FieldComponent> fields) {
         Map<String, FieldComponent> embeddableFields = new HashMap<>();
         FieldComponent fieldComponent = fields.get(entityField.getName());
@@ -1230,6 +1244,9 @@ public class CRUDComponent extends UINamingContainer implements SystemEventListe
             if (isFeedbackPassword(actualField, fields)) {
                 password.setFeedback(true);
             }
+            if (isMatchPassword(actualField, fields)) {
+                password.setMatch(inputId + "Match");
+            }
             Integer size = getFieldSize(actualField, fields, overrideFields);
             if (null != size) {
                 password.setSize(size);
@@ -1290,6 +1307,32 @@ public class CRUDComponent extends UINamingContainer implements SystemEventListe
         Message inputTextMessage = (Message) application.createComponent(Message.COMPONENT_TYPE);
         htmlPanelGrid.getChildren().add(inputTextMessage);
         inputTextMessage.setFor(inputId);
+
+        if (isMatchPassword(actualField, fields)) {
+            OutputLabel passwordMatchOutputLabel = (OutputLabel) application.createComponent(OutputLabel.COMPONENT_TYPE);
+            htmlPanelGrid.getChildren().add(passwordMatchOutputLabel);
+            passwordMatchOutputLabel.setValue(fieldLabel);
+            passwordMatchOutputLabel.setFor(inputId + "Match");
+
+            Password matchPassword = (Password) application.createComponent(Password.COMPONENT_TYPE);
+            htmlPanelGrid.getChildren().add(matchPassword);
+            Password password = (Password) input;
+            matchPassword.setDisabled(password.isDisabled());
+            matchPassword.setId(inputId + "Match");
+            matchPassword.setFeedback(password.isFeedback());
+            matchPassword.setSize(password.getSize());
+            matchPassword.setRequired(password.isRequired());
+            int length = 255;
+            if (null != columnAnnotation) {
+                length = columnAnnotation.length();
+            }
+            matchPassword.addValidator(new LengthValidator(length));
+            matchPassword.setValueExpression("value", new EntityFieldValueExpression(getId(), entityField, embeddableField, addNotUpdate));
+
+            Message matchMessage = (Message) application.createComponent(Message.COMPONENT_TYPE);
+            htmlPanelGrid.getChildren().add(matchMessage);
+            matchMessage.setFor(inputId + "Match");
+        }
     }
 
     private void addColumn(DataTable dataTable, Field field, Map<String, FieldComponent> fields) {

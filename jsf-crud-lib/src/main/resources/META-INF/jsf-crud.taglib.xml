@@ -410,6 +410,11 @@
             <name>feedback</name>
             <type>java.lang.Boolean</type>
         </attribute>
+        <attribute>
+            <description>Set to true to create double matching password input.</description>
+            <name>match</name>
+            <type>java.lang.Boolean</type>
+        </attribute>
     </tag>
     
     <tag>
