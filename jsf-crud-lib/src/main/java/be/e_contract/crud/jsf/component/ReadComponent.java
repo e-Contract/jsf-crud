@@ -25,8 +25,20 @@ public class ReadComponent extends UIComponentBase {
 
     public static final String COMPONENT_TYPE = "crud.read";
 
+    public enum PropertyKeys {
+        icon,
+    }
+
     @Override
     public String getFamily() {
         return "crud";
+    }
+
+    public String getIcon() {
+        return (String) getStateHelper().eval(PropertyKeys.icon, null);
+    }
+
+    public void setIcon(String icon) {
+        getStateHelper().put(PropertyKeys.icon, icon);
     }
 }

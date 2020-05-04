@@ -17,6 +17,7 @@
  */
 package be.e_contract.crud.jsf.delete;
 
+import be.e_contract.crud.jsf.update.UpdateComponent;
 import java.io.IOException;
 import javax.faces.component.FacesComponent;
 import javax.faces.component.UIComponentBase;
@@ -31,6 +32,7 @@ public class DeleteComponent extends UIComponentBase {
         disabled,
         deleteAll,
         title,
+        icon,
     }
 
     @Override
@@ -68,6 +70,14 @@ public class DeleteComponent extends UIComponentBase {
 
     public String getTitle() {
         return (String) getStateHelper().eval(PropertyKeys.title);
+    }
+
+    public String getIcon() {
+        return (String) getStateHelper().eval(PropertyKeys.icon, null);
+    }
+
+    public void setIcon(String icon) {
+        getStateHelper().put(PropertyKeys.icon, icon);
     }
 
     @Override

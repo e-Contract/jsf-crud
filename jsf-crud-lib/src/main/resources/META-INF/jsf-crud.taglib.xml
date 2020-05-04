@@ -64,6 +64,11 @@
             <name>disabled</name>
             <type>java.lang.Boolean</type>
         </attribute>
+        <attribute>
+            <description>Icon of the button.</description>
+            <name>icon</name>
+            <type>java.lang.String</type>
+        </attribute>
     </tag>
 
     <tag>
@@ -72,6 +77,11 @@
         <component>
             <component-type>crud.read</component-type>
         </component>
+        <attribute>
+            <description>Icon of the button.</description>
+            <name>icon</name>
+            <type>java.lang.String</type>
+        </attribute>
     </tag>
 
     <tag>
@@ -84,6 +94,11 @@
             <description>Set to true to disable the update operation.</description>
             <name>disabled</name>
             <type>java.lang.Boolean</type>
+        </attribute>
+        <attribute>
+            <description>Icon of the button.</description>
+            <name>icon</name>
+            <type>java.lang.String</type>
         </attribute>
     </tag>
 
@@ -106,6 +121,11 @@
         <attribute>
             <description>Optional title of the delete dialog.</description>
             <name>title</name>
+            <type>java.lang.String</type>
+        </attribute>
+        <attribute>
+            <description>Icon of the button.</description>
+            <name>icon</name>
             <type>java.lang.String</type>
         </attribute>
     </tag>

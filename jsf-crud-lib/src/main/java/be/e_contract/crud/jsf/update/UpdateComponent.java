@@ -27,6 +27,7 @@ public class UpdateComponent extends UIComponentBase {
 
     public enum PropertyKeys {
         disabled,
+        icon,
     }
 
     @Override
@@ -44,5 +45,13 @@ public class UpdateComponent extends UIComponentBase {
 
     public void setDisabled(boolean disabled) {
         getStateHelper().put(PropertyKeys.disabled, disabled);
+    }
+
+    public String getIcon() {
+        return (String) getStateHelper().eval(PropertyKeys.icon, null);
+    }
+
+    public void setIcon(String icon) {
+        getStateHelper().put(PropertyKeys.icon, icon);
     }
 }

@@ -285,6 +285,7 @@ public class CRUDComponent extends UINamingContainer implements SystemEventListe
         CreateComponent createComponent = null;
         DeleteComponent deleteComponent = null;
         UpdateComponent updateComponent = null;
+        ReadComponent readComponent = null;
         Map<String, FieldComponent> fields = new HashMap<>();
         Map<String, FieldComponent> createFields = new HashMap<>();
         Map<String, FieldComponent> updateFields = new HashMap<>();
@@ -321,6 +322,7 @@ public class CRUDComponent extends UINamingContainer implements SystemEventListe
                     }
                 }
             } else if (child instanceof ReadComponent) {
+                readComponent = (ReadComponent) child;
                 showView = true;
             } else if (child instanceof FieldComponent) {
                 FieldComponent fieldComponent = (FieldComponent) child;
@@ -411,9 +413,9 @@ public class CRUDComponent extends UINamingContainer implements SystemEventListe
             dataTable.getChildren().add(column);
             column.setHeaderText("Actions");
 
-            addViewDialog(showView, application, expressionFactory, elContext, column, entityName, message, entityInspector, idField, fields);
+            addViewDialog(showView, readComponent, application, expressionFactory, elContext, column, entityName, message, entityInspector, idField, fields);
 
-            addUpdateDialog(showUpdate, application, column, entityName, message, expressionFactory, entityInspector, idField, fields, updateFields);
+            addUpdateDialog(showUpdate, updateComponent, application, column, entityName, message, expressionFactory, entityInspector, idField, fields, updateFields);
 
             addDeleteDialog(showDelete, application, column, deleteComponent, entityName, elContext, expressionFactory, message);
 
@@ -424,7 +426,7 @@ public class CRUDComponent extends UINamingContainer implements SystemEventListe
         dataTable.getFacets().put("footer", footerHtmlPanelGroup);
         footerHtmlPanelGroup.setStyle("display:block; text-align: left;");
 
-        addCreateDialog(showCreate, application, footerHtmlPanelGroup, entityName, message, expressionFactory, idField, entityInspector, fields, createFields);
+        addCreateDialog(showCreate, createComponent, application, footerHtmlPanelGroup, entityName, message, expressionFactory, idField, entityInspector, fields, createFields);
 
         if (null != deleteComponent && deleteComponent.isDeleteAll()) {
             CommandButton commandButton = (CommandButton) application.createComponent(CommandButton.COMPONENT_TYPE);
@@ -433,6 +435,7 @@ public class CRUDComponent extends UINamingContainer implements SystemEventListe
             commandButton.setOncomplete("PF('deleteAllDialog').show()");
             commandButton.setId("deleteAllButton");
             commandButton.setUpdate(message.getClientId());
+            commandButton.setIcon(deleteComponent.getIcon());
 
             Dialog deleteAllDialog = (Dialog) application.createComponent(Dialog.COMPONENT_TYPE);
             getChildren().add(deleteAllDialog);
@@ -527,7 +530,7 @@ public class CRUDComponent extends UINamingContainer implements SystemEventListe
         }
     }
 
-    private void addCreateDialog(boolean showCreate, Application application, HtmlPanelGroup footerHtmlPanelGroup, String entityName,
+    private void addCreateDialog(boolean showCreate, CreateComponent createComponent, Application application, HtmlPanelGroup footerHtmlPanelGroup, String entityName,
             Message message, ExpressionFactory expressionFactory, Field idField, EntityInspector entityInspector,
             Map<String, FieldComponent> fields, Map<String, FieldComponent> createFields) throws FacesException {
         if (!showCreate) {
@@ -538,6 +541,9 @@ public class CRUDComponent extends UINamingContainer implements SystemEventListe
         commandButton.setValue("Add...");
         commandButton.setOncomplete("PF('addDialog').show()");
         commandButton.setId("addButton");
+        if (null != createComponent) {
+            commandButton.setIcon(createComponent.getIcon());
+        }
 
         Dialog addDialog = (Dialog) application.createComponent(Dialog.COMPONENT_TYPE);
         getChildren().add(addDialog);
@@ -623,6 +629,9 @@ public class CRUDComponent extends UINamingContainer implements SystemEventListe
         commandButton.setValue("Delete...");
         commandButton.setId("deleteButton");
         commandButton.setOncomplete("PF('deleteDialog').show()");
+        if (null != deleteComponent) {
+            commandButton.setIcon(deleteComponent.getIcon());
+        }
 
         Dialog deleteDialog = (Dialog) application.createComponent(Dialog.COMPONENT_TYPE);
         getChildren().add(deleteDialog);
@@ -703,7 +712,7 @@ public class CRUDComponent extends UINamingContainer implements SystemEventListe
         }
     }
 
-    private void addUpdateDialog(boolean showUpdate, Application application, Column column, String entityName, Message message,
+    private void addUpdateDialog(boolean showUpdate, UpdateComponent updateComponent, Application application, Column column, String entityName, Message message,
             ExpressionFactory expressionFactory, EntityInspector entityInspector, Field idField, Map<String, FieldComponent> fields,
             Map<String, FieldComponent> updateFields) throws FacesException {
         if (!showUpdate) {
@@ -715,6 +724,9 @@ public class CRUDComponent extends UINamingContainer implements SystemEventListe
         commandButton.setValue("Update...");
         commandButton.setOncomplete("PF('updateDialog').show()");
         commandButton.setId("updateButton");
+        if (null != updateComponent) {
+            commandButton.setIcon(updateComponent.getIcon());
+        }
 
         Dialog updateDialog = (Dialog) application.createComponent(Dialog.COMPONENT_TYPE);
         getChildren().add(updateDialog);
@@ -784,7 +796,7 @@ public class CRUDComponent extends UINamingContainer implements SystemEventListe
         buttonHtmlPanelGrid.getChildren().add(dismissCommandButton);
     }
 
-    private void addViewDialog(boolean showView, Application application,
+    private void addViewDialog(boolean showView, ReadComponent readComponent, Application application,
             ExpressionFactory expressionFactory, ELContext elContext,
             Column column, String entityName, Message message, EntityInspector entityInspector,
             Field idField, Map<String, FieldComponent> fields) throws FacesException {
@@ -796,6 +808,7 @@ public class CRUDComponent extends UINamingContainer implements SystemEventListe
         commandButton.setValue("View...");
         commandButton.setOncomplete("PF('viewDialog').show()");
         commandButton.setId("viewButton");
+        commandButton.setIcon(readComponent.getIcon());
 
         Dialog viewDialog = (Dialog) application.createComponent(Dialog.COMPONENT_TYPE);
         getChildren().add(viewDialog);

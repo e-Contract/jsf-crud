@@ -12,14 +12,14 @@
         <h1>JSF CRUD Demo</h1>
         <p:growl widgetVar="growl"/>
         <crud:crud entity="AutoIdEntity" title="A fancy title!" orderBy="amount" ordering="DESC" id='crud'>
-            <crud:create>
+            <crud:create icon="fa fa-plus">
                 <crud:field name="amount" hide="true"/>
             </crud:create>
-            <crud:read/>
-            <crud:update disabled="false">
+            <crud:read icon="fa fa-search"/>
+            <crud:update disabled="false" icon="fa fa-save">
                 <crud:field name="amount" hide="false"/>
             </crud:update>
-            <crud:delete deleteAll="true" title="Custom delete title">
+            <crud:delete deleteAll="true" title="Custom delete title" icon="fa fa-remove">
                 <crud:entity var="entity">
                     <h:outputText value="Custom delete message for #{crud:toHumanReadable(entity)}"/>
                 </crud:entity>
