@@ -50,6 +50,7 @@ public class SaveButton extends UIComponentBase implements SystemEventListener {
     public enum PropertyKeys {
         action,
         value,
+        icon,
     }
 
     public SaveButton() {
@@ -77,6 +78,14 @@ public class SaveButton extends UIComponentBase implements SystemEventListener {
 
     public String getValue() {
         return (String) getStateHelper().eval(PropertyKeys.value);
+    }
+
+    public String getIcon() {
+        return (String) getStateHelper().eval(PropertyKeys.icon, null);
+    }
+
+    public void setIcon(String icon) {
+        getStateHelper().put(PropertyKeys.icon, icon);
     }
 
     @Override
@@ -110,6 +119,7 @@ public class SaveButton extends UIComponentBase implements SystemEventListener {
         HtmlForm htmlForm = getHtmlForm();
         String htmlFormClientId = htmlForm.getClientId();
         commandButton.setUpdate(htmlFormClientId);
+        commandButton.setIcon(getIcon());
     }
 
     private Dialog getDialog() {

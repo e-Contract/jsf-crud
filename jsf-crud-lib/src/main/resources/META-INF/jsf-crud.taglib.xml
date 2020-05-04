@@ -313,6 +313,11 @@
             <name>value</name>
             <type>java.lang.String</type>
         </attribute>
+        <attribute>
+            <description>Icon of the button.</description>
+            <name>icon</name>
+            <type>java.lang.String</type>
+        </attribute>
     </tag>
     
     <tag>
@@ -330,6 +335,11 @@
         <attribute>
             <description>The optional save button text.</description>
             <name>value</name>
+            <type>java.lang.String</type>
+        </attribute>
+        <attribute>
+            <description>Icon of the button.</description>
+            <name>icon</name>
             <type>java.lang.String</type>
         </attribute>
     </tag>
