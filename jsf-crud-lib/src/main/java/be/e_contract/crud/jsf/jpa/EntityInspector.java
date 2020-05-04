@@ -133,6 +133,11 @@ public class EntityInspector {
         throw new RuntimeException("@Id field not present");
     }
 
+    public boolean isEmbeddedIdField() {
+        SingularAttribute idAttribute = this.entityType.getId(this.entityType.getIdType().getJavaType());
+        return idAttribute.getPersistentAttributeType() == Attribute.PersistentAttributeType.EMBEDDED;
+    }
+
     public boolean isIdGeneratedValue() {
         Field idField = getIdField();
         String idAttribute = idField.getName();
@@ -260,10 +265,15 @@ public class EntityInspector {
 
     public List<Field> getEmbeddedFields() {
         List<Field> embeddedFields = new LinkedList<>();
+        SingularAttribute idAttribute = this.entityType.getId(this.entityType.getIdType().getJavaType());
+        String idName = idAttribute.getName();
         Field[] entityFields = this.entityClass.getDeclaredFields();
         for (Field entityField : entityFields) {
             Attribute attribute = this.entityType.getAttribute(entityField.getName());
             if (null == attribute) {
+                continue;
+            }
+            if (entityField.getName().equals(idName)) {
                 continue;
             }
             if (attribute.getPersistentAttributeType() == Attribute.PersistentAttributeType.EMBEDDED) {

@@ -22,7 +22,6 @@ import be.e_contract.crud.jsf.CRUDComponent;
 import be.e_contract.crud.jsf.jpa.CRUDController;
 import javax.faces.application.FacesMessage;
 import javax.faces.component.UIComponent;
-import javax.faces.component.UIInput;
 import javax.faces.context.FacesContext;
 import javax.faces.validator.Validator;
 import javax.faces.validator.ValidatorException;
@@ -56,10 +55,6 @@ public class NonExistingIdentifierValidator extends AbstractCRUDComponentStateHo
 
     @Override
     public void validate(FacesContext facesContext, UIComponent component, Object value) throws ValidatorException {
-        if (UIInput.isEmpty(value)) {
-            return;
-        }
-
         CRUDController crudController = CRUDController.getCRUDController();
         EntityManager entityManager = crudController.getEntityManager();
         UserTransaction userTransaction = crudController.getUserTransaction();

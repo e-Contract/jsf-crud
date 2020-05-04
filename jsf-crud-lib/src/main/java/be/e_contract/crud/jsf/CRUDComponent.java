@@ -565,25 +565,19 @@ public class CRUDComponent extends UINamingContainer implements SystemEventListe
 
         boolean isIdGeneratedValue = entityInspector.isIdGeneratedValue();
         if (!isIdGeneratedValue) {
-            OutputLabel idOutputLabel = (OutputLabel) application.createComponent(OutputLabel.COMPONENT_TYPE);
-            htmlPanelGrid.getChildren().add(idOutputLabel);
-            idOutputLabel.setValue(EntityInspector.toHumanReadable(idField));
-            idOutputLabel.setFor("identifierInput");
-
-            InputText identifierInputText = (InputText) application.createComponent(InputText.COMPONENT_TYPE);
-            htmlPanelGrid.getChildren().add(identifierInputText);
-            identifierInputText.setId("identifierInput");
-            identifierInputText.setValueExpression("value", new EntityFieldValueExpression(getId(), idField, null, true));
-            identifierInputText.setRequired(true);
-            identifierInputText.addValidator(new NonExistingIdentifierValidator(getId()));
-
-            Message identifierInputTextMessage = (Message) application.createComponent(Message.COMPONENT_TYPE);
-            htmlPanelGrid.getChildren().add(identifierInputTextMessage);
-            identifierInputTextMessage.setFor("identifierInput");
+            if (!entityInspector.isEmbeddedIdField()) {
+                UIInput input = addInputComponent(idField, null, true, entityInspector, fields, createFields, htmlPanelGrid, true);
+                input.addValidator(new NonExistingIdentifierValidator(getId()));
+            } else {
+                Map<String, FieldComponent> embeddableFields = getEmbeddableFields(idField, fields);
+                for (Field embeddableIdField : idField.getType().getDeclaredFields()) {
+                    addInputComponent(idField, embeddableIdField, true, entityInspector, embeddableFields, null, htmlPanelGrid, true);
+                }
+            }
         }
 
         for (Field entityField : entityInspector.getOtherFields()) {
-            addInputComponent(entityField, null, true, entityInspector, fields, createFields, htmlPanelGrid);
+            addInputComponent(entityField, null, true, entityInspector, fields, createFields, htmlPanelGrid, false);
         }
 
         for (Field embeddedField : entityInspector.getEmbeddedFields()) {
@@ -598,7 +592,7 @@ public class CRUDComponent extends UINamingContainer implements SystemEventListe
             Map<String, FieldComponent> embeddableFields = getEmbeddableFields(embeddedField, fields);
 
             for (Field embeddableField : embeddedField.getType().getDeclaredFields()) {
-                addInputComponent(embeddedField, embeddableField, true, entityInspector, embeddableFields, null, embeddedHtmlPanelGrid);
+                addInputComponent(embeddedField, embeddableField, true, entityInspector, embeddableFields, null, embeddedHtmlPanelGrid, false);
             }
         }
 
@@ -761,7 +755,7 @@ public class CRUDComponent extends UINamingContainer implements SystemEventListe
         }
 
         for (Field entityField : entityInspector.getOtherFields()) {
-            addInputComponent(entityField, null, false, entityInspector, fields, updateFields, htmlPanelGrid);
+            addInputComponent(entityField, null, false, entityInspector, fields, updateFields, htmlPanelGrid, false);
         }
 
         for (Field embeddedField : entityInspector.getEmbeddedFields()) {
@@ -776,7 +770,7 @@ public class CRUDComponent extends UINamingContainer implements SystemEventListe
             Map<String, FieldComponent> embeddableFields = getEmbeddableFields(embeddedField, fields);
 
             for (Field embeddableField : embeddedField.getType().getDeclaredFields()) {
-                addInputComponent(embeddedField, embeddableField, false, entityInspector, embeddableFields, null, embeddedHtmlPanelGrid);
+                addInputComponent(embeddedField, embeddableField, false, entityInspector, embeddableFields, null, embeddedHtmlPanelGrid, false);
             }
         }
 
@@ -1079,10 +1073,10 @@ public class CRUDComponent extends UINamingContainer implements SystemEventListe
         return size;
     }
 
-    private void addInputComponent(Field entityField, Field embeddableField, boolean addNotUpdate, EntityInspector entityInspector,
-            Map<String, FieldComponent> fields, Map<String, FieldComponent> overrideFields, HtmlPanelGrid htmlPanelGrid) {
-        if (isHideField(entityField, fields, overrideFields)) {
-            return;
+    private UIInput addInputComponent(Field entityField, Field embeddableField, boolean addNotUpdate, EntityInspector entityInspector,
+            Map<String, FieldComponent> fields, Map<String, FieldComponent> overrideFields, HtmlPanelGrid htmlPanelGrid, boolean forceRender) {
+        if (isHideField(entityField, fields, overrideFields) && !forceRender) {
+            return null;
         }
         FacesContext facesContext = FacesContext.getCurrentInstance();
         Application application = facesContext.getApplication();
@@ -1301,6 +1295,9 @@ public class CRUDComponent extends UINamingContainer implements SystemEventListe
         if (isRequiredField(entityField, fields, overrideFields)) {
             input.setRequired(true);
         }
+        if (forceRender) {
+            input.setRequired(true);
+        }
         input.addValidator(new BeanValidationValidator());
         input.addValidator(new UniqueValidator());
 
@@ -1333,6 +1330,7 @@ public class CRUDComponent extends UINamingContainer implements SystemEventListe
             htmlPanelGrid.getChildren().add(matchMessage);
             matchMessage.setFor(inputId + "Match");
         }
+        return input;
     }
 
     private void addColumn(DataTable dataTable, Field field, Map<String, FieldComponent> fields) {

@@ -10,6 +10,7 @@
         <class>be.e_contract.crud.jsf.demo.PropertyAccessTypeEntity</class>
         <class>be.e_contract.crud.jsf.demo.AutoIdEntity</class>
         <class>be.e_contract.crud.jsf.demo.DemoEntity</class>
+        <class>be.e_contract.crud.jsf.demo.MessageEntity</class>
         <exclude-unlisted-classes>true</exclude-unlisted-classes>
         <properties>
             <property name="hibernate.connection.url"

@@ -20,6 +20,7 @@ package test.unit.be.e_contract.crud.jsf.demo;
 import be.e_contract.crud.jsf.demo.Address;
 import be.e_contract.crud.jsf.demo.AutoIdEntity;
 import be.e_contract.crud.jsf.demo.CarEntity;
+import be.e_contract.crud.jsf.demo.MessageEntity;
 import be.e_contract.crud.jsf.demo.PersonEntity;
 import be.e_contract.crud.jsf.demo.PropertyAccessTypeEntity;
 import be.e_contract.crud.jsf.jpa.EntityInspector;
@@ -211,5 +212,21 @@ public class PersistenceTest {
         Field zipField = Address.class.getDeclaredField("zip");
         Basic basicAnnotation = entityInspector.getAnnotation(addressField, zipField, Basic.class);
         assertNotNull(basicAnnotation);
+    }
+
+    @Test
+    public void testEmbeddedId() throws Exception {
+        Metamodel metamodel = this.entityManager.getMetamodel();
+        EntityInspector entityInspector = new EntityInspector(metamodel, MessageEntity.class);
+        Field idField = entityInspector.getIdField();
+        LOGGER.debug("id Field: {}", idField.getName());
+        List<Field> otherFields = entityInspector.getOtherFields();
+        for (Field otherField : otherFields) {
+            LOGGER.debug("other field: {}", otherField.getName());
+        }
+        List<Field> embeddedFields = entityInspector.getEmbeddedFields();
+        for (Field embeddedField : embeddedFields) {
+            LOGGER.debug("embedded field: {}", embeddedField.getName());
+        }
     }
 }
