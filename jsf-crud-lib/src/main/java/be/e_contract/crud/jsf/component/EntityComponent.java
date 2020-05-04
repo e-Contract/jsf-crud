@@ -123,9 +123,20 @@ public class EntityComponent extends UIComponentBase {
 
     @Override
     public void processUpdates(FacesContext context) {
+        LOGGER.debug("processUpdates begin");
         Object oldVar = setLocalVariable();
         super.processUpdates(context);
         // without removeLocalVariable it works
         //removeLocalVariable(oldVar);
+        LOGGER.debug("processUpdates end");
+    }
+
+    @Override
+    public void processValidators(FacesContext context) {
+        LOGGER.debug("processValidators begin");
+        Object oldVar = setLocalVariable();
+        super.processValidators(context);
+        removeLocalVariable(oldVar);
+        LOGGER.debug("processValidators end");
     }
 }
