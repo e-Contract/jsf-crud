@@ -186,7 +186,9 @@ public class CRUDComponent extends UINamingContainer implements SystemEventListe
 
     public Class<?> getEntityClass() {
         String entityClassName = getEntity();
-        EntityInspector entityInspector = new EntityInspector(CRUDController.getMetamodel(), entityClassName);
+        CRUDController crudController = CRUDController.getCRUDController();
+        EntityManager entityManager = crudController.getEntityManager();
+        EntityInspector entityInspector = new EntityInspector(entityManager, entityClassName);
         Class<?> entityClass = entityInspector.getEntityClass();
         return entityClass;
     }
@@ -351,7 +353,9 @@ public class CRUDComponent extends UINamingContainer implements SystemEventListe
         }
 
         String entityClassName = getEntity();
-        EntityInspector entityInspector = new EntityInspector(CRUDController.getMetamodel(), entityClassName);
+        CRUDController crudController = CRUDController.getCRUDController();
+        EntityManager entityManager = crudController.getEntityManager();
+        EntityInspector entityInspector = new EntityInspector(entityManager, entityClassName);
         String entityName = entityInspector.getEntityName();
 
         HtmlForm htmlForm = (HtmlForm) application.createComponent(HtmlForm.COMPONENT_TYPE);
@@ -396,8 +400,10 @@ public class CRUDComponent extends UINamingContainer implements SystemEventListe
         }
 
         // first column is the @Id column
-        Field idField = entityInspector.getIdField();
-        addColumn(dataTable, idField, fields);
+        List<Field> idFields = entityInspector.getIdFields();
+        for (Field idField : idFields) {
+            addColumn(dataTable, idField, fields);
+        }
 
         // next we add all the others
         for (Field entityField : entityInspector.getOtherFields()) {
@@ -413,9 +419,9 @@ public class CRUDComponent extends UINamingContainer implements SystemEventListe
             dataTable.getChildren().add(column);
             column.setHeaderText("Actions");
 
-            addViewDialog(showView, readComponent, application, expressionFactory, elContext, column, entityName, message, entityInspector, idField, fields);
+            addViewDialog(showView, readComponent, application, expressionFactory, elContext, column, entityName, message, entityInspector, idFields, fields);
 
-            addUpdateDialog(showUpdate, updateComponent, application, column, entityName, message, expressionFactory, entityInspector, idField, fields, updateFields);
+            addUpdateDialog(showUpdate, updateComponent, application, column, entityName, message, expressionFactory, entityInspector, idFields, fields, updateFields);
 
             addDeleteDialog(showDelete, application, column, deleteComponent, entityName, elContext, expressionFactory, message);
 
@@ -426,7 +432,7 @@ public class CRUDComponent extends UINamingContainer implements SystemEventListe
         dataTable.getFacets().put("footer", footerHtmlPanelGroup);
         footerHtmlPanelGroup.setStyle("display:block; text-align: left;");
 
-        addCreateDialog(showCreate, createComponent, application, footerHtmlPanelGroup, entityName, message, expressionFactory, idField, entityInspector, fields, createFields);
+        addCreateDialog(showCreate, createComponent, application, footerHtmlPanelGroup, entityName, message, expressionFactory, idFields, entityInspector, fields, createFields);
 
         if (null != deleteComponent && deleteComponent.isDeleteAll()) {
             CommandButton commandButton = (CommandButton) application.createComponent(CommandButton.COMPONENT_TYPE);
@@ -531,7 +537,7 @@ public class CRUDComponent extends UINamingContainer implements SystemEventListe
     }
 
     private void addCreateDialog(boolean showCreate, CreateComponent createComponent, Application application, HtmlPanelGroup footerHtmlPanelGroup, String entityName,
-            Message message, ExpressionFactory expressionFactory, Field idField, EntityInspector entityInspector,
+            Message message, ExpressionFactory expressionFactory, List<Field> idFields, EntityInspector entityInspector,
             Map<String, FieldComponent> fields, Map<String, FieldComponent> createFields) throws FacesException {
         if (!showCreate) {
             return;
@@ -566,9 +572,15 @@ public class CRUDComponent extends UINamingContainer implements SystemEventListe
         boolean isIdGeneratedValue = entityInspector.isIdGeneratedValue();
         if (!isIdGeneratedValue) {
             if (!entityInspector.isEmbeddedIdField()) {
-                UIInput input = addInputComponent(idField, null, true, entityInspector, fields, createFields, htmlPanelGrid, true);
-                input.addValidator(new NonExistingIdentifierValidator(getId()));
+                for (Field idField : idFields) {
+                    UIInput input = addInputComponent(idField, null, true, entityInspector, fields, createFields, htmlPanelGrid, true);
+                    if (idFields.size() == 1) {
+                        // TODO: validate multiple ID fields together
+                        input.addValidator(new NonExistingIdentifierValidator(getId()));
+                    }
+                }
             } else {
+                Field idField = idFields.iterator().next();
                 Map<String, FieldComponent> embeddableFields = getEmbeddableFields(idField, fields);
                 for (Field embeddableIdField : idField.getType().getDeclaredFields()) {
                     if (Modifier.isStatic(embeddableIdField.getModifiers())) {
@@ -721,7 +733,7 @@ public class CRUDComponent extends UINamingContainer implements SystemEventListe
     }
 
     private void addUpdateDialog(boolean showUpdate, UpdateComponent updateComponent, Application application, Column column, String entityName, Message message,
-            ExpressionFactory expressionFactory, EntityInspector entityInspector, Field idField, Map<String, FieldComponent> fields,
+            ExpressionFactory expressionFactory, EntityInspector entityInspector, List<Field> idFields, Map<String, FieldComponent> fields,
             Map<String, FieldComponent> updateFields) throws FacesException {
         if (!showUpdate) {
             return;
@@ -755,17 +767,19 @@ public class CRUDComponent extends UINamingContainer implements SystemEventListe
         updateDialogHtmlForm.getChildren().add(htmlPanelGrid);
         htmlPanelGrid.setColumns(3);
 
-        if (!isHideField(idField, fields, updateFields)) {
-            OutputLabel idOutputLabel = (OutputLabel) application.createComponent(OutputLabel.COMPONENT_TYPE);
-            htmlPanelGrid.getChildren().add(idOutputLabel);
-            idOutputLabel.setValue(EntityInspector.toHumanReadable(idField));
+        for (Field idField : idFields) {
+            if (!isHideField(idField, fields, updateFields)) {
+                OutputLabel idOutputLabel = (OutputLabel) application.createComponent(OutputLabel.COMPONENT_TYPE);
+                htmlPanelGrid.getChildren().add(idOutputLabel);
+                idOutputLabel.setValue(EntityInspector.toHumanReadable(idField));
 
-            HtmlOutputText identifierOutputText = (HtmlOutputText) application.createComponent(HtmlOutputText.COMPONENT_TYPE);
-            htmlPanelGrid.getChildren().add(identifierOutputText);
-            identifierOutputText.setValueExpression("value", new EntityFieldValueExpression(getId(), idField, null, false));
+                HtmlOutputText identifierOutputText = (HtmlOutputText) application.createComponent(HtmlOutputText.COMPONENT_TYPE);
+                htmlPanelGrid.getChildren().add(identifierOutputText);
+                identifierOutputText.setValueExpression("value", new EntityFieldValueExpression(getId(), idField, null, false));
 
-            HtmlOutputText voidOutputText = (HtmlOutputText) application.createComponent(HtmlOutputText.COMPONENT_TYPE);
-            htmlPanelGrid.getChildren().add(voidOutputText);
+                HtmlOutputText voidOutputText = (HtmlOutputText) application.createComponent(HtmlOutputText.COMPONENT_TYPE);
+                htmlPanelGrid.getChildren().add(voidOutputText);
+            }
         }
 
         for (Field entityField : entityInspector.getOtherFields()) {
@@ -814,7 +828,7 @@ public class CRUDComponent extends UINamingContainer implements SystemEventListe
     private void addViewDialog(boolean showView, ReadComponent readComponent, Application application,
             ExpressionFactory expressionFactory, ELContext elContext,
             Column column, String entityName, Message message, EntityInspector entityInspector,
-            Field idField, Map<String, FieldComponent> fields) throws FacesException {
+            List<Field> idFields, Map<String, FieldComponent> fields) throws FacesException {
         if (!showView) {
             return;
         }
@@ -843,13 +857,15 @@ public class CRUDComponent extends UINamingContainer implements SystemEventListe
         viewDialogHtmlForm.getChildren().add(htmlPanelGrid);
         htmlPanelGrid.setColumns(2);
 
-        OutputLabel idOutputLabel = (OutputLabel) application.createComponent(OutputLabel.COMPONENT_TYPE);
-        htmlPanelGrid.getChildren().add(idOutputLabel);
-        idOutputLabel.setValue(EntityInspector.toHumanReadable(idField));
+        for (Field idField : idFields) {
+            OutputLabel idOutputLabel = (OutputLabel) application.createComponent(OutputLabel.COMPONENT_TYPE);
+            htmlPanelGrid.getChildren().add(idOutputLabel);
+            idOutputLabel.setValue(EntityInspector.toHumanReadable(idField));
 
-        HtmlOutputText identifierOutputText = (HtmlOutputText) application.createComponent(HtmlOutputText.COMPONENT_TYPE);
-        htmlPanelGrid.getChildren().add(identifierOutputText);
-        identifierOutputText.setValueExpression("value", new EntityFieldValueExpression(getId(), idField, null, false));
+            HtmlOutputText identifierOutputText = (HtmlOutputText) application.createComponent(HtmlOutputText.COMPONENT_TYPE);
+            htmlPanelGrid.getChildren().add(identifierOutputText);
+            identifierOutputText.setValueExpression("value", new EntityFieldValueExpression(getId(), idField, null, false));
+        }
 
         for (Field entityField : entityInspector.getOtherFields()) {
             String fieldLabel = getFieldLabel(entityField, fields);
@@ -1146,7 +1162,7 @@ public class CRUDComponent extends UINamingContainer implements SystemEventListe
             LOGGER.debug("type class: {}", type.getClass().getName());
             ParameterizedType parameterizedType = (ParameterizedType) type;
             Class<?> listTypeClass = (Class<?>) parameterizedType.getActualTypeArguments()[0];
-            selectManyMenu.setConverter(new EntityConverter(listTypeClass.getName()));
+            selectManyMenu.setConverter(new EntityConverter());
             selectItems.setValueExpression("value", new EntitySelectItemsValueExpression(listTypeClass.getName()));
         } else if (null != manyToOneAnnotation || null != oneToOneAnnotation) {
             input = (SelectOneMenu) application.createComponent(SelectOneMenu.COMPONENT_TYPE);
@@ -1154,7 +1170,7 @@ public class CRUDComponent extends UINamingContainer implements SystemEventListe
             selectOneMenu.setDisabled(disabled);
             UISelectItem emptySelectItem = (UISelectItem) application.createComponent(UISelectItem.COMPONENT_TYPE);
             input.getChildren().add(emptySelectItem);
-            input.setConverter(new EntityConverter(actualField.getType().getName()));
+            input.setConverter(new EntityConverter());
 
             UISelectItems selectItems = (UISelectItems) application.createComponent(UISelectItems.COMPONENT_TYPE);
             input.getChildren().add(selectItems);
@@ -1170,7 +1186,7 @@ public class CRUDComponent extends UINamingContainer implements SystemEventListe
             LOGGER.debug("type class: {}", type.getClass().getName());
             ParameterizedType parameterizedType = (ParameterizedType) type;
             Class<?> listTypeClass = (Class<?>) parameterizedType.getActualTypeArguments()[0];
-            selectManyMenu.setConverter(new EntityConverter(listTypeClass.getName()));
+            selectManyMenu.setConverter(new EntityConverter());
             selectItems.setValueExpression("value", new EntitySelectItemsValueExpression(listTypeClass.getName()));
         } else if (actualField.getType() == Boolean.TYPE) {
             input = (SelectBooleanCheckbox) application.createComponent(SelectBooleanCheckbox.COMPONENT_TYPE);
@@ -1524,11 +1540,11 @@ public class CRUDComponent extends UINamingContainer implements SystemEventListe
         if (null == entity) {
             return null;
         }
-        EntityInspector entityInspector = new EntityInspector(CRUDController.getMetamodel(), entity);
-        Class<?> entityClass = entityInspector.getEntityClass();
-        Object identifier = entityInspector.getIdentifier(entity);
         CRUDController crudController = CRUDController.getCRUDController();
         EntityManager entityManager = crudController.getEntityManager();
+        EntityInspector entityInspector = new EntityInspector(entityManager, entity);
+        Class<?> entityClass = entityInspector.getEntityClass();
+        Object identifier = entityInspector.getIdentifier(entity);
         UserTransaction userTransaction = crudController.getUserTransaction();
 
         try {

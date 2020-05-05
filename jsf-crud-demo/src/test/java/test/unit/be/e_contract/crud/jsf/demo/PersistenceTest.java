@@ -205,7 +205,7 @@ public class PersistenceTest {
                 }
             }
         }
-        EntityInspector entityInspector = new EntityInspector(metamodel, PersonEntity.class);
+        EntityInspector entityInspector = new EntityInspector(this.entityManager, PersonEntity.class);
         Field nameField = PersonEntity.class.getDeclaredField("name");
         Id idAnnotation = entityInspector.getAnnotation(nameField, Id.class);
         assertNotNull(idAnnotation);
@@ -217,9 +217,8 @@ public class PersistenceTest {
 
     @Test
     public void testEmbeddedId() throws Exception {
-        Metamodel metamodel = this.entityManager.getMetamodel();
-        EntityInspector entityInspector = new EntityInspector(metamodel, MessageEntity.class);
-        Field idField = entityInspector.getIdField();
+        EntityInspector entityInspector = new EntityInspector(this.entityManager, MessageEntity.class);
+        Field idField = entityInspector.getIdFields().iterator().next();
         LOGGER.debug("id Field: {}", idField.getName());
         List<Field> otherFields = entityInspector.getOtherFields();
         for (Field otherField : otherFields) {
@@ -233,9 +232,8 @@ public class PersistenceTest {
 
     @Test
     public void testGetIdField() throws Exception {
-        Metamodel metamodel = this.entityManager.getMetamodel();
-        EntityInspector entityInspector = new EntityInspector(metamodel, AutoIdEntity.class.getName() + ".class");
-        Field result = entityInspector.getIdField();
+        EntityInspector entityInspector = new EntityInspector(this.entityManager, AutoIdEntity.class.getName() + ".class");
+        Field result = entityInspector.getIdFields().iterator().next();
         assertEquals("id", result.getName());
     }
 }

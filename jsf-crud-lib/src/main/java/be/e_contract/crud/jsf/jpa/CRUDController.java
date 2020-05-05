@@ -57,12 +57,7 @@ public class CRUDController {
     }
 
     public static Metamodel getMetamodel() {
-        FacesContext facesContext = FacesContext.getCurrentInstance();
-        Application application = facesContext.getApplication();
-        ExpressionFactory expressionFactory = application.getExpressionFactory();
-        ELContext elContext = facesContext.getELContext();
-        ValueExpression valueExpression = expressionFactory.createValueExpression(elContext, "#{crudController}", CRUDController.class);
-        CRUDController crudController = (CRUDController) valueExpression.getValue(elContext);
+        CRUDController crudController = getCRUDController();
         EntityManager entityManager = crudController.getEntityManager();
         Metamodel metamodel = entityManager.getMetamodel();
         return metamodel;

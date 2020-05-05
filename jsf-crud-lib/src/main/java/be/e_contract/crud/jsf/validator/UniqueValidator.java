@@ -70,7 +70,9 @@ public class UniqueValidator implements Validator {
         if (null == property) {
             return;
         }
-        EntityInspector entityInspector = new EntityInspector(CRUDController.getMetamodel(), entity);
+        CRUDController crudController = CRUDController.getCRUDController();
+        EntityManager entityManager = crudController.getEntityManager();
+        EntityInspector entityInspector = new EntityInspector(entityManager, entity);
         Class<?> entityClass = entityInspector.getEntityClass();
         Field field;
         try {
@@ -86,8 +88,6 @@ public class UniqueValidator implements Validator {
         if (!columnAnnotation.unique()) {
             return;
         }
-        CRUDController crudController = CRUDController.getCRUDController();
-        EntityManager entityManager = crudController.getEntityManager();
         UserTransaction userTransaction = crudController.getUserTransaction();
         try {
             userTransaction.begin();

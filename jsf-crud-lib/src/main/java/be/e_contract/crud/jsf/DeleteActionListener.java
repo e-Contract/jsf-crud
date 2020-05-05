@@ -25,6 +25,7 @@ import javax.faces.event.AbortProcessingException;
 import javax.faces.event.ActionEvent;
 import javax.faces.event.ActionListener;
 import javax.persistence.EntityManager;
+import javax.persistence.PersistenceUnitUtil;
 import javax.transaction.HeuristicMixedException;
 import javax.transaction.HeuristicRollbackException;
 import javax.transaction.NotSupportedException;
@@ -59,7 +60,7 @@ public class DeleteActionListener extends AbstractCRUDComponentStateHolder imple
             LOGGER.error("missing selection");
             return;
         }
-        EntityInspector entityInspector = new EntityInspector(CRUDController.getMetamodel(), selection);
+        EntityInspector entityInspector = new EntityInspector(entityManager, selection);
         try {
             userTransaction.begin();
         } catch (NotSupportedException | SystemException ex) {
@@ -68,7 +69,8 @@ public class DeleteActionListener extends AbstractCRUDComponentStateHolder imple
         }
         Object entity;
         try {
-            Object identifier = entityInspector.getIdentifier(selection);
+            PersistenceUnitUtil persistenceUnitUtil = entityManager.getEntityManagerFactory().getPersistenceUnitUtil();
+            Object identifier = persistenceUnitUtil.getIdentifier(selection);
             entity = entityManager.find(selection.getClass(), identifier);
             if (null != entity) {
                 entityManager.remove(entity);

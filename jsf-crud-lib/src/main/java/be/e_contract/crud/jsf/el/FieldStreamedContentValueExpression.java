@@ -27,6 +27,7 @@ import javax.el.ValueExpression;
 import javax.faces.component.UIComponent;
 import javax.faces.component.UIViewRoot;
 import javax.faces.context.FacesContext;
+import javax.persistence.EntityManager;
 import org.primefaces.model.DefaultStreamedContent;
 import org.primefaces.model.StreamedContent;
 import org.slf4j.Logger;
@@ -96,7 +97,9 @@ public class FieldStreamedContentValueExpression extends ValueExpression {
             return null;
         }
         LOGGER.debug("getValue: {} bytes", value.length);
-        EntityInspector entityInspector = new EntityInspector(CRUDController.getMetamodel(), entity);
+        CRUDController crudController = CRUDController.getCRUDController();
+        EntityManager entityManager = crudController.getEntityManager();
+        EntityInspector entityInspector = new EntityInspector(entityManager, entity);
         String name = entityInspector.toHumanReadable(entity) + "-" + entityField.getName();
         StreamedContent streamedContent = new DefaultStreamedContent(new ByteArrayInputStream(value), this.contentType, name);
         return streamedContent;

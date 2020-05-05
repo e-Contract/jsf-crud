@@ -45,10 +45,10 @@ public class EntitySelectItemsValueExpression extends ValueExpression {
     @Override
     public Object getValue(ELContext context) {
         LOGGER.debug("getValue");
-        EntityInspector entityInspector = new EntityInspector(CRUDController.getMetamodel(), this.entityClassName);
-        Class<?> entityClass = entityInspector.getEntityClass();
         CRUDController crudController = CRUDController.getCRUDController();
         EntityManager entityManager = crudController.getEntityManager();
+        EntityInspector entityInspector = new EntityInspector(entityManager, this.entityClassName);
+        Class<?> entityClass = entityInspector.getEntityClass();
 
         CriteriaBuilder criteriaBuilder = entityManager.getCriteriaBuilder();
         CriteriaQuery<Object> criteriaQuery = criteriaBuilder.createQuery(Object.class);

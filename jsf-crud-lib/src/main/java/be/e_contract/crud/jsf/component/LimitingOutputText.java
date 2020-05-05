@@ -27,6 +27,7 @@ import javax.faces.component.FacesComponent;
 import javax.faces.component.html.HtmlOutputText;
 import javax.faces.context.FacesContext;
 import javax.persistence.Entity;
+import javax.persistence.EntityManager;
 
 @FacesComponent(LimitingOutputText.COMPONENT_TYPE)
 public class LimitingOutputText extends HtmlOutputText {
@@ -58,7 +59,9 @@ public class LimitingOutputText extends HtmlOutputText {
         }
         Entity entityAnnotation = value.getClass().getAnnotation(Entity.class);
         if (null != entityAnnotation) {
-            EntityInspector entityInspector = new EntityInspector(CRUDController.getMetamodel(), value.getClass());
+            CRUDController crudController = CRUDController.getCRUDController();
+            EntityManager entityManager = crudController.getEntityManager();
+            EntityInspector entityInspector = new EntityInspector(entityManager, value.getClass());
             setValue(entityInspector.toHumanReadable(value));
             return;
         }

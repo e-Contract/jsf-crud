@@ -28,6 +28,7 @@ import javax.faces.component.UIComponent;
 import javax.faces.context.FacesContext;
 import javax.faces.validator.Validator;
 import javax.faces.validator.ValidatorException;
+import javax.persistence.EntityManager;
 import javax.validation.ConstraintViolation;
 import javax.validation.Validation;
 import javax.validation.ValidatorFactory;
@@ -59,7 +60,9 @@ public class BeanValidationValidator implements Validator {
         if (null == property) {
             return;
         }
-        EntityInspector entityInspector = new EntityInspector(CRUDController.getMetamodel(), entity);
+        CRUDController crudController = CRUDController.getCRUDController();
+        EntityManager entityManager = crudController.getEntityManager();
+        EntityInspector entityInspector = new EntityInspector(entityManager, entity);
         Class<?> entityClass = entityInspector.getEntityClass();
 
         ValidatorFactory validatorFactory = Validation.buildDefaultValidatorFactory();

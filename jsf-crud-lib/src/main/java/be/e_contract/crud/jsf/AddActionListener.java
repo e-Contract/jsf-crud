@@ -56,7 +56,7 @@ public class AddActionListener extends AbstractCRUDComponentStateHolder implemen
         EntityManager entityManager = crudController.getEntityManager();
         UserTransaction userTransaction = crudController.getUserTransaction();
         Object entity = crudComponent.getNewEntity();
-        EntityInspector entityInspector = new EntityInspector(CRUDController.getMetamodel(), entity);
+        EntityInspector entityInspector = new EntityInspector(entityManager, entity);
         Field[] fields = entity.getClass().getDeclaredFields();
         for (Field field : fields) {
             if (field.getType().equals(List.class)) {

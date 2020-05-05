@@ -56,22 +56,22 @@ public class EntityInspectorTest {
 
     @Test
     public void testGetEntityName() throws Exception {
-        EntityInspector entityInspector = new EntityInspector(this.metamodel, MyEntity.class.getSimpleName());
+        EntityInspector entityInspector = new EntityInspector(this.entityManager, MyEntity.class.getSimpleName());
         String result = entityInspector.getEntityName();
         assertEquals("My", result);
     }
 
     @Test
     public void testGetIdField() throws Exception {
-        EntityInspector entityInspector = new EntityInspector(this.metamodel, MyEntity.class.getName() + ".class");
-        Field result = entityInspector.getIdField();
+        EntityInspector entityInspector = new EntityInspector(this.entityManager, MyEntity.class.getName() + ".class");
+        Field result = entityInspector.getIdFields().iterator().next();
         assertEquals("name", result.getName());
     }
 
     @Test
     public void testGetIdFieldPropertyAccessType() throws Exception {
-        EntityInspector entityInspector = new EntityInspector(this.metamodel, PropertyAccessTypeEntity.class.getSimpleName());
-        Field result = entityInspector.getIdField();
+        EntityInspector entityInspector = new EntityInspector(this.entityManager, PropertyAccessTypeEntity.class.getSimpleName());
+        Field result = entityInspector.getIdFields().iterator().next();
         assertEquals("name", result.getName());
 
         EntityType entityType = this.metamodel.entity(PropertyAccessTypeEntity.class);
@@ -83,13 +83,13 @@ public class EntityInspectorTest {
 
     @Test
     public void testToHumanReadable() throws Exception {
-        EntityInspector entityInspector = new EntityInspector(this.metamodel, MyEntity.class.getName() + ".class");
+        EntityInspector entityInspector = new EntityInspector(this.entityManager, MyEntity.class.getName() + ".class");
         MyEntity entity = new MyEntity();
         entity.name = "frank";
         String result = entityInspector.toHumanReadable(entity);
         assertEquals("frank", result);
 
-        EntityInspector entityInspector2 = new EntityInspector(this.metamodel, MyToStringEntity.class.getName() + ".class");
+        EntityInspector entityInspector2 = new EntityInspector(this.entityManager, MyToStringEntity.class.getName() + ".class");
         MyToStringEntity entity2 = new MyToStringEntity();
         entity2.setName("frank");
         String result2 = entityInspector2.toHumanReadable(entity2);
@@ -98,7 +98,7 @@ public class EntityInspectorTest {
 
     @Test
     public void testFieldToHumanReadable() throws Exception {
-        EntityInspector entityInspector = new EntityInspector(this.metamodel, MyEntity.class.getName() + ".class");
+        EntityInspector entityInspector = new EntityInspector(this.entityManager, MyEntity.class.getName() + ".class");
         Field name = MyToStringEntity.class.getDeclaredField("name");
         String nameHumanReadable = entityInspector.toHumanReadable(name);
         assertEquals("Name", nameHumanReadable);

@@ -19,6 +19,7 @@ package be.e_contract.crud.jsf.el;
 
 import be.e_contract.crud.jsf.jpa.CRUDController;
 import be.e_contract.crud.jsf.jpa.EntityInspector;
+import javax.persistence.EntityManager;
 
 public class CRUDFunctions {
 
@@ -26,7 +27,9 @@ public class CRUDFunctions {
         if (null == entity) {
             return null;
         }
-        EntityInspector entityInspector = new EntityInspector(CRUDController.getMetamodel(), entity);
+        CRUDController crudController = CRUDController.getCRUDController();
+        EntityManager entityManager = crudController.getEntityManager();
+        EntityInspector entityInspector = new EntityInspector(entityManager, entity);
         return entityInspector.toHumanReadable(entity);
     }
 }

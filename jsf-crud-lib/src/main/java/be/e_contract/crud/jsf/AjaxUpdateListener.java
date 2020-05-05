@@ -30,6 +30,7 @@ import java.util.List;
 import javax.faces.application.FacesMessage;
 import javax.faces.component.StateHolder;
 import javax.faces.context.FacesContext;
+import javax.persistence.EntityManager;
 import org.primefaces.PrimeFaces;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -100,7 +101,9 @@ public class AjaxUpdateListener implements CreateListener, UpdateListener, Delet
     public void entityUpdated(UpdateEvent event) {
         Object entity = event.getEntity();
         fireUpdates(entity);
-        EntityInspector entityInspector = new EntityInspector(CRUDController.getMetamodel(), entity);
+        CRUDController crudController = CRUDController.getCRUDController();
+        EntityManager entityManager = crudController.getEntityManager();
+        EntityInspector entityInspector = new EntityInspector(entityManager, entity);
         String entityHumanReadable = entityInspector.toHumanReadable(entity);
         CRUDComponent crudComponent = CRUDComponent.getCRUDComponent(this.crudComponentId);
         crudComponent.addMessage(FacesMessage.SEVERITY_INFO, "Updated " + entityHumanReadable);

@@ -29,7 +29,9 @@ import java.util.Map;
 import java.util.Set;
 import java.util.regex.Pattern;
 import javax.persistence.Entity;
+import javax.persistence.EntityManager;
 import javax.persistence.GeneratedValue;
+import javax.persistence.PersistenceUnitUtil;
 import javax.persistence.Temporal;
 import javax.persistence.metamodel.Attribute;
 import javax.persistence.metamodel.EmbeddableType;
@@ -56,12 +58,15 @@ public class EntityInspector {
 
     private final Metamodel metamodel;
 
-    public EntityInspector(Metamodel metamodel, String entityClassName) {
+    private final PersistenceUnitUtil persistenceUnitUtil;
+
+    public EntityInspector(EntityManager entityManager, String entityClassName) {
         if (entityClassName.endsWith(".class")) {
             entityClassName = entityClassName.substring(0, entityClassName.indexOf(".class"));
         }
         this.entityClass = ENTITY_CLASS_MAP.get(entityClassName);
-        this.metamodel = metamodel;
+        this.metamodel = entityManager.getMetamodel();
+        this.persistenceUnitUtil = entityManager.getEntityManagerFactory().getPersistenceUnitUtil();
         if (null != this.entityClass) {
             this.entityType = metamodel.entity(this.entityClass);
             return;
@@ -96,10 +101,11 @@ public class EntityInspector {
         return this.entityClass;
     }
 
-    public EntityInspector(Metamodel metamodel, Class<?> entityClass) {
+    public EntityInspector(EntityManager entityManager, Class<?> entityClass) {
         this.entityClass = entityClass;
+        this.metamodel = entityManager.getMetamodel();
         this.entityType = metamodel.entity(this.entityClass);
-        this.metamodel = metamodel;
+        this.persistenceUnitUtil = entityManager.getEntityManagerFactory().getPersistenceUnitUtil();
         Entity entityAnnotation = this.entityClass.getAnnotation(Entity.class);
         if (null == entityAnnotation) {
             LOGGER.error("class is not a JPA entity: {}", entityClass.getName());
@@ -107,8 +113,8 @@ public class EntityInspector {
         }
     }
 
-    public EntityInspector(Metamodel metamodel, Object entity) {
-        this(metamodel, entity.getClass());
+    public EntityInspector(EntityManager entityManager, Object entity) {
+        this(entityManager, entity.getClass());
     }
 
     public String getEntityName() {
@@ -119,10 +125,8 @@ public class EntityInspector {
         return toHumanReadable(entityName);
     }
 
-    private SingularAttribute getIdAttribute() {
-        if (!this.entityType.hasSingleIdAttribute()) {
-            throw new RuntimeException("only single id attributes supported");
-        }
+    private List<SingularAttribute> getIdAttributes() {
+        List<SingularAttribute> idAttributes = new LinkedList<>();
         Set attributes = this.entityType.getAttributes();
         for (Object attributeObject : attributes) {
             if (!(attributeObject instanceof SingularAttribute)) {
@@ -130,32 +134,39 @@ public class EntityInspector {
             }
             SingularAttribute attribute = (SingularAttribute) attributeObject;
             if (attribute.isId()) {
-                return attribute;
+                idAttributes.add(attribute);
             }
         }
-        throw new RuntimeException("@Id field not present");
+        return idAttributes;
     }
 
-    public Field getIdField() {
-        SingularAttribute idAttribute = getIdAttribute();
-        String name = idAttribute.getName();
-        try {
-            return this.entityClass.getDeclaredField(name);
-        } catch (NoSuchFieldException | SecurityException ex) {
-            LOGGER.error("reflection error: " + ex.getMessage(), ex);
-            throw new RuntimeException("@Id field not present");
+    public List<Field> getIdFields() {
+        List<Field> idFields = new LinkedList<>();
+        List<SingularAttribute> idAttributes = getIdAttributes();
+        for (SingularAttribute idAttribute : idAttributes) {
+            Field idField;
+            try {
+                idField = this.entityClass.getDeclaredField(idAttribute.getName());
+            } catch (NoSuchFieldException | SecurityException ex) {
+                LOGGER.error("reflection error: " + ex.getMessage(), ex);
+                continue;
+            }
+            idFields.add(idField);
         }
+        return idFields;
     }
 
     public boolean isEmbeddedIdField() {
-        SingularAttribute idAttribute = getIdAttribute();
-        return idAttribute.getPersistentAttributeType() == Attribute.PersistentAttributeType.EMBEDDED;
+        List<SingularAttribute> idAttributes = getIdAttributes();
+        SingularAttribute firstIdAttribute = idAttributes.iterator().next();
+        return firstIdAttribute.getPersistentAttributeType() == Attribute.PersistentAttributeType.EMBEDDED;
     }
 
     public boolean isIdGeneratedValue() {
-        Field idField = getIdField();
-        String idAttribute = idField.getName();
-        return getAnnotation(idAttribute, GeneratedValue.class) != null;
+        List<SingularAttribute> idAttributes = getIdAttributes();
+        SingularAttribute firstIdAttribute = idAttributes.iterator().next();
+        String idAttributeName = firstIdAttribute.getName();
+        return getAnnotation(idAttributeName, GeneratedValue.class) != null;
     }
 
     public <T extends Annotation> T getAnnotation(Field entityField, Field embeddableField, Class<T> annotationClass) {
@@ -208,14 +219,7 @@ public class EntityInspector {
     }
 
     public Object getIdentifier(Object entity) {
-        Field idField = getIdField();
-        idField.setAccessible(true);
-        try {
-            return idField.get(entity);
-        } catch (IllegalArgumentException | IllegalAccessException ex) {
-            LOGGER.error("reflection error: " + ex.getMessage(), ex);
-            return null;
-        }
+        return this.persistenceUnitUtil.getIdentifier(entity);
     }
 
     public String toHumanReadable(Object entity) {
@@ -250,14 +254,9 @@ public class EntityInspector {
     }
 
     public List<Field> getOtherFields() {
-        SingularAttribute idAttribute = getIdAttribute();
-        String idName = idAttribute.getName();
         List<Field> otherFields = new LinkedList<>();
         Field[] entityFields = this.entityClass.getDeclaredFields();
         for (Field entityField : entityFields) {
-            if (entityField.getName().equals(idName)) {
-                continue;
-            }
             if (Modifier.isStatic(entityField.getModifiers())) {
                 continue;
             }
@@ -269,6 +268,12 @@ public class EntityInspector {
                 continue;
             }
             Attribute attribute = this.entityType.getAttribute(entityField.getName());
+            if (attribute instanceof SingularAttribute) {
+                SingularAttribute singularAttribute = (SingularAttribute) attribute;
+                if (singularAttribute.isId()) {
+                    continue;
+                }
+            }
             if (null != attribute && attribute.getPersistentAttributeType() == Attribute.PersistentAttributeType.EMBEDDED) {
                 continue;
             }
@@ -279,8 +284,6 @@ public class EntityInspector {
 
     public List<Field> getEmbeddedFields() {
         List<Field> embeddedFields = new LinkedList<>();
-        SingularAttribute idAttribute = getIdAttribute();
-        String idName = idAttribute.getName();
         Field[] entityFields = this.entityClass.getDeclaredFields();
         for (Field entityField : entityFields) {
             if (Modifier.isStatic(entityField.getModifiers())) {
@@ -294,8 +297,11 @@ public class EntityInspector {
             if (null == attribute) {
                 continue;
             }
-            if (entityField.getName().equals(idName)) {
-                continue;
+            if (attribute instanceof SingularAttribute) {
+                SingularAttribute singularAttribute = (SingularAttribute) attribute;
+                if (singularAttribute.isId()) {
+                    continue;
+                }
             }
             if (attribute.getPersistentAttributeType() == Attribute.PersistentAttributeType.EMBEDDED) {
                 embeddedFields.add(entityField);

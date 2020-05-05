@@ -58,7 +58,7 @@ public class SaveActionListener extends AbstractCRUDComponentStateHolder impleme
             LOGGER.error("missing selection");
             return;
         }
-        EntityInspector entityInspector = new EntityInspector(CRUDController.getMetamodel(), entity);
+        EntityInspector entityInspector = new EntityInspector(entityManager, entity);
         try {
             userTransaction.begin();
         } catch (NotSupportedException | SystemException ex) {
