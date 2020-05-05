@@ -119,22 +119,36 @@ public class EntityInspector {
         return toHumanReadable(entityName);
     }
 
-    public Field getIdField() {
-        if (this.entityType.hasSingleIdAttribute()) {
-            SingularAttribute idAttribute = this.entityType.getId(this.entityType.getIdType().getJavaType());
-            String name = idAttribute.getName();
-            try {
-                return this.entityClass.getDeclaredField(name);
-            } catch (NoSuchFieldException | SecurityException ex) {
-                LOGGER.error("reflection error: " + ex.getMessage(), ex);
-                throw new RuntimeException("@Id field not present");
+    private SingularAttribute getIdAttribute() {
+        if (!this.entityType.hasSingleIdAttribute()) {
+            throw new RuntimeException("only single id attributes supported");
+        }
+        Set attributes = this.entityType.getAttributes();
+        for (Object attributeObject : attributes) {
+            if (!(attributeObject instanceof SingularAttribute)) {
+                continue;
+            }
+            SingularAttribute attribute = (SingularAttribute) attributeObject;
+            if (attribute.isId()) {
+                return attribute;
             }
         }
         throw new RuntimeException("@Id field not present");
     }
 
+    public Field getIdField() {
+        SingularAttribute idAttribute = getIdAttribute();
+        String name = idAttribute.getName();
+        try {
+            return this.entityClass.getDeclaredField(name);
+        } catch (NoSuchFieldException | SecurityException ex) {
+            LOGGER.error("reflection error: " + ex.getMessage(), ex);
+            throw new RuntimeException("@Id field not present");
+        }
+    }
+
     public boolean isEmbeddedIdField() {
-        SingularAttribute idAttribute = this.entityType.getId(this.entityType.getIdType().getJavaType());
+        SingularAttribute idAttribute = getIdAttribute();
         return idAttribute.getPersistentAttributeType() == Attribute.PersistentAttributeType.EMBEDDED;
     }
 
@@ -236,7 +250,7 @@ public class EntityInspector {
     }
 
     public List<Field> getOtherFields() {
-        SingularAttribute idAttribute = this.entityType.getId(this.entityType.getIdType().getJavaType());
+        SingularAttribute idAttribute = getIdAttribute();
         String idName = idAttribute.getName();
         List<Field> otherFields = new LinkedList<>();
         Field[] entityFields = this.entityClass.getDeclaredFields();
@@ -265,10 +279,17 @@ public class EntityInspector {
 
     public List<Field> getEmbeddedFields() {
         List<Field> embeddedFields = new LinkedList<>();
-        SingularAttribute idAttribute = this.entityType.getId(this.entityType.getIdType().getJavaType());
+        SingularAttribute idAttribute = getIdAttribute();
         String idName = idAttribute.getName();
         Field[] entityFields = this.entityClass.getDeclaredFields();
         for (Field entityField : entityFields) {
+            if (Modifier.isStatic(entityField.getModifiers())) {
+                continue;
+            }
+            if (entityField.getName().startsWith("_persistence_")) {
+                // payara
+                continue;
+            }
             Attribute attribute = this.entityType.getAttribute(entityField.getName());
             if (null == attribute) {
                 continue;

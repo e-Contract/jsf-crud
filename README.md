@@ -35,7 +35,7 @@ Include the `jsf-crud-lib` JSF library within your WAR (JPA, CDI, BV, and JSF en
 <dependency>
     <groupId>be.e-contract.jsf-crud</groupId>
     <artifactId>jsf-crud-lib</artifactId>
-    <version>0.7.0</version>
+    <version>0.8.0</version>
 </dependency>
 ```
 
@@ -103,6 +103,11 @@ http://localhost:8080/jsf-crud-demo/
 Undeploy the demo web application via:
 ```
 ./asadmin undeploy jsf-crud-demo-1.0.0-SNAPSHOT
+```
+
+List all deployed applications via:
+```
+./asadmin list-applications
 ```
 
 ## Open Liberty

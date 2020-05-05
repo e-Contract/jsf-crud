@@ -47,6 +47,7 @@ import javax.persistence.metamodel.EntityType;
 import javax.persistence.metamodel.Metamodel;
 import javax.persistence.metamodel.SingularAttribute;
 import org.junit.After;
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import org.junit.Before;
 import org.junit.Test;
@@ -228,5 +229,13 @@ public class PersistenceTest {
         for (Field embeddedField : embeddedFields) {
             LOGGER.debug("embedded field: {}", embeddedField.getName());
         }
+    }
+
+    @Test
+    public void testGetIdField() throws Exception {
+        Metamodel metamodel = this.entityManager.getMetamodel();
+        EntityInspector entityInspector = new EntityInspector(metamodel, AutoIdEntity.class.getName() + ".class");
+        Field result = entityInspector.getIdField();
+        assertEquals("id", result.getName());
     }
 }

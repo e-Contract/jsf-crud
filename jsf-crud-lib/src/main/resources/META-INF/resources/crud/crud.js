@@ -17,7 +17,6 @@
  */
 
 function crudDialogResponse(xhr, status, args, dialogWidgetVar) {
-    console.dir(args);
     if (args.validationFailed) {
         return;
     }

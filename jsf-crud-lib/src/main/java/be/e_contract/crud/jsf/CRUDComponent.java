@@ -571,6 +571,13 @@ public class CRUDComponent extends UINamingContainer implements SystemEventListe
             } else {
                 Map<String, FieldComponent> embeddableFields = getEmbeddableFields(idField, fields);
                 for (Field embeddableIdField : idField.getType().getDeclaredFields()) {
+                    if (Modifier.isStatic(embeddableIdField.getModifiers())) {
+                        continue;
+                    }
+                    if (embeddableIdField.getName().startsWith("_persistence_")) {
+                        // payara
+                        continue;
+                    }
                     addInputComponent(idField, embeddableIdField, true, entityInspector, embeddableFields, null, htmlPanelGrid, true);
                 }
             }
@@ -592,6 +599,13 @@ public class CRUDComponent extends UINamingContainer implements SystemEventListe
             Map<String, FieldComponent> embeddableFields = getEmbeddableFields(embeddedField, fields);
 
             for (Field embeddableField : embeddedField.getType().getDeclaredFields()) {
+                if (Modifier.isStatic(embeddableField.getModifiers())) {
+                    continue;
+                }
+                if (embeddableField.getName().startsWith("_persistence_")) {
+                    // payara
+                    continue;
+                }
                 addInputComponent(embeddedField, embeddableField, true, entityInspector, embeddableFields, null, embeddedHtmlPanelGrid, false);
             }
         }
@@ -770,6 +784,13 @@ public class CRUDComponent extends UINamingContainer implements SystemEventListe
             Map<String, FieldComponent> embeddableFields = getEmbeddableFields(embeddedField, fields);
 
             for (Field embeddableField : embeddedField.getType().getDeclaredFields()) {
+                if (Modifier.isStatic(embeddableField.getModifiers())) {
+                    continue;
+                }
+                if (embeddableField.getName().startsWith("_persistence_")) {
+                    // payara
+                    continue;
+                }
                 addInputComponent(embeddedField, embeddableField, false, entityInspector, embeddableFields, null, embeddedHtmlPanelGrid, false);
             }
         }
@@ -1526,6 +1547,10 @@ public class CRUDComponent extends UINamingContainer implements SystemEventListe
             Field[] fields = entityClass.getDeclaredFields();
             for (Field field : fields) {
                 if (Modifier.isStatic(field.getModifiers())) {
+                    continue;
+                }
+                if (field.getName().startsWith("_persistence_")) {
+                    // payara
                     continue;
                 }
                 OneToMany oneToManyAnnotation = entityInspector.getAnnotation(field, OneToMany.class);
