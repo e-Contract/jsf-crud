@@ -21,6 +21,7 @@ import java.io.Serializable;
 import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.IdClass;
+import javax.persistence.ManyToOne;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 
@@ -32,7 +33,8 @@ public class IdClassEntity implements Serializable {
     private String name;
 
     @Id
-    private long number;
+    @ManyToOne
+    private DemoEntity demo;
 
     private String description;
 
@@ -44,12 +46,12 @@ public class IdClassEntity implements Serializable {
         this.name = name;
     }
 
-    public long getNumber() {
-        return this.number;
+    public DemoEntity getDemo() {
+        return this.demo;
     }
 
-    public void setNumber(long number) {
-        this.number = number;
+    public void setDemo(DemoEntity demo) {
+        this.demo = demo;
     }
 
     public String getDescription() {
@@ -62,7 +64,7 @@ public class IdClassEntity implements Serializable {
 
     @Override
     public int hashCode() {
-        return new HashCodeBuilder().append(this.name).append(this.number).toHashCode();
+        return new HashCodeBuilder().append(this.name).append(this.demo).toHashCode();
     }
 
     @Override
@@ -79,7 +81,7 @@ public class IdClassEntity implements Serializable {
         IdClassEntity rhs = (IdClassEntity) obj;
         return new EqualsBuilder()
                 .append(this.name, rhs.name)
-                .append(this.number, rhs.number)
+                .append(this.demo, rhs.demo)
                 .isEquals();
     }
 }

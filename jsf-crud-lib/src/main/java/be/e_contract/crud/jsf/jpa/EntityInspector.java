@@ -194,6 +194,7 @@ public class EntityInspector {
             LOGGER.error("unknown attribute: {}", attributeName);
             return null;
         }
+        Member member;
         if (embeddableAttributeName != null) {
             if (attribute.getPersistentAttributeType() != Attribute.PersistentAttributeType.EMBEDDED) {
                 LOGGER.error("attribute {} is not embedded", attributeName);
@@ -201,8 +202,19 @@ public class EntityInspector {
             }
             EmbeddableType embeddableType = this.metamodel.embeddable(attribute.getJavaType());
             attribute = embeddableType.getAttribute(embeddableAttributeName);
+            member = attribute.getJavaMember();
+        } else {
+            member = attribute.getJavaMember();
+            if (!member.getDeclaringClass().equals(this.entityClass)) {
+                // can happen in case of IdClass attributes, where Attribute points to the IdClass, not the Entity class.
+                // here we default to field access type
+                try {
+                    member = this.entityClass.getDeclaredField(attributeName);
+                } catch (NoSuchFieldException | SecurityException ex) {
+                    LOGGER.error("reflection error: " + ex.getMessage(), ex);
+                }
+            }
         }
-        Member member = attribute.getJavaMember();
         if (member instanceof Field) {
             Field field = (Field) member;
             return field.getAnnotation(annotationClass);

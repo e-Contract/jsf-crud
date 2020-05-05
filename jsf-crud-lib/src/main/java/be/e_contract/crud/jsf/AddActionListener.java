@@ -82,7 +82,23 @@ public class AddActionListener extends AbstractCRUDComponentStateHolder implemen
             LOGGER.error("error: " + ex.getMessage(), ex);
             return;
         }
-        entityManager.merge(entity);
+        try {
+            entityManager.merge(entity);
+        } catch (Exception ex) {
+            LOGGER.error("error: " + ex.getMessage(), ex);
+            String entityHumanReadable = entityInspector.toHumanReadable(entity);
+            crudComponent.addMessage(FacesMessage.SEVERITY_ERROR, "Could not add " + entityHumanReadable);
+            crudComponent.setNewEntity(null);
+            try {
+                userTransaction.rollback();
+            } catch (SecurityException | IllegalStateException | SystemException ex2) {
+                LOGGER.error("error: " + ex2.getMessage(), ex2);
+                crudComponent.addMessage(FacesMessage.SEVERITY_ERROR, "Could not add " + entityHumanReadable);
+                crudComponent.setNewEntity(null);
+                return;
+            }
+            return;
+        }
         try {
             userTransaction.commit();
         } catch (RollbackException | HeuristicMixedException | HeuristicRollbackException | SecurityException | IllegalStateException | SystemException ex) {

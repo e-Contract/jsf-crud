@@ -20,6 +20,8 @@ package test.unit.be.e_contract.crud.jsf.demo;
 import be.e_contract.crud.jsf.demo.Address;
 import be.e_contract.crud.jsf.demo.AutoIdEntity;
 import be.e_contract.crud.jsf.demo.CarEntity;
+import be.e_contract.crud.jsf.demo.DemoEntity;
+import be.e_contract.crud.jsf.demo.IdClassEntity;
 import be.e_contract.crud.jsf.demo.MessageEntity;
 import be.e_contract.crud.jsf.demo.PersonEntity;
 import be.e_contract.crud.jsf.demo.PropertyAccessTypeEntity;
@@ -34,6 +36,7 @@ import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
 import javax.persistence.EntityTransaction;
 import javax.persistence.Id;
+import javax.persistence.ManyToOne;
 import javax.persistence.Persistence;
 import javax.persistence.Query;
 import javax.persistence.TypedQuery;
@@ -235,5 +238,36 @@ public class PersistenceTest {
         EntityInspector entityInspector = new EntityInspector(this.entityManager, AutoIdEntity.class.getName() + ".class");
         Field result = entityInspector.getIdFields().iterator().next();
         assertEquals("id", result.getName());
+    }
+
+    @Test
+    public void testIdClass() throws Exception {
+        EntityTransaction entityTransaction = this.entityManager
+                .getTransaction();
+
+        DemoEntity demoEntity;
+        entityTransaction.begin();
+        {
+            demoEntity = new DemoEntity("name", "description");
+            this.entityManager.persist(demoEntity);
+        }
+        entityTransaction.commit();
+
+        entityTransaction.begin();
+        {
+            IdClassEntity idClassEntity = new IdClassEntity();
+            idClassEntity.setName("name");
+            idClassEntity.setDemo(demoEntity);
+            this.entityManager.persist(idClassEntity);
+        }
+        entityTransaction.commit();
+
+        EntityInspector entityInspector = new EntityInspector(this.entityManager, IdClassEntity.class.getSimpleName());
+        List<Field> idFields = entityInspector.getIdFields();
+        for (Field idField : idFields) {
+            LOGGER.debug("id field: {}", idField);
+            ManyToOne manyToOneAnnotation = entityInspector.getAnnotation(idField, ManyToOne.class);
+            LOGGER.debug("has ManyToOne annotation: {}", null != manyToOneAnnotation);
+        }
     }
 }

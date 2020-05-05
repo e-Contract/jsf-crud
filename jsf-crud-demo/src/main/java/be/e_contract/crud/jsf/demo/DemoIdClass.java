@@ -18,17 +18,14 @@
 package be.e_contract.crud.jsf.demo;
 
 import java.io.Serializable;
-import javax.persistence.Id;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 
 public class DemoIdClass implements Serializable {
 
-    @Id
     private String name;
 
-    @Id
-    private long number;
+    private String demo;
 
     public String getName() {
         return this.name;
@@ -38,17 +35,17 @@ public class DemoIdClass implements Serializable {
         this.name = name;
     }
 
-    public long getNumber() {
-        return this.number;
+    public String getDemo() {
+        return this.demo;
     }
 
-    public void setNumber(long number) {
-        this.number = number;
+    public void setDemo(String demo) {
+        this.demo = demo;
     }
 
     @Override
     public int hashCode() {
-        return new HashCodeBuilder().append(this.name).append(this.number).toHashCode();
+        return new HashCodeBuilder().append(this.name).append(this.demo).toHashCode();
     }
 
     @Override
@@ -65,12 +62,12 @@ public class DemoIdClass implements Serializable {
         DemoIdClass rhs = (DemoIdClass) obj;
         return new EqualsBuilder()
                 .append(this.name, rhs.name)
-                .append(this.number, rhs.number)
+                .append(this.demo, rhs.demo)
                 .isEquals();
     }
 
     @Override
     public String toString() {
-        return this.name + "-" + this.number;
+        return this.name + "-" + this.demo;
     }
 }
