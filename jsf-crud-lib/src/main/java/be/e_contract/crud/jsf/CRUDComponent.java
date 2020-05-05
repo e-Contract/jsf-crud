@@ -95,6 +95,7 @@ import javax.faces.event.SystemEvent;
 import javax.faces.event.SystemEventListener;
 import javax.faces.validator.LengthValidator;
 import javax.persistence.Basic;
+import javax.persistence.ElementCollection;
 import javax.persistence.EntityManager;
 import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
@@ -110,6 +111,7 @@ import javax.transaction.SystemException;
 import javax.transaction.UserTransaction;
 import org.primefaces.PrimeFaces;
 import org.primefaces.component.calendar.Calendar;
+import org.primefaces.component.chips.Chips;
 import org.primefaces.component.column.Column;
 import org.primefaces.component.commandbutton.CommandButton;
 import org.primefaces.component.datalist.DataList;
@@ -1151,7 +1153,12 @@ public class CRUDComponent extends UINamingContainer implements SystemEventListe
         ManyToOne manyToOneAnnotation = entityInspector.getAnnotation(entityField, embeddableField, ManyToOne.class);
         OneToMany oneToManyAnnotation = entityInspector.getAnnotation(entityField, embeddableField, OneToMany.class);
         ManyToMany manyToManyAnnotation = entityInspector.getAnnotation(entityField, embeddableField, ManyToMany.class);
-        if (null != manyToManyAnnotation) {
+        ElementCollection elementCollectionAnnotation = entityInspector.getAnnotation(entityField, ElementCollection.class);
+        if (null != elementCollectionAnnotation) {
+            input = (Chips) application.createComponent(Chips.COMPONENT_TYPE);
+            Chips chips = (Chips) input;
+            chips.setDisabled(disabled);
+        } else if (null != manyToManyAnnotation) {
             input = (SelectManyMenu) application.createComponent(SelectManyMenu.COMPONENT_TYPE);
             SelectManyMenu selectManyMenu = (SelectManyMenu) input;
             selectManyMenu.setDisabled(disabled);
@@ -1571,7 +1578,8 @@ public class CRUDComponent extends UINamingContainer implements SystemEventListe
                 }
                 OneToMany oneToManyAnnotation = entityInspector.getAnnotation(field, OneToMany.class);
                 ManyToMany manyToManyAnnotation = entityInspector.getAnnotation(field, ManyToMany.class);
-                if (null == oneToManyAnnotation && null == manyToManyAnnotation) {
+                ElementCollection elementCollectionAnnotation = entityInspector.getAnnotation(field, ElementCollection.class);
+                if (null == oneToManyAnnotation && null == manyToManyAnnotation && null == elementCollectionAnnotation) {
                     continue;
                 }
                 if (!List.class.equals(field.getType())) {

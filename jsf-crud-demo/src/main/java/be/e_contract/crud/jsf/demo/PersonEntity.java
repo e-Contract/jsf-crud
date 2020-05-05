@@ -19,6 +19,7 @@ package be.e_contract.crud.jsf.demo;
 
 import java.io.Serializable;
 import java.util.List;
+import javax.persistence.ElementCollection;
 import javax.persistence.Embedded;
 import javax.persistence.Entity;
 import javax.persistence.Id;
@@ -41,6 +42,9 @@ public class PersonEntity implements Serializable {
 
     @Embedded
     private Address address;
+
+    @ElementCollection
+    private List<String> nickNames;
 
     public PersonEntity() {
         super();
@@ -80,6 +84,14 @@ public class PersonEntity implements Serializable {
 
     public void setAddress(Address address) {
         this.address = address;
+    }
+
+    public List<String> getNickNames() {
+        return this.nickNames;
+    }
+
+    public void setNickNames(List<String> nickNames) {
+        this.nickNames = nickNames;
     }
 
     @Override

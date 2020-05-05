@@ -27,6 +27,9 @@ public class CRUDFunctions {
         if (null == entity) {
             return null;
         }
+        if (entity instanceof String) {
+            return (String) entity;
+        }
         CRUDController crudController = CRUDController.getCRUDController();
         EntityManager entityManager = crudController.getEntityManager();
         EntityInspector entityInspector = new EntityInspector(entityManager, entity);
