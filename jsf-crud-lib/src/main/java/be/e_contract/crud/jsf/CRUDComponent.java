@@ -474,6 +474,8 @@ public class CRUDComponent extends UINamingContainer implements SystemEventListe
             deleteCommandButton.addActionListener(new DeleteAllActionListener(getId()));
             deleteCommandButton.setOncomplete("PF('deleteAllDialog').hide()");
             deleteCommandButton.setUpdate(dataTable.getClientId() + "," + message.getClientId());
+            String deleteButtonIcon = externalContext.getInitParameter("crud.dialog.deleteButton.icon");
+            deleteCommandButton.setIcon(deleteButtonIcon);
 
             DismissButton dismissCommandButton = (DismissButton) application.createComponent(DismissButton.COMPONENT_TYPE);
             htmlPanelGrid.getChildren().add(dismissCommandButton);
@@ -638,6 +640,10 @@ public class CRUDComponent extends UINamingContainer implements SystemEventListe
         addCommandButton.setOncomplete("crudDialogResponse(xhr, status, args, 'addDialog')");
         addCommandButton.addActionListener(new AddActionListener(getId()));
         addCommandButton.setUpdate(addDialogHtmlForm.getClientId());
+        FacesContext facesContext = getFacesContext();
+        ExternalContext externalContext = facesContext.getExternalContext();
+        String addButtonIcon = externalContext.getInitParameter("crud.dialog.createButton.icon");
+        addCommandButton.setIcon(addButtonIcon);
 
         DismissButton dismissCommandButton = (DismissButton) application.createComponent(DismissButton.COMPONENT_TYPE);
         buttonHtmlPanelGrid.getChildren().add(dismissCommandButton);
@@ -703,6 +709,10 @@ public class CRUDComponent extends UINamingContainer implements SystemEventListe
         deleteCommandButton.setId("deleteButton");
         deleteCommandButton.addActionListener(new DeleteActionListener(getId()));
         deleteCommandButton.setOncomplete("PF('deleteDialog').hide()");
+        FacesContext facesContext = getFacesContext();
+        ExternalContext externalContext = facesContext.getExternalContext();
+        String deleteButtonIcon = externalContext.getInitParameter("crud.dialog.deleteButton.icon");
+        deleteCommandButton.setIcon(deleteButtonIcon);
 
         DismissButton dismissCommandButton = (DismissButton) application.createComponent(DismissButton.COMPONENT_TYPE);
         htmlPanelGrid.getChildren().add(dismissCommandButton);
@@ -825,6 +835,10 @@ public class CRUDComponent extends UINamingContainer implements SystemEventListe
         saveCommandButton.setOncomplete("crudDialogResponse(xhr, status, args, 'updateDialog')");
         saveCommandButton.addActionListener(new SaveActionListener(getId()));
         saveCommandButton.setUpdate(updateDialogHtmlForm.getClientId());
+        FacesContext facesContext = getFacesContext();
+        ExternalContext externalContext = facesContext.getExternalContext();
+        String saveButtonIcon = externalContext.getInitParameter("crud.dialog.updateButton.icon");
+        saveCommandButton.setIcon(saveButtonIcon);
 
         DismissButton dismissCommandButton = (DismissButton) application.createComponent(DismissButton.COMPONENT_TYPE);
         buttonHtmlPanelGrid.getChildren().add(dismissCommandButton);

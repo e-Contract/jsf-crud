@@ -21,6 +21,7 @@ import java.io.IOException;
 import javax.faces.component.FacesComponent;
 import javax.faces.component.UIComponent;
 import javax.faces.component.UIInput;
+import javax.faces.context.ExternalContext;
 import javax.faces.context.FacesContext;
 import javax.faces.event.AbortProcessingException;
 import org.primefaces.component.commandbutton.CommandButton;
@@ -38,6 +39,11 @@ public class DismissButton extends CommandButton {
         }
         String dialogWidgetVar = getDialogWidgetVar();
         setOncomplete("PF('" + dialogWidgetVar + "').hide()");
+        if (UIInput.isEmpty(getIcon())) {
+            ExternalContext externalContext = context.getExternalContext();
+            String iconInitParam = externalContext.getInitParameter("crud.dialog.dismissButton.icon");
+            setIcon(iconInitParam);
+        }
         super.encodeBegin(context);
     }
 
