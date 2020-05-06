@@ -864,9 +864,12 @@ public class CRUDComponent extends UINamingContainer implements SystemEventListe
             htmlPanelGrid.getChildren().add(idOutputLabel);
             idOutputLabel.setValue(EntityInspector.toHumanReadable(idField));
 
-            HtmlOutputText identifierOutputText = (HtmlOutputText) application.createComponent(HtmlOutputText.COMPONENT_TYPE);
+            LimitingOutputText identifierOutputText = (LimitingOutputText) application.createComponent(LimitingOutputText.COMPONENT_TYPE);
             htmlPanelGrid.getChildren().add(identifierOutputText);
             identifierOutputText.setValueExpression("value", new EntityFieldValueExpression(getId(), idField, null, false));
+            if (isPasswordField(idField, fields)) {
+                identifierOutputText.setPassword(true);
+            }
         }
 
         for (Field entityField : entityInspector.getOtherFields()) {
@@ -902,6 +905,40 @@ public class CRUDComponent extends UINamingContainer implements SystemEventListe
                 htmlPanelGrid.getChildren().add(outputText);
                 outputText.setValueExpression("value", new EntityFieldValueExpression(getId(), entityField, null, false));
                 if (isPasswordField(entityField, fields)) {
+                    outputText.setPassword(true);
+                }
+            }
+        }
+
+        for (Field embeddedField : entityInspector.getEmbeddedFields()) {
+            Fieldset fieldset = (Fieldset) application.createComponent(Fieldset.COMPONENT_TYPE);
+            htmlPanelGrid.getChildren().add(fieldset);
+            fieldset.setLegend(getFieldLabel(embeddedField, fields));
+
+            HtmlPanelGrid embeddedHtmlPanelGrid = (HtmlPanelGrid) application.createComponent(HtmlPanelGrid.COMPONENT_TYPE);
+            fieldset.getChildren().add(embeddedHtmlPanelGrid);
+            embeddedHtmlPanelGrid.setColumns(2);
+
+            Map<String, FieldComponent> embeddableFields = getEmbeddableFields(embeddedField, fields);
+
+            for (Field embeddableField : embeddedField.getType().getDeclaredFields()) {
+                if (Modifier.isStatic(embeddableField.getModifiers())) {
+                    continue;
+                }
+                if (embeddableField.getName().startsWith("_persistence_")) {
+                    // payara
+                    continue;
+                }
+
+                String fieldLabel = getFieldLabel(embeddableField, embeddableFields);
+                OutputLabel outputLabel = (OutputLabel) application.createComponent(OutputLabel.COMPONENT_TYPE);
+                embeddedHtmlPanelGrid.getChildren().add(outputLabel);
+                outputLabel.setValue(fieldLabel);
+
+                LimitingOutputText outputText = (LimitingOutputText) application.createComponent(LimitingOutputText.COMPONENT_TYPE);
+                embeddedHtmlPanelGrid.getChildren().add(outputText);
+                outputText.setValueExpression("value", new EntityFieldValueExpression(getId(), embeddedField, embeddableField, false));
+                if (isPasswordField(embeddableField, fields)) {
                     outputText.setPassword(true);
                 }
             }
