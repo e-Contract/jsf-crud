@@ -79,16 +79,19 @@ public class CRUDController {
 
     public void firePreCreateEvent(Object entity) {
         PreCreateEvent event = new PreCreateEvent(entity);
-        this.preCreateEvent.fire(event);
+        HandlesEntityQualifier handlesEntityQualifier = new HandlesEntityQualifier(entity);
+        this.preCreateEvent.select(handlesEntityQualifier).fire(event);
     }
 
     public void firePreUpdateEvent(Object entity) {
         PreUpdateEvent event = new PreUpdateEvent(entity);
-        this.preUpdateEvent.fire(event);
+        HandlesEntityQualifier handlesEntityQualifier = new HandlesEntityQualifier(entity);
+        this.preUpdateEvent.select(handlesEntityQualifier).fire(event);
     }
 
     public void firePreDeleteEvent(Object entity) {
         PreDeleteEvent event = new PreDeleteEvent(entity);
-        this.preDeleteEvent.fire(event);
+        HandlesEntityQualifier handlesEntityQualifier = new HandlesEntityQualifier(entity);
+        this.preDeleteEvent.select(handlesEntityQualifier).fire(event);
     }
 }

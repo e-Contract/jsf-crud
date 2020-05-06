@@ -20,6 +20,7 @@ package be.e_contract.crud.jsf.demo;
 import be.e_contract.crud.jsf.api.CreateEvent;
 import be.e_contract.crud.jsf.api.DeleteEvent;
 import be.e_contract.crud.jsf.api.UpdateEvent;
+import be.e_contract.crud.jsf.api.cdi.HandlesEntity;
 import be.e_contract.crud.jsf.api.cdi.PreCreateEvent;
 import be.e_contract.crud.jsf.api.cdi.PreDeleteEvent;
 import be.e_contract.crud.jsf.api.cdi.PreUpdateEvent;
@@ -151,15 +152,15 @@ public class DemoController implements Serializable {
         return streamedContent;
     }
 
-    public void handlePreCreateEvent(@Observes PreCreateEvent preCreateEvent) {
+    public void handlePreCreateEvent(@Observes @HandlesEntity(DemoEntity.class) PreCreateEvent preCreateEvent) {
         LOGGER.debug("PreCreateEvent: {}", preCreateEvent.getEntity());
     }
 
-    public void handlePreUpdateEvent(@Observes PreUpdateEvent preUpdateEvent) {
+    public void handlePreUpdateEvent(@Observes @HandlesEntity(DemoEntity.class) PreUpdateEvent preUpdateEvent) {
         LOGGER.debug("PreUpdateEvent: {}", preUpdateEvent.getEntity());
     }
 
-    public void handlePreDeleteEvent(@Observes PreDeleteEvent preDeleteEvent) {
+    public void handlePreDeleteEvent(@Observes @HandlesEntity(DemoEntity.class) PreDeleteEvent preDeleteEvent) {
         LOGGER.debug("PreDeleteEvent: {}", preDeleteEvent.getEntity());
     }
 }
