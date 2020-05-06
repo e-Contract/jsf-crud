@@ -53,6 +53,21 @@
             <crud:action value="Download text file">
                 <crud:fileDownload value="#{demoController.downloadTextFile}"/>
             </crud:action>
+            <crud:action value="Dialog Facet">
+                <f:facet name="dialog">
+                    <h:form>
+                        <crud:entity var="entity">
+                            <h:panelGrid columns="2">
+                                <h:outputText value="Current amount"/>
+                                <h:outputText value="#{entity.amount}"/>
+                            </h:panelGrid>
+                        </crud:entity>
+                        <h:panelGrid columns="1">
+                            <crud:dismissButton/>
+                        </h:panelGrid>
+                    </h:form>
+                </f:facet>
+            </crud:action>
             <crud:globalAction value="Custom Global Action" icon="fa fa-plus" action="#{demoController.globalAction}"/>
             <crud:globalAction value="Global Action Dialog" oncomplete="PF('globalActionDialog').show()"/>
             <crud:globalAction value="Download">

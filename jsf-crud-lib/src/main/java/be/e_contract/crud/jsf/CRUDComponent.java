@@ -523,6 +523,22 @@ public class CRUDComponent extends UINamingContainer implements SystemEventListe
             commandButton.setIcon(action.getIcon());
             commandButton.setAjax(action.isAjax());
 
+            UIComponent actionDialogComponent = action.getFacet("dialog");
+            if (null != actionDialogComponent) {
+                Dialog customActionDialog = (Dialog) application.createComponent(Dialog.COMPONENT_TYPE);
+                getChildren().add(customActionDialog);
+                customActionDialog.setId("ActionDialog" + actionIdx);
+                customActionDialog.setWidgetVar("ActionDialog" + actionIdx);
+                customActionDialog.setHeader(action.getValue());
+                customActionDialog.setModal(true);
+
+                customActionDialog.getChildren().add(actionDialogComponent);
+
+                commandButton.setOncomplete("PF('" + "ActionDialog" + actionIdx + "').show()");
+                commandButton.setUpdate(dataTable.getClientId() + "," + message.getClientId() + "," + actionDialogComponent.getClientId());
+                commandButton.addActionListener(new SelectRowActionListener(getId()));
+            }
+
             ValueExpression renderedValueExpression = action.getRenderedValueExpression();
             commandButton.setRenderedValueExpression(renderedValueExpression);
 
