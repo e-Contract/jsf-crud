@@ -17,12 +17,17 @@
  */
 package be.e_contract.crud.jsf.jpa;
 
+import be.e_contract.crud.jsf.api.cdi.PreCreateEvent;
+import be.e_contract.crud.jsf.api.cdi.PreDeleteEvent;
+import be.e_contract.crud.jsf.api.cdi.PreUpdateEvent;
 import javax.annotation.Resource;
 import javax.el.ELContext;
 import javax.el.ExpressionFactory;
 import javax.el.ValueExpression;
+import javax.enterprise.event.Event;
 import javax.faces.application.Application;
 import javax.faces.context.FacesContext;
+import javax.inject.Inject;
 import javax.inject.Named;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
@@ -37,6 +42,15 @@ public class CRUDController {
 
     @Resource
     private UserTransaction userTransaction;
+
+    @Inject
+    private Event<PreCreateEvent> preCreateEvent;
+
+    @Inject
+    private Event<PreUpdateEvent> preUpdateEvent;
+
+    @Inject
+    private Event<PreDeleteEvent> preDeleteEvent;
 
     public EntityManager getEntityManager() {
         return this.entityManager;
@@ -61,5 +75,20 @@ public class CRUDController {
         EntityManager entityManager = crudController.getEntityManager();
         Metamodel metamodel = entityManager.getMetamodel();
         return metamodel;
+    }
+
+    public void firePreCreateEvent(Object entity) {
+        PreCreateEvent event = new PreCreateEvent(entity);
+        this.preCreateEvent.fire(event);
+    }
+
+    public void firePreUpdateEvent(Object entity) {
+        PreUpdateEvent event = new PreUpdateEvent(entity);
+        this.preUpdateEvent.fire(event);
+    }
+
+    public void firePreDeleteEvent(Object entity) {
+        PreDeleteEvent event = new PreDeleteEvent(entity);
+        this.preDeleteEvent.fire(event);
     }
 }

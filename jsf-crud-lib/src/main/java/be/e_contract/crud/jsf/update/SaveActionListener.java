@@ -77,6 +77,7 @@ public class SaveActionListener implements ActionListener, StateHolder {
             crudComponent.resetCache();
             return;
         }
+        crudController.firePreUpdateEvent(entity);
         entityManager.merge(entity);
         try {
             userTransaction.commit();

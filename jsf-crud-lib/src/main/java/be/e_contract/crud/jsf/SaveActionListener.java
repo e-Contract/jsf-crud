@@ -65,6 +65,7 @@ public class SaveActionListener extends AbstractCRUDComponentStateHolder impleme
             LOGGER.error("error: " + ex.getMessage(), ex);
             return;
         }
+        crudController.firePreUpdateEvent(entity);
         entityManager.merge(entity);
         try {
             userTransaction.commit();

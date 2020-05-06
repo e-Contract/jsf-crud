@@ -72,6 +72,7 @@ public class DeleteActionListener extends AbstractCRUDComponentStateHolder imple
             PersistenceUnitUtil persistenceUnitUtil = entityManager.getEntityManagerFactory().getPersistenceUnitUtil();
             Object identifier = persistenceUnitUtil.getIdentifier(selection);
             entity = entityManager.find(selection.getClass(), identifier);
+            crudController.firePreDeleteEvent(entity);
             if (null != entity) {
                 entityManager.remove(entity);
             } else {

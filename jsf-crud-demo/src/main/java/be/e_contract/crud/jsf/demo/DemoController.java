@@ -20,10 +20,14 @@ package be.e_contract.crud.jsf.demo;
 import be.e_contract.crud.jsf.api.CreateEvent;
 import be.e_contract.crud.jsf.api.DeleteEvent;
 import be.e_contract.crud.jsf.api.UpdateEvent;
+import be.e_contract.crud.jsf.api.cdi.PreCreateEvent;
+import be.e_contract.crud.jsf.api.cdi.PreDeleteEvent;
+import be.e_contract.crud.jsf.api.cdi.PreUpdateEvent;
 import java.io.ByteArrayInputStream;
 import java.io.Serializable;
 import javax.annotation.Resource;
 import javax.enterprise.context.SessionScoped;
+import javax.enterprise.event.Observes;
 import javax.faces.application.FacesMessage;
 import javax.inject.Named;
 import javax.persistence.EntityManager;
@@ -145,5 +149,17 @@ public class DemoController implements Serializable {
         }
         StreamedContent streamedContent = new DefaultStreamedContent(new ByteArrayInputStream(textFile), "text/plain", "filename.txt");
         return streamedContent;
+    }
+
+    public void handlePreCreateEvent(@Observes PreCreateEvent preCreateEvent) {
+        LOGGER.debug("PreCreateEvent: {}", preCreateEvent.getEntity());
+    }
+
+    public void handlePreUpdateEvent(@Observes PreUpdateEvent preUpdateEvent) {
+        LOGGER.debug("PreUpdateEvent: {}", preUpdateEvent.getEntity());
+    }
+
+    public void handlePreDeleteEvent(@Observes PreDeleteEvent preDeleteEvent) {
+        LOGGER.debug("PreDeleteEvent: {}", preDeleteEvent.getEntity());
     }
 }

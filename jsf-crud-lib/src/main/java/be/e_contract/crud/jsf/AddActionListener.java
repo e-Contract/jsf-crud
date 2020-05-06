@@ -82,6 +82,7 @@ public class AddActionListener extends AbstractCRUDComponentStateHolder implemen
             LOGGER.error("error: " + ex.getMessage(), ex);
             return;
         }
+        crudController.firePreCreateEvent(entity);
         try {
             entityManager.merge(entity);
         } catch (Exception ex) {
