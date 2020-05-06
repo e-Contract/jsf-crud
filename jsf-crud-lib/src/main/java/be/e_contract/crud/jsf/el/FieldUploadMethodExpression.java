@@ -25,9 +25,6 @@ import java.lang.reflect.Modifier;
 import javax.el.ELContext;
 import javax.el.MethodExpression;
 import javax.el.MethodInfo;
-import javax.faces.component.UIComponent;
-import javax.faces.component.UIViewRoot;
-import javax.faces.context.FacesContext;
 import org.primefaces.event.FileUploadEvent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -54,18 +51,8 @@ public class FieldUploadMethodExpression extends MethodExpression {
         return null;
     }
 
-    private CRUDComponent getCRUDComponent() {
-        FacesContext facesContext = FacesContext.getCurrentInstance();
-        UIViewRoot view = facesContext.getViewRoot();
-        UIComponent component = view.findComponent(this.crudComponentId);
-        if (null == component) {
-            return null;
-        }
-        return (CRUDComponent) component;
-    }
-
     private Field getEntityField() {
-        CRUDComponent crudComponent = getCRUDComponent();
+        CRUDComponent crudComponent = CRUDComponent.getCRUDComponent(this.crudComponentId);
         Class<?> entityClass = crudComponent.getEntityClass();
         Field entityField;
         try {
@@ -126,7 +113,7 @@ public class FieldUploadMethodExpression extends MethodExpression {
 
     private Object getEntity() {
         Object entity;
-        CRUDComponent crudComponent = getCRUDComponent();
+        CRUDComponent crudComponent = CRUDComponent.getCRUDComponent(this.crudComponentId);
         if (this.create) {
             entity = crudComponent.getNewEntity();
             if (null == entity) {

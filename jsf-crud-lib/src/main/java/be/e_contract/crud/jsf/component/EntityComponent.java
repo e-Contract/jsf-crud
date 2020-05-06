@@ -23,9 +23,9 @@ import java.util.Map;
 import javax.faces.component.FacesComponent;
 import javax.faces.component.UIComponent;
 import javax.faces.component.UIComponentBase;
-import javax.faces.component.UIViewRoot;
 import javax.faces.context.ExternalContext;
 import javax.faces.context.FacesContext;
+import javax.faces.event.AbortProcessingException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -69,14 +69,7 @@ public class EntityComponent extends UIComponentBase {
     }
 
     public CRUDComponent getCRUDComponent() {
-        FacesContext facesContext = getFacesContext();
-        UIViewRoot view = facesContext.getViewRoot();
-        String crudComponentId = getCrudComponentId();
-        UIComponent component = view.findComponent(crudComponentId);
-        if (null == component) {
-            return null;
-        }
-        return (CRUDComponent) component;
+        return CRUDComponent.getCRUDComponent(getCrudComponentId());
     }
 
     private Object setLocalVariable() {
@@ -133,5 +126,16 @@ public class EntityComponent extends UIComponentBase {
         super.processValidators(context);
         removeLocalVariable(oldVar);
         LOGGER.debug("processValidators end");
+    }
+
+    public static EntityComponent getParentEntityComponent(UIComponent component) {
+        while (component != null) {
+            if (component instanceof EntityComponent) {
+                EntityComponent entityComponent = (EntityComponent) component;
+                return entityComponent;
+            }
+            component = component.getParent();
+        }
+        throw new AbortProcessingException();
     }
 }

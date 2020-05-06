@@ -113,16 +113,16 @@ public class SaveButton extends UIComponentBase implements SystemEventListener {
         }
         commandButton.setValue(commandButtonValue);
         commandButton.addActionListener(new SaveActionListener(getAction()));
-        Dialog dialog = getDialog();
+        Dialog dialog = getParentDialog();
         String dialogWidgetVar = dialog.getWidgetVar();
         commandButton.setOncomplete("crudDialogResponse(xhr, status, args, '" + dialogWidgetVar + "')");
-        HtmlForm htmlForm = getHtmlForm();
+        HtmlForm htmlForm = getParentHtmlForm();
         String htmlFormClientId = htmlForm.getClientId();
         commandButton.setUpdate(htmlFormClientId);
         commandButton.setIcon(getIcon());
     }
 
-    private Dialog getDialog() {
+    private Dialog getParentDialog() {
         UIComponent parent = getParent();
         while (parent != null) {
             if (parent instanceof Dialog) {
@@ -133,7 +133,7 @@ public class SaveButton extends UIComponentBase implements SystemEventListener {
         throw new AbortProcessingException();
     }
 
-    private HtmlForm getHtmlForm() {
+    private HtmlForm getParentHtmlForm() {
         UIComponent parent = getParent();
         while (parent != null) {
             if (parent instanceof HtmlForm) {

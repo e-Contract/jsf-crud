@@ -21,8 +21,6 @@ import be.e_contract.crud.jsf.CRUDComponent;
 import javax.el.ELContext;
 import javax.el.ValueExpression;
 import javax.faces.component.StateHolder;
-import javax.faces.component.UIComponent;
-import javax.faces.component.UIViewRoot;
 import javax.faces.context.FacesContext;
 import javax.faces.event.AbortProcessingException;
 import javax.faces.event.ActionEvent;
@@ -79,20 +77,8 @@ public class ResetActionListener implements ActionListener, StateHolder {
     public void processAction(ActionEvent event) throws AbortProcessingException {
         FacesContext facesContext = FacesContext.getCurrentInstance();
         ELContext elContext = facesContext.getELContext();
-
         String targetId = (String) this.target.getValue(elContext);
-
-        UIViewRoot viewRoot = facesContext.getViewRoot();
-        UIComponent component = viewRoot.findComponent(targetId);
-        if (null == component) {
-            LOGGER.warn("component {} not found", targetId);
-            return;
-        }
-        if (!(component instanceof CRUDComponent)) {
-            LOGGER.warn("component is not a CRUDComponent");
-            return;
-        }
-        CRUDComponent crudComponent = (CRUDComponent) component;
+        CRUDComponent crudComponent = CRUDComponent.getCRUDComponent(targetId);
         crudComponent.resetCache();
     }
 }

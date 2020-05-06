@@ -24,9 +24,6 @@ import java.util.List;
 import javax.el.ELContext;
 import javax.el.ValueExpression;
 import javax.el.ValueReference;
-import javax.faces.component.UIComponent;
-import javax.faces.component.UIViewRoot;
-import javax.faces.context.FacesContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -56,18 +53,8 @@ public class EntityFieldValueExpression extends ValueExpression {
         }
     }
 
-    private CRUDComponent getCRUDComponent() {
-        FacesContext facesContext = FacesContext.getCurrentInstance();
-        UIViewRoot view = facesContext.getViewRoot();
-        UIComponent component = view.findComponent(this.crudComponentId);
-        if (null == component) {
-            return null;
-        }
-        return (CRUDComponent) component;
-    }
-
     private Field getEntityField() {
-        CRUDComponent crudComponent = getCRUDComponent();
+        CRUDComponent crudComponent = CRUDComponent.getCRUDComponent(this.crudComponentId);
         Class<?> entityClass = crudComponent.getEntityClass();
         Field entityField;
         try {
@@ -116,7 +103,7 @@ public class EntityFieldValueExpression extends ValueExpression {
     }
 
     private Object getEntity() {
-        CRUDComponent crudComponent = getCRUDComponent();
+        CRUDComponent crudComponent = CRUDComponent.getCRUDComponent(this.crudComponentId);
         Object entity;
         if (this.create) {
             entity = crudComponent.getNewEntity();

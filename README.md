@@ -59,7 +59,7 @@ git clone https://github.com/e-Contract/jsf-crud.git
 Start a WildFly via:
 ```
 cd wildfly-19.0.0.Final/bin/
-./standalone.sh --server-config=standalone-full.xml
+./standalone.sh
 ```
 
 Build the project via Maven:

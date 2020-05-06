@@ -24,9 +24,6 @@ import java.io.ByteArrayInputStream;
 import java.lang.reflect.Field;
 import javax.el.ELContext;
 import javax.el.ValueExpression;
-import javax.faces.component.UIComponent;
-import javax.faces.component.UIViewRoot;
-import javax.faces.context.FacesContext;
 import javax.persistence.EntityManager;
 import org.primefaces.model.DefaultStreamedContent;
 import org.primefaces.model.StreamedContent;
@@ -49,18 +46,8 @@ public class FieldStreamedContentValueExpression extends ValueExpression {
         this.contentType = contentType;
     }
 
-    private CRUDComponent getCRUDComponent() {
-        FacesContext facesContext = FacesContext.getCurrentInstance();
-        UIViewRoot view = facesContext.getViewRoot();
-        UIComponent component = view.findComponent(this.crudComponentId);
-        if (null == component) {
-            return null;
-        }
-        return (CRUDComponent) component;
-    }
-
     private Field getEntityField() {
-        CRUDComponent crudComponent = getCRUDComponent();
+        CRUDComponent crudComponent = CRUDComponent.getCRUDComponent(this.crudComponentId);
         Class<?> entityClass = crudComponent.getEntityClass();
         Field entityField;
         try {
@@ -79,7 +66,7 @@ public class FieldStreamedContentValueExpression extends ValueExpression {
     public Object getValue(ELContext elContext) {
         Field entityField = getEntityField();
         LOGGER.debug("getValue: {}", entityField.getName());
-        CRUDComponent crudComponent = getCRUDComponent();
+        CRUDComponent crudComponent = CRUDComponent.getCRUDComponent(this.crudComponentId);
         Object entity = crudComponent.getSelection();
         if (null == entity) {
             LOGGER.warn("missing selection");

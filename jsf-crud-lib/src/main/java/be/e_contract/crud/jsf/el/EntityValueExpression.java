@@ -24,7 +24,6 @@ import java.util.List;
 import java.util.Map;
 import javax.el.ELContext;
 import javax.el.ValueExpression;
-import javax.faces.component.UIComponent;
 import javax.faces.component.UIInput;
 import javax.faces.component.UIViewRoot;
 import javax.faces.context.FacesContext;
@@ -58,20 +57,10 @@ public class EntityValueExpression extends ValueExpression {
         this.crudComponentId = crudComponentId;
     }
 
-    private CRUDComponent getCRUDComponent() {
-        FacesContext facesContext = FacesContext.getCurrentInstance();
-        UIViewRoot view = facesContext.getViewRoot();
-        UIComponent component = view.findComponent(this.crudComponentId);
-        if (null == component) {
-            return null;
-        }
-        return (CRUDComponent) component;
-    }
-
     @Override
     public Object getValue(ELContext context) {
         LOGGER.debug("getValue");
-        CRUDComponent crudComponent = getCRUDComponent();
+        CRUDComponent crudComponent = CRUDComponent.getCRUDComponent(this.crudComponentId);
         Class<?> entityClass = crudComponent.getEntityClass();
         FacesContext facesContext = FacesContext.getCurrentInstance();
         UIViewRoot viewRoot = facesContext.getViewRoot();

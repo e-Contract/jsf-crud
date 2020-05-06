@@ -25,7 +25,6 @@ import javax.el.ELContext;
 import javax.el.MethodExpression;
 import javax.faces.application.FacesMessage;
 import javax.faces.component.StateHolder;
-import javax.faces.component.UIComponent;
 import javax.faces.context.FacesContext;
 import javax.faces.event.AbortProcessingException;
 import javax.faces.event.ActionEvent;
@@ -61,7 +60,7 @@ public class SaveActionListener implements ActionListener, StateHolder {
         LOGGER.debug("processAction save");
         FacesContext facesContext = FacesContext.getCurrentInstance();
         ELContext elContext = facesContext.getELContext();
-        EntityComponent entityComponent = getEntityComponent(event.getComponent());
+        EntityComponent entityComponent = EntityComponent.getParentEntityComponent(event.getComponent());
         Object entity = entityComponent.getEntity();
         CRUDComponent crudComponent = entityComponent.getCRUDComponent();
         if (null != this.methodExpression) {
@@ -119,16 +118,5 @@ public class SaveActionListener implements ActionListener, StateHolder {
     @Override
     public void setTransient(boolean newTransientValue) {
         this._transient = newTransientValue;
-    }
-
-    private EntityComponent getEntityComponent(UIComponent component) {
-        while (component != null) {
-            if (component instanceof EntityComponent) {
-                EntityComponent entityComponent = (EntityComponent) component;
-                return entityComponent;
-            }
-            component = component.getParent();
-        }
-        throw new AbortProcessingException();
     }
 }

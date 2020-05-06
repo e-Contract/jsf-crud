@@ -89,7 +89,7 @@ public class GlobalActionAdapter implements ActionListener, StateHolder {
         Object result = this.methodExpression.invoke(elContext, new Object[]{});
 
         UIComponent component = event.getComponent();
-        CRUDComponent crudComponent = getCRUDComponent(component);
+        CRUDComponent crudComponent = CRUDComponent.getParentCRUDComponent(component);
         crudComponent.resetCache();
         PrimeFaces primeFaces = PrimeFaces.current();
         String dataTableClientId = getParentDataTableClientId(component);
@@ -116,16 +116,6 @@ public class GlobalActionAdapter implements ActionListener, StateHolder {
             component = component.getParent();
             if (component instanceof DataTable) {
                 return component.getClientId();
-            }
-        }
-        throw new AbortProcessingException();
-    }
-
-    private CRUDComponent getCRUDComponent(UIComponent component) {
-        while (component.getParent() != null) {
-            component = component.getParent();
-            if (component instanceof CRUDComponent) {
-                return (CRUDComponent) component;
             }
         }
         throw new AbortProcessingException();

@@ -1616,4 +1616,17 @@ public class CRUDComponent extends UINamingContainer implements SystemEventListe
         }
         return (CRUDComponent) component;
     }
+
+    public static CRUDComponent getParentCRUDComponent(UIComponent component) {
+        if (null == component) {
+            throw new AbortProcessingException();
+        }
+        while (component.getParent() != null) {
+            component = component.getParent();
+            if (component instanceof CRUDComponent) {
+                return (CRUDComponent) component;
+            }
+        }
+        throw new AbortProcessingException();
+    }
 }
