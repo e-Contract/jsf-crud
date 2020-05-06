@@ -192,11 +192,6 @@
                 <version>3.10</version>
             </dependency>
             <dependency>
-                <groupId>org.apache.commons</groupId>
-                <artifactId>commons-text</artifactId>
-                <version>1.8</version>
-            </dependency>
-            <dependency>
                 <groupId>org.hibernate</groupId>
                 <artifactId>hibernate-entitymanager</artifactId>
                 <version>${hibernate.version}</version>

@@ -38,7 +38,6 @@ import javax.persistence.metamodel.EmbeddableType;
 import javax.persistence.metamodel.EntityType;
 import javax.persistence.metamodel.Metamodel;
 import javax.persistence.metamodel.SingularAttribute;
-import org.apache.commons.text.WordUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -253,11 +252,15 @@ public class EntityInspector {
         return toHumanReadable(field.getName());
     }
 
+    private static String capitalizeFirst(String str) {
+        return str.substring(0, 1).toUpperCase() + str.substring(1);
+    }
+
     public static String toHumanReadable(String label) {
         Pattern pattern = Pattern.compile("(?=\\p{Lu})");
-        String[] splits = pattern.split(WordUtils.capitalize(label));
+        String[] splits = pattern.split(label);
         StringBuilder result = new StringBuilder();
-        result.append(splits[0]);
+        result.append(capitalizeFirst(splits[0]));
         for (int idx = 1; idx < splits.length; idx++) {
             result.append(" ");
             result.append(splits[idx]);
