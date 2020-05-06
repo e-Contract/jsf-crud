@@ -344,9 +344,12 @@ public class CRUDComponent extends UINamingContainer implements SystemEventListe
         }
 
         String roleAllowed = getRoleAllowed();
+        ExternalContext externalContext = facesContext.getExternalContext();
+        if (UIInput.isEmpty(roleAllowed)) {
+            roleAllowed = externalContext.getInitParameter("crud.roleAllowed");
+        }
         if (!UIInput.isEmpty(roleAllowed)) {
             LOGGER.debug("role allowed: {}", roleAllowed);
-            ExternalContext externalContext = facesContext.getExternalContext();
             HttpServletRequest httpServletRequest = (HttpServletRequest) externalContext.getRequest();
             if (!httpServletRequest.isUserInRole(roleAllowed)) {
                 LOGGER.warn("caller principal not in role: {}", roleAllowed);
