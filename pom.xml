@@ -130,14 +130,15 @@
             <extension>
                 <groupId>org.apache.maven.wagon</groupId>
                 <artifactId>wagon-ssh</artifactId>
-                <version>3.3.4</version>
+                <version>3.4.0</version>
             </extension>
         </extensions>
     </build>
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <slf4j.version>1.7.30</slf4j.version>
-        <log4j.version>2.13.1</log4j.version>
+        <log4j.version>2.13.2</log4j.version>
+        <hibernate.version>5.4.14.Final</hibernate.version>
     </properties>
     <scm>
         <connection>scm:git:e-contract.be:git/jsf-crud.git</connection>
@@ -163,7 +164,7 @@
             <dependency>
                 <groupId>junit</groupId>
                 <artifactId>junit</artifactId>
-                <version>4.12</version>
+                <version>4.13</version>
             </dependency>
             <dependency>
                 <groupId>org.slf4j</groupId>
@@ -198,12 +199,12 @@
             <dependency>
                 <groupId>org.hibernate</groupId>
                 <artifactId>hibernate-entitymanager</artifactId>
-                <version>5.4.14.Final</version>
+                <version>${hibernate.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.hibernate</groupId>
                 <artifactId>hibernate-jcache</artifactId>
-                <version>5.4.14.Final</version>
+                <version>${hibernate.version}</version>
             </dependency>
             <dependency>
                 <groupId>com.h2database</groupId>
