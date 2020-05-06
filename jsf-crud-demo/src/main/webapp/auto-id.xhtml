@@ -2,7 +2,8 @@
 <html xmlns="http://www.w3.org/1999/xhtml"
       xmlns:h="http://java.sun.com/jsf/html"
       xmlns:crud="urn:be:e-contract:crud:jsf"
-      xmlns:p="http://primefaces.org/ui">
+      xmlns:p="http://primefaces.org/ui"
+      xmlns:f="http://xmlns.jcp.org/jsf/core">
 
     <h:head>
         <title>JSF CRUD Demo</title>
@@ -17,7 +18,11 @@
             </crud:create>
             <crud:read icon="fa fa-search"/>
             <crud:update disabled="false" icon="fa fa-save">
-                <crud:field name="amount" hide="false"/>
+                <crud:field name="amount" hide="false">
+                    <f:facet name="input">
+                        <p:spinner/>
+                    </f:facet>
+                </crud:field>
             </crud:update>
             <crud:delete deleteAll="true" title="Custom delete title" icon="fa fa-remove">
                 <crud:entity var="entity">

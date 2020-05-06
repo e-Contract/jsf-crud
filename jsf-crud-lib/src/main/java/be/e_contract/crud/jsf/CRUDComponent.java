@@ -1187,6 +1187,22 @@ public class CRUDComponent extends UINamingContainer implements SystemEventListe
         return size;
     }
 
+    private UIInput getFieldInputComponent(Field entityField, Map<String, FieldComponent> fields) {
+        FieldComponent fieldComponent = fields.get(entityField.getName());
+        if (null == fieldComponent) {
+            return null;
+        }
+        UIComponent inputComponent = fieldComponent.getFacet("input");
+        if (null == inputComponent) {
+            return null;
+        }
+        if (!(inputComponent instanceof UIInput)) {
+            LOGGER.error("field input component not UIInput: {}", inputComponent);
+            return null;
+        }
+        return (UIInput) inputComponent;
+    }
+
     private UIInput addInputComponent(Field entityField, Field embeddableField, boolean addNotUpdate, EntityInspector entityInspector,
             Map<String, FieldComponent> fields, Map<String, FieldComponent> overrideFields, HtmlPanelGrid htmlPanelGrid, boolean forceRender) {
         if (isHideField(entityField, fields, overrideFields) && !forceRender) {
@@ -1229,7 +1245,10 @@ public class CRUDComponent extends UINamingContainer implements SystemEventListe
         OneToMany oneToManyAnnotation = entityInspector.getAnnotation(entityField, embeddableField, OneToMany.class);
         ManyToMany manyToManyAnnotation = entityInspector.getAnnotation(entityField, embeddableField, ManyToMany.class);
         ElementCollection elementCollectionAnnotation = entityInspector.getAnnotation(entityField, ElementCollection.class);
-        if (null != elementCollectionAnnotation) {
+        input = getFieldInputComponent(entityField, overrideFields);
+        if (null != input) {
+            LOGGER.debug("custom input component {} for field {}", input, entityField.getName());
+        } else if (null != elementCollectionAnnotation) {
             input = (Chips) application.createComponent(Chips.COMPONENT_TYPE);
             Chips chips = (Chips) input;
             chips.setDisabled(disabled);
