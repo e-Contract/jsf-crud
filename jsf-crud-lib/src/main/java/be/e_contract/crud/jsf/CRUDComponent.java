@@ -433,59 +433,80 @@ public class CRUDComponent extends UINamingContainer implements SystemEventListe
             addCustomActions(actions, application, column, dataTable, message, facesContext);
         }
 
-        HtmlPanelGroup footerHtmlPanelGroup = (HtmlPanelGroup) application.createComponent(HtmlPanelGroup.COMPONENT_TYPE);
-        dataTable.getFacets().put("footer", footerHtmlPanelGroup);
-        footerHtmlPanelGroup.setStyle("display:block; text-align: left;");
-
-        addCreateDialog(showCreate, createComponent, application, footerHtmlPanelGroup, entityName, message, expressionFactory, idFields, entityInspector, fields, createFields);
-
+        boolean needFooter = false;
+        if (showCreate) {
+            needFooter = true;
+        }
         if (null != deleteComponent && deleteComponent.isDeleteAll()) {
-            CommandButton commandButton = (CommandButton) application.createComponent(CommandButton.COMPONENT_TYPE);
-            footerHtmlPanelGroup.getChildren().add(commandButton);
-            commandButton.setValue("Delete all...");
-            commandButton.setOncomplete("PF('deleteAllDialog').show()");
-            commandButton.setId("deleteAllButton");
-            commandButton.setUpdate(message.getClientId());
-            commandButton.setIcon(deleteComponent.getIcon());
+            needFooter = true;
+        }
+        if (!globalActions.isEmpty()) {
+            needFooter = true;
+        }
+        if (needFooter) {
+            HtmlPanelGroup footerHtmlPanelGroup = (HtmlPanelGroup) application.createComponent(HtmlPanelGroup.COMPONENT_TYPE);
+            dataTable.getFacets().put("footer", footerHtmlPanelGroup);
+            footerHtmlPanelGroup.setStyle("display:block; text-align: left;");
 
-            Dialog deleteAllDialog = (Dialog) application.createComponent(Dialog.COMPONENT_TYPE);
-            getChildren().add(deleteAllDialog);
-            deleteAllDialog.setWidgetVar("deleteAllDialog");
-            deleteAllDialog.setId("deleteAllDialog");
-            deleteAllDialog.setHeader("Delete all?");
-            deleteAllDialog.setModal(true);
+            addCreateDialog(showCreate, createComponent, application, footerHtmlPanelGroup, entityName, message, expressionFactory, idFields, entityInspector, fields, createFields);
 
-            HtmlOutputText htmlOutputText = (HtmlOutputText) application.createComponent(HtmlOutputText.COMPONENT_TYPE);
-            deleteAllDialog.getChildren().add(htmlOutputText);
-            htmlOutputText.setValue("Are you sure that you want to delete all entries?");
+            addDeleteAllDialog(deleteComponent, application, footerHtmlPanelGroup, message, dataTable, externalContext);
 
-            HtmlForm deleteAllDialogHtmlForm = (HtmlForm) application.createComponent(HtmlForm.COMPONENT_TYPE);
-            deleteAllDialog.getChildren().add(deleteAllDialogHtmlForm);
-            deleteAllDialogHtmlForm.setId("deleteAllForm");
+            int globalActionIdx = 1;
+            for (GlobalActionComponent globalAction : globalActions) {
+                addGlobalAction(globalAction, globalActionIdx, application, dataTable, message, facesContext, footerHtmlPanelGroup);
+                globalActionIdx++;
+            }
+        }
+    }
 
-            HtmlPanelGrid htmlPanelGrid = (HtmlPanelGrid) application.createComponent(HtmlPanelGrid.COMPONENT_TYPE);
-            deleteAllDialogHtmlForm.getChildren().add(htmlPanelGrid);
-            htmlPanelGrid.setColumns(2);
-
-            CommandButton deleteCommandButton = (CommandButton) application.createComponent(CommandButton.COMPONENT_TYPE);
-            htmlPanelGrid.getChildren().add(deleteCommandButton);
-            deleteCommandButton.setValue("Delete All");
-            deleteCommandButton.setId("deleteAllButton");
-            deleteCommandButton.addActionListener(new DeleteAllActionListener(getId()));
-            deleteCommandButton.setOncomplete("PF('deleteAllDialog').hide()");
-            deleteCommandButton.setUpdate(dataTable.getClientId() + "," + message.getClientId());
-            String deleteButtonIcon = externalContext.getInitParameter("crud.dialog.deleteButton.icon");
-            deleteCommandButton.setIcon(deleteButtonIcon);
-
-            DismissButton dismissCommandButton = (DismissButton) application.createComponent(DismissButton.COMPONENT_TYPE);
-            htmlPanelGrid.getChildren().add(dismissCommandButton);
+    private void addDeleteAllDialog(DeleteComponent deleteComponent, Application application, HtmlPanelGroup footerHtmlPanelGroup, Message message, DataTable dataTable, ExternalContext externalContext) throws FacesException {
+        if (null == deleteComponent) {
+            return;
+        }
+        if (!deleteComponent.isDeleteAll()) {
+            return;
         }
 
-        int globalActionIdx = 1;
-        for (GlobalActionComponent globalAction : globalActions) {
-            addGlobalAction(globalAction, globalActionIdx, application, dataTable, message, facesContext, footerHtmlPanelGroup);
-            globalActionIdx++;
-        }
+        CommandButton commandButton = (CommandButton) application.createComponent(CommandButton.COMPONENT_TYPE);
+        footerHtmlPanelGroup.getChildren().add(commandButton);
+        commandButton.setValue("Delete all...");
+        commandButton.setOncomplete("PF('deleteAllDialog').show()");
+        commandButton.setId("deleteAllButton");
+        commandButton.setUpdate(message.getClientId());
+        commandButton.setIcon(deleteComponent.getIcon());
+
+        Dialog deleteAllDialog = (Dialog) application.createComponent(Dialog.COMPONENT_TYPE);
+        getChildren().add(deleteAllDialog);
+        deleteAllDialog.setWidgetVar("deleteAllDialog");
+        deleteAllDialog.setId("deleteAllDialog");
+        deleteAllDialog.setHeader("Delete all?");
+        deleteAllDialog.setModal(true);
+
+        HtmlOutputText htmlOutputText = (HtmlOutputText) application.createComponent(HtmlOutputText.COMPONENT_TYPE);
+        deleteAllDialog.getChildren().add(htmlOutputText);
+        htmlOutputText.setValue("Are you sure that you want to delete all entries?");
+
+        HtmlForm deleteAllDialogHtmlForm = (HtmlForm) application.createComponent(HtmlForm.COMPONENT_TYPE);
+        deleteAllDialog.getChildren().add(deleteAllDialogHtmlForm);
+        deleteAllDialogHtmlForm.setId("deleteAllForm");
+
+        HtmlPanelGrid htmlPanelGrid = (HtmlPanelGrid) application.createComponent(HtmlPanelGrid.COMPONENT_TYPE);
+        deleteAllDialogHtmlForm.getChildren().add(htmlPanelGrid);
+        htmlPanelGrid.setColumns(2);
+
+        CommandButton deleteCommandButton = (CommandButton) application.createComponent(CommandButton.COMPONENT_TYPE);
+        htmlPanelGrid.getChildren().add(deleteCommandButton);
+        deleteCommandButton.setValue("Delete All");
+        deleteCommandButton.setId("deleteAllButton");
+        deleteCommandButton.addActionListener(new DeleteAllActionListener(getId()));
+        deleteCommandButton.setOncomplete("PF('deleteAllDialog').hide()");
+        deleteCommandButton.setUpdate(dataTable.getClientId() + "," + message.getClientId());
+        String deleteButtonIcon = externalContext.getInitParameter("crud.dialog.deleteButton.icon");
+        deleteCommandButton.setIcon(deleteButtonIcon);
+
+        DismissButton dismissCommandButton = (DismissButton) application.createComponent(DismissButton.COMPONENT_TYPE);
+        htmlPanelGrid.getChildren().add(dismissCommandButton);
     }
 
     private void addCustomActions(List<ActionComponent> actions, Application application, Column column, DataTable dataTable, Message message, FacesContext facesContext) throws FacesException {
