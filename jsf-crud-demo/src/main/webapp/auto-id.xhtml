@@ -105,6 +105,12 @@
             </h:form>
         </p:dialog>
 
+        <crud:crud entity="AutoIdEntity" title="Where amount > 100">
+            <crud:query query="SELECT e FROM AutoIdEntity AS e WHERE e.amount > :amount">
+                <crud:queryParameter name="amount" value="#{100}"/>
+            </crud:query>
+        </crud:crud>
+
         <crud:crud entity="DemoEntity">
             <crud:action value="Navigation Action" action="#{demoController.navigationAction}"/>
         </crud:crud>

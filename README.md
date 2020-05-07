@@ -328,3 +328,30 @@ public void handlePreDeleteEvent(@Observes @HandlesEntity(YourEntity.class) PreD
     // do something before the entity is deleted
 }
 ```
+
+## Security
+
+Because the JSF CRUD component directly performs JPA operations, we might lose the RBAC security features normally provided by the CDI/EJB backing beans. To compensate for this, the JSF CRUD component can be directed to perform RBAC security verifications as follows:
+```xml
+<crud:crud entity="YourEntity" roleAllowed="administrator"/>
+```
+
+This can even be configured globally via the following `web.xml` context parameter:
+```xml
+<context-param>
+    <param-name>crud.roleAllowed</param-name>
+    <param-value>administrator</param-value>
+</context-param>
+```
+
+## Custom Query
+
+Per default the JSF CRUD component will display all your entities within the main table.
+You can customize this main query via:
+```xml
+<crud:crud entity="YourEntity" roleAllowed="administrator">
+    <crud:query query="SELECT e FROM YourEntity AS e WHERE e.yourField = :yourParam">
+        <crud:queryParameter name="yourParam" value="..."/>
+    </crud:query>
+</crud:crud>
+```

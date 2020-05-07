@@ -35,6 +35,7 @@ import be.e_contract.crud.jsf.component.LimitingOutputText;
 import be.e_contract.crud.jsf.component.OrderComponent;
 import be.e_contract.crud.jsf.component.PasswordComponent;
 import be.e_contract.crud.jsf.component.PropertyComponent;
+import be.e_contract.crud.jsf.component.QueryComponent;
 import be.e_contract.crud.jsf.component.ReadComponent;
 import be.e_contract.crud.jsf.converter.CalendarConverter;
 import be.e_contract.crud.jsf.converter.EntityConverter;
@@ -1780,5 +1781,14 @@ public class CRUDComponent extends UINamingContainer implements SystemEventListe
             }
         }
         throw new AbortProcessingException();
+    }
+
+    public QueryComponent findQueryComponent() {
+        for (UIComponent child : getChildren()) {
+            if (child instanceof QueryComponent) {
+                return (QueryComponent) child;
+            }
+        }
+        return null;
     }
 }

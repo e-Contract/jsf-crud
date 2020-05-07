@@ -18,6 +18,8 @@
 package be.e_contract.crud.jsf.el;
 
 import be.e_contract.crud.jsf.CRUDComponent;
+import be.e_contract.crud.jsf.component.QueryComponent;
+import be.e_contract.crud.jsf.component.QueryParameterComponent;
 import be.e_contract.crud.jsf.jpa.CRUDController;
 import java.util.HashMap;
 import java.util.List;
@@ -28,6 +30,7 @@ import javax.faces.component.UIInput;
 import javax.faces.component.UIViewRoot;
 import javax.faces.context.FacesContext;
 import javax.persistence.EntityManager;
+import javax.persistence.Query;
 import javax.persistence.TypedQuery;
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
@@ -88,22 +91,35 @@ public class EntityValueExpression extends ValueExpression {
             return null;
         }
 
-        CriteriaBuilder criteriaBuilder = entityManager.getCriteriaBuilder();
-        CriteriaQuery<Object> criteriaQuery = criteriaBuilder.createQuery(Object.class);
-        Root<? extends Object> entity = criteriaQuery.from(entityClass);
-        criteriaQuery.select(entity);
-
-        if (!UIInput.isEmpty(crudComponent.getOrderBy())) {
-            Path path = entity.get(crudComponent.getOrderBy());
-            if (crudComponent.isAscending()) {
-                criteriaQuery.orderBy(criteriaBuilder.asc(path));
-            } else {
-                criteriaQuery.orderBy(criteriaBuilder.desc(path));
+        List resultList;
+        QueryComponent queryComponent = crudComponent.findQueryComponent();
+        if (null != queryComponent) {
+            Query query = queryComponent.getQuery(entityManager);
+            List<QueryParameterComponent> queryParameters = queryComponent.getQueryParameters();
+            for (QueryParameterComponent queryParameter : queryParameters) {
+                ValueExpression valueExpression = (ValueExpression) queryParameter.getValue();
+                Object value = valueExpression.getValue(context);
+                query.setParameter(queryParameter.getName(), value);
             }
-        }
+            resultList = query.getResultList();
+        } else {
+            CriteriaBuilder criteriaBuilder = entityManager.getCriteriaBuilder();
+            CriteriaQuery<Object> criteriaQuery = criteriaBuilder.createQuery(Object.class);
+            Root<? extends Object> entity = criteriaQuery.from(entityClass);
+            criteriaQuery.select(entity);
 
-        TypedQuery<Object> query = entityManager.createQuery(criteriaQuery);
-        List resultList = query.getResultList();
+            if (!UIInput.isEmpty(crudComponent.getOrderBy())) {
+                Path path = entity.get(crudComponent.getOrderBy());
+                if (crudComponent.isAscending()) {
+                    criteriaQuery.orderBy(criteriaBuilder.asc(path));
+                } else {
+                    criteriaQuery.orderBy(criteriaBuilder.desc(path));
+                }
+            }
+
+            TypedQuery<Object> query = entityManager.createQuery(criteriaQuery);
+            resultList = query.getResultList();
+        }
 
         try {
             userTransaction.commit();

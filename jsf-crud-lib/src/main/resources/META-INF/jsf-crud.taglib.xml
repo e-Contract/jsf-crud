@@ -449,6 +449,45 @@
             <component-type>crud.order</component-type>
         </component>
     </tag>
+    
+    <tag>
+        <description>The query to be used on the CRUD main table.</description>
+        <tag-name>query</tag-name>
+        <component>
+            <component-type>crud.query</component-type>
+        </component>
+        <attribute>
+            <description>The JPA query.</description>
+            <name>query</name>
+            <type>java.lang.String</type>
+        </attribute>
+        <attribute>
+            <description>The name of the JPA named query.</description>
+            <name>namedQuery</name>
+            <type>java.lang.String</type>
+        </attribute>
+    </tag>
+    
+    <tag>
+        <description>Parameter of the query.</description>
+        <tag-name>queryParameter</tag-name>
+        <component>
+            <component-type>crud.queryParameter</component-type>
+            <handler-class>be.e_contract.crud.jsf.component.QueryParameterTagHandler</handler-class>
+        </component>
+        <attribute>
+            <description>The query parameter name.</description>
+            <name>name</name>
+            <required>true</required>
+            <type>java.lang.String</type>
+        </attribute>
+        <attribute>
+            <description>The query parameter value.</description>
+            <name>value</name>
+            <required>true</required>
+            <type>java.lang.Object</type>
+        </attribute>
+    </tag>
 
     <function>
         <function-name>toHumanReadable</function-name>
