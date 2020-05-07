@@ -44,6 +44,10 @@
                 <crud:binary contentType="text/plain"/>
             </crud:field>
             <crud:property name="myProperty" sort="true" filter="true"/>
+            <crud:order>
+                <crud:field name="amount"/>
+                <crud:field name="created"/>
+            </crud:order>
             <crud:action value="Custom Action" action="#{demoController.action}"/>
             <crud:action value="Action 2" action="#{demoController.messagingAction}"
                          oncomplete="PF('growl').renderMessage({'summary':'hello world'})"/>

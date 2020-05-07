@@ -32,6 +32,7 @@ import be.e_contract.crud.jsf.component.DismissButton;
 import be.e_contract.crud.jsf.component.EntityComponent;
 import be.e_contract.crud.jsf.component.FieldComponent;
 import be.e_contract.crud.jsf.component.LimitingOutputText;
+import be.e_contract.crud.jsf.component.OrderComponent;
 import be.e_contract.crud.jsf.component.PasswordComponent;
 import be.e_contract.crud.jsf.component.PropertyComponent;
 import be.e_contract.crud.jsf.component.ReadComponent;
@@ -296,6 +297,7 @@ public class CRUDComponent extends UINamingContainer implements SystemEventListe
         List<ActionComponent> actions = new LinkedList<>();
         List<PropertyComponent> properties = new LinkedList<>();
         List<GlobalActionComponent> globalActions = new LinkedList<>();
+        List<FieldComponent> order = new LinkedList<>();
         List<UIComponent> children = getChildren();
         for (UIComponent child : children) {
             if (child instanceof CreateComponent) {
@@ -340,6 +342,15 @@ public class CRUDComponent extends UINamingContainer implements SystemEventListe
             } else if (child instanceof GlobalActionComponent) {
                 GlobalActionComponent globalAction = (GlobalActionComponent) child;
                 globalActions.add(globalAction);
+            } else if (child instanceof OrderComponent) {
+                order.clear();
+                List<UIComponent> orderChildren = child.getChildren();
+                for (UIComponent orderChild : orderChildren) {
+                    if (orderChild instanceof FieldComponent) {
+                        FieldComponent orderFieldComponent = (FieldComponent) orderChild;
+                        order.add(orderFieldComponent);
+                    }
+                }
             }
         }
 
@@ -411,7 +422,9 @@ public class CRUDComponent extends UINamingContainer implements SystemEventListe
         }
 
         // next we add all the others
-        for (Field entityField : entityInspector.getOtherFields()) {
+        List<Field> otherFields = entityInspector.getOtherFields();
+        otherFields = order(otherFields, order);
+        for (Field entityField : otherFields) {
             addColumn(dataTable, entityField, fields);
         }
 
@@ -1033,6 +1046,32 @@ public class CRUDComponent extends UINamingContainer implements SystemEventListe
         mapFunctionMethod.invoke(functionMapper, "crud", "toHumanReadable", toHumanReadableMethod);
     }
 
+    private List<Field> order(List<Field> fields, List<FieldComponent> order) {
+        if (order.isEmpty()) {
+            return fields;
+        }
+
+        Map<String, Field> fieldsMap = new HashMap<>();
+        for (Field field : fields) {
+            fieldsMap.put(field.getName(), field);
+        }
+
+        List<Field> orderedFields = new LinkedList<>();
+        for (FieldComponent orderFieldComponent : order) {
+            Field field = fieldsMap.remove(orderFieldComponent.getName());
+            if (null == field) {
+                continue;
+            }
+            orderedFields.add(field);
+            fields.remove(field);
+        }
+
+        for (Field field : fields) {
+            orderedFields.add(field);
+        }
+        return orderedFields;
+    }
+
     private String getFieldLabel(Field entityField, Map<String, FieldComponent> fields) {
         FieldComponent fieldComponent = fields.get(entityField.getName());
         if (null != fieldComponent) {
@@ -1204,6 +1243,9 @@ public class CRUDComponent extends UINamingContainer implements SystemEventListe
     }
 
     private UIInput getFieldInputComponent(Field entityField, Map<String, FieldComponent> fields) {
+        if (fields == null) {
+            return null;
+        }
         FieldComponent fieldComponent = fields.get(entityField.getName());
         if (null == fieldComponent) {
             return null;

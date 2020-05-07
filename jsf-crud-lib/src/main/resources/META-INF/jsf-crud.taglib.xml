@@ -441,6 +441,14 @@
             <type>org.primefaces.model.StreamedContent</type>
         </attribute>
     </tag>
+    
+    <tag>
+        <description>Contains fields in order to appear within the table.</description>
+        <tag-name>order</tag-name>
+        <component>
+            <component-type>crud.order</component-type>
+        </component>
+    </tag>
 
     <function>
         <function-name>toHumanReadable</function-name>

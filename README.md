@@ -21,7 +21,7 @@ The component has been tested with PrimeFaces versions:
 # Usage
 
 If you are using Maven, refer to the e-contract.be Maven repository via:
-```
+```xml
 <repository>
     <id>e-contract</id>
     <url>https://www.e-contract.be/maven2/</url>
@@ -31,7 +31,7 @@ If you are using Maven, refer to the e-contract.be Maven repository via:
 </repository>
 ```
 Include the `jsf-crud-lib` JSF library within your WAR (JPA, CDI, BV, and JSF enabled) as follows:
-```
+```xml
 <dependency>
     <groupId>be.e-contract.jsf-crud</groupId>
     <artifactId>jsf-crud-lib</artifactId>
@@ -40,7 +40,7 @@ Include the `jsf-crud-lib` JSF library within your WAR (JPA, CDI, BV, and JSF en
 ```
 
 Within a JSF page you can now add the following:
-```
+```xml
 xmlns:crud="urn:be:e-contract:crud:jsf"
 ...
 <crud:crud entity="YourEntity"/>
@@ -129,37 +129,57 @@ http://localhost:9080/jsf-crud-demo/
 
 # Tutorial
 
+This tutorial gives you an overview of the most important features of the JSF CRUD component.
+
 Once you have your JPA entity defined, you can start with the most simple construct:
-```
+```xml
 <crud:crud entity="YourEntity"/>
 ```
 This gives you a table with basic create, read, update, and delete functionality.
 The CRUD component uses reflection to construct a UI based on the JPA annotations.
 
 You can change the displayed name of a field via:
-```
+```xml
 <crud:crud entity="YourEntity">
     <crud:field name="yourField" label="A human readable label"/>
 </crud:crud>
 ```
 
-You can sort and filter on a field via:
+Change the size of the field input component via:
+```xml
+<crud:crud entity="YourEntity">
+    <crud:field name="yourField" size="60"/>
+</crud:crud>
 ```
+
+You can sort and filter on a field within the main table via:
+```xml
 <crud:crud entity="YourEntity">
     <crud:field name="yourField" sort="true" filter="true"/>
 </crud:crud>
 ```
 
 You can hide a field from the main table, but still have it displayed via a read operation as follows:
-```
+```xml
 <crud:crud entity="YourEntity">
     <crud:field name="yourField" hide="true"/>
     <crud:read/>
 </crud:crud>
 ```
 
-If you don't want a certain CRUD functionality, you can disable it via:
+You can change the order of the fields within the main table using:
+```xml
+<crud:crud entity="YourEntity">
+    <crud:order>
+        <crud:field name="firstField"/>
+        <crud:field name="secondField"/>
+        ...
+    </crud:order>
+</crud:crud>
 ```
+
+If you don't want a certain CRUD functionality, you can disable it via:
+```xml
 <crud:crud entity="YourEntity">
     <crud:create disabled="true"/>
     <crud:update disabled="true"/>
@@ -167,8 +187,8 @@ If you don't want a certain CRUD functionality, you can disable it via:
 </crud:crud>
 ```
 
-If you don't want a certain field to be updated, you can hide it as follows:
-```
+If you don't want a certain field to be visible within the update dialog, you can hide it as follows:
+```xml
 <crud:crud entity="YourEntity">
     <crud:update>
         <crud:field name="yourField" hide="true"/>
@@ -176,34 +196,135 @@ If you don't want a certain field to be updated, you can hide it as follows:
 </crud:crud>
 ```
 
-Besides fields, you can also display properties via:
+Mark a field as a password field via:
+```xml
+<crud:crud entity="YourEntity">
+    <crud:field name="yourField">
+        <crud:password feedback="true" match="true"/>
+    </crud:field>
+</crud:crud>
 ```
+
+Mark a field as a binary field (with upload/download functionality) via:
+```xml
+<crud:crud entity="YourEntity">
+    <crud:field name="yourField">
+        <crud:binary contentType="text/plain"/>
+    </crud:field>
+</crud:crud>
+```
+
+Besides fields, you can also display properties via:
+```xml
 <crud:crud entity="YourEntity">
     <crud:property name="yourProperty"/>
 </crud:crud>
 ```
 
-Besides the CRUD operations, you can easily add custom actions via:
+You can also change the default input component used for a field.
+For example, to change the input component of a field on the update dialog, you can define:
+```xml
+<crud:crud entity="YourEntity">
+    <crud:update>
+        <crud:field name="yourField">
+            <f:facet name="input">
+                <p:spinner/>
+            </f:facet>
+        </crud:field>
+    </crud:update>
+</crud:crud>
 ```
+
+## Custom Actions
+
+Besides the CRUD operations, you can easily add custom actions via:
+```xml
 <crud:crud entity="YourEntity">
     <crud:action value="Your custom action" action="..." oncomplete="..." update="..."/>
 </crud:crud>
 ```
-The `action` method receives the selected entity as parameter.
+The `action` method expression receives the selected entity as parameter.
 The `crud:action` component can handle various return types. For example, if the `action` method returns the entity, it will get saved in the database.
 
 If your custom action opens a dialog (via `oncomplete="PF('yourDialog').show()"`), you can access the currently selected entity within the dialog as follows:
-```
+```xml
 <crud:entity var="entity">
     <h:outputText value="#{entity.yourField}"/>
 </crud:entity>
 ```
 
 Within your dialogs, you can save the selected entity via:
-```
+```xml
 <crud:entity var="entity">
     ...
     <crud:saveButton value="Your Action" action="#{yourController.yourAction}"/>
 </crud:entity>
 ```
-Where the `action` method can make the entity to get saved within the database by simply returning it.
+Where the `action` method expression can make the entity to get saved within the database by simply returning it.
+
+To mark an action as a download, you use:
+```xml
+<crud:crud entity="YourEntity">
+    <crud:action value="Download something">
+        <crud:fileDownload value=#{yourController.yourMethodWithEntityParameterAndStreamedContentReturnType}>
+    </crud:action>
+</crud:crud>
+```
+
+You can even let the JSF CRUD component create a dialog for your custom action itself via:
+```xml
+<crud:crud entity="YourEntity">
+    <crud:action value="Custom Action">
+        <f:facet name="dialog">
+            <h:form>
+                <crud:entity var="entity">
+                    ...
+                </crud:entity>
+                ...
+            </h:form>
+        </f:facet>
+    </crud:action>
+</crud:crud>
+```
+
+Besides custom row actions, you can also define custom global actions that will be visible within the main table footer as follows:
+```xml
+<crud:crud entity="YourEntity">
+    <crud:globalAction value="Your custom global action" action="..." oncomplete="..." update="..."/>
+</crud:crud>
+```
+
+Define a global download action as follows:
+```xml
+<crud:crud entity="YourEntity">
+    <crud:globalAction value="Download something">
+        <crud:fileDownload value=#{yourController.yourMethodWithStreamedContentReturnType}>
+    </crud:globalAction>
+</crud:crud>
+```
+
+## Events
+
+You can define listeners for different CRUD events:
+```xml
+<crud:crud entity="YourEntity">
+    <crud:createListener action="#{yourController.createdEventHandler}"/>
+    <crud:updateListener action="#{yourController.updatedEventHandler}"/>
+    <crud:deleteListener action="#{yourController.deletedEventHandler}"/>
+</crud:crud>
+```
+
+The JSF CRUD component also fires CDI events, which you can observe as follows:
+```java
+public void handlePreCreateEvent(@Observes @HandlesEntity(YourEntity.class) PreCreateEvent preCreateEvent) {
+    // do something before the entity is created
+}
+
+public void handlePreUpdateEvent(@Observes @HandlesEntity(YourEntity.class) PreUpdateEvent preUpdateEvent) {
+    // do something before the entity is updated
+}
+
+public void handlePreDeleteEvent(@Observes @HandlesEntity(YourEntity.class) PreDeleteEvent preDeleteEvent) {
+    // do something before the entity is deleted
+}
+```
