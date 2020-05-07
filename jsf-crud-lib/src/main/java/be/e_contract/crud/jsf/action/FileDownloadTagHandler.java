@@ -36,8 +36,6 @@ import org.slf4j.LoggerFactory;
 
 public class FileDownloadTagHandler extends ComponentHandler {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(FileDownloadTagHandler.class);
-
     public FileDownloadTagHandler(ComponentConfig config) {
         super(config);
     }
@@ -57,7 +55,6 @@ public class FileDownloadTagHandler extends ComponentHandler {
         }
         TagAttribute valueTagAttribute = getTagAttribute("value");
         String valueValue = valueTagAttribute.getValue();
-        LOGGER.debug("value: {}", valueValue);
         FileDownloadComponent fileDownloadComponent = (FileDownloadComponent) component;
         FacesContext facesContext = faceletContext.getFacesContext();
         ELContext elContext = facesContext.getELContext();
@@ -68,6 +65,7 @@ public class FileDownloadTagHandler extends ComponentHandler {
             MethodExpression methodExpression = faceletContext.getExpressionFactory().createMethodExpression(elContext, valueValue, StreamedContent.class, new Class[]{Object.class});
             valueExpression = new EntityMethodStreamedContentValueExpression(methodExpression);
         } else {
+            Logger LOGGER = LoggerFactory.getLogger(FileDownloadTagHandler.class);
             LOGGER.error("unsupported parent: {}", parent);
             return;
         }

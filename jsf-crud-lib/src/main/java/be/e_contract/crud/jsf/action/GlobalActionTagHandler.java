@@ -22,12 +22,8 @@ import javax.faces.view.facelets.ComponentHandler;
 import javax.faces.view.facelets.MetaRule;
 import javax.faces.view.facelets.MetaRuleset;
 import org.primefaces.facelets.MethodRule;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 public class GlobalActionTagHandler extends ComponentHandler {
-
-    private static final Logger LOGGER = LoggerFactory.getLogger(GlobalActionTagHandler.class);
 
     public GlobalActionTagHandler(ComponentConfig config) {
         super(config);
