@@ -104,8 +104,7 @@ public class AddActionListener extends AbstractCRUDComponentStateHolder implemen
             userTransaction.commit();
         } catch (RollbackException | HeuristicMixedException | HeuristicRollbackException | SecurityException | IllegalStateException | SystemException ex) {
             LOGGER.error("error: " + ex.getMessage(), ex);
-            String entityHumanReadable = entityInspector.toHumanReadable(entity);
-            crudComponent.addMessage(FacesMessage.SEVERITY_ERROR, "Could not add " + entityHumanReadable);
+            crudComponent.addMessage(FacesMessage.SEVERITY_ERROR, "Could not add " + entity);
             crudComponent.setNewEntity(null);
             return;
         }

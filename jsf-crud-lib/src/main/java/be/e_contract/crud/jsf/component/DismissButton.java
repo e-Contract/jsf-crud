@@ -23,7 +23,6 @@ import javax.faces.component.UIComponent;
 import javax.faces.component.UIInput;
 import javax.faces.context.ExternalContext;
 import javax.faces.context.FacesContext;
-import javax.faces.event.AbortProcessingException;
 import org.primefaces.component.commandbutton.CommandButton;
 import org.primefaces.component.dialog.Dialog;
 
@@ -37,8 +36,10 @@ public class DismissButton extends CommandButton {
         if (UIInput.isEmpty(getValue())) {
             setValue("Dismiss");
         }
-        String dialogWidgetVar = getDialogWidgetVar();
-        setOncomplete("PF('" + dialogWidgetVar + "').hide()");
+        String dialogWidgetVar = findDialogWidgetVar();
+        if (null != dialogWidgetVar) {
+            setOncomplete("PF('" + dialogWidgetVar + "').hide()");
+        }
         if (UIInput.isEmpty(getIcon())) {
             ExternalContext externalContext = context.getExternalContext();
             String iconInitParam = externalContext.getInitParameter("crud.dialog.dismissButton.icon");
@@ -47,7 +48,7 @@ public class DismissButton extends CommandButton {
         super.encodeBegin(context);
     }
 
-    private String getDialogWidgetVar() {
+    private String findDialogWidgetVar() {
         UIComponent parent = getParent();
         while (parent != null) {
             if (parent instanceof Dialog) {
@@ -56,6 +57,6 @@ public class DismissButton extends CommandButton {
             }
             parent = parent.getParent();
         }
-        throw new AbortProcessingException();
+        return null;
     }
 }
