@@ -37,7 +37,7 @@ Include the `jsf-crud-lib` JSF library within your WAR (JPA, CDI, BV, and JSF en
 <dependency>
     <groupId>be.e-contract.jsf-crud</groupId>
     <artifactId>jsf-crud-lib</artifactId>
-    <version>0.9.0</version>
+    <version>0.9.1</version>
 </dependency>
 ```
 
