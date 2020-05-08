@@ -7,7 +7,7 @@ The JSF CRUD component is a perfect match for the construction of administrator 
 The component has been tested on the following application servers:
 * JBoss EAP 6.4.22
 * JBoss EAP 7.3.0
-* WildFly 19.0.0
+* WildFly 19.1.0
 * Payara 5.201
 * Oracle WebLogic Server 14.1.1
 * Apache TomEE 8.0.1
@@ -60,7 +60,7 @@ git clone https://github.com/e-Contract/jsf-crud.git
 
 Start a WildFly via:
 ```
-cd wildfly-19.0.0.Final/bin/
+cd wildfly-19.1.0.Final/bin/
 ./standalone.sh
 ```
 
