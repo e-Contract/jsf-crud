@@ -1348,7 +1348,11 @@ public class CRUDComponent extends UINamingContainer implements SystemEventListe
             ParameterizedType parameterizedType = (ParameterizedType) type;
             Class<?> listTypeClass = (Class<?>) parameterizedType.getActualTypeArguments()[0];
             selectManyMenu.setConverter(new EntityConverter());
-            selectItems.setValueExpression("value", new EntitySelectItemsValueExpression(listTypeClass.getName()));
+            if (addNotUpdate) {
+                selectItems.setValueExpression("value", new EntitySelectItemsValueExpression(listTypeClass.getName(), entityField.getDeclaringClass().getName(), entityField.getName(), null));
+            } else {
+                selectItems.setValueExpression("value", new EntitySelectItemsValueExpression(listTypeClass.getName(), entityField.getDeclaringClass().getName(), entityField.getName(), getId()));
+            }
         } else if (actualField.getType() == Boolean.TYPE) {
             input = (SelectBooleanCheckbox) application.createComponent(SelectBooleanCheckbox.COMPONENT_TYPE);
             SelectBooleanCheckbox selectBooleanCheckbox = (SelectBooleanCheckbox) input;

@@ -25,6 +25,7 @@ import java.lang.reflect.Modifier;
 import javax.el.ELContext;
 import javax.el.MethodExpression;
 import javax.el.MethodInfo;
+import javax.el.PropertyNotFoundException;
 import org.primefaces.event.FileUploadEvent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -59,10 +60,11 @@ public class FieldUploadMethodExpression extends MethodExpression {
             entityField = entityClass.getDeclaredField(this.entityFieldName);
         } catch (NoSuchFieldException | SecurityException ex) {
             LOGGER.error("error: " + ex.getMessage(), ex);
-            return null;
+            throw new PropertyNotFoundException();
         }
         if (null == entityField) {
             LOGGER.error("unknown entity field: {}", this.entityFieldName);
+            throw new PropertyNotFoundException();
         }
         return entityField;
     }
@@ -95,11 +97,11 @@ public class FieldUploadMethodExpression extends MethodExpression {
                 fileContent = (byte[]) getContentMethod.invoke(uploadedFile, new Object[]{});
             } catch (SecurityException | IllegalAccessException | IllegalArgumentException | InvocationTargetException ex) {
                 LOGGER.error("reflection error: " + ex.getMessage(), ex);
-                return null;
+                throw new PropertyNotFoundException();
             }
         } else {
             LOGGER.error("UploadedFile content not retrieved");
-            return null;
+            throw new PropertyNotFoundException();
         }
         Field entityField = getEntityField();
         entityField.setAccessible(true);
@@ -122,7 +124,7 @@ public class FieldUploadMethodExpression extends MethodExpression {
                     entity = entityField.getDeclaringClass().newInstance();
                 } catch (InstantiationException | IllegalAccessException ex) {
                     LOGGER.error("error: " + ex.getMessage(), ex);
-                    return null;
+                    throw new PropertyNotFoundException();
                 }
                 crudComponent.setNewEntity(entity);
             }

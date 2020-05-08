@@ -5,5 +5,13 @@
               version="3.0">
 
     <name>jsfCRUD</name>
+    
+    <distributable/>
+    
+    <ordering>
+        <after>
+            <others/>
+        </after>
+    </ordering>
 
 </web-fragment>

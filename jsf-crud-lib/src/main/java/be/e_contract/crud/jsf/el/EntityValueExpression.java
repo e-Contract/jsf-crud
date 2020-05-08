@@ -25,6 +25,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import javax.el.ELContext;
+import javax.el.PropertyNotFoundException;
 import javax.el.ValueExpression;
 import javax.faces.component.UIInput;
 import javax.faces.component.UIViewRoot;
@@ -88,7 +89,7 @@ public class EntityValueExpression extends ValueExpression {
             userTransaction.begin();
         } catch (NotSupportedException | SystemException ex) {
             LOGGER.error("error: " + ex.getMessage(), ex);
-            return null;
+            throw new PropertyNotFoundException();
         }
 
         List resultList;
@@ -125,7 +126,7 @@ public class EntityValueExpression extends ValueExpression {
             userTransaction.commit();
         } catch (RollbackException | HeuristicMixedException | HeuristicRollbackException | SecurityException | IllegalStateException | SystemException ex) {
             LOGGER.error("error: " + ex.getMessage(), ex);
-            return null;
+            throw new PropertyNotFoundException();
         }
 
         entityViewMap.put(crudComponent.getId(), resultList);

@@ -22,6 +22,7 @@ import java.lang.reflect.Field;
 import java.util.LinkedList;
 import java.util.List;
 import javax.el.ELContext;
+import javax.el.PropertyNotFoundException;
 import javax.el.ValueExpression;
 import javax.el.ValueReference;
 import org.slf4j.Logger;
@@ -61,10 +62,11 @@ public class EntityFieldValueExpression extends ValueExpression {
             entityField = entityClass.getDeclaredField(this.entityFieldName);
         } catch (NoSuchFieldException | SecurityException ex) {
             LOGGER.error("error: " + ex.getMessage(), ex);
-            return null;
+            throw new PropertyNotFoundException();
         }
         if (null == entityField) {
             LOGGER.error("unknown entity field: {}", this.entityFieldName);
+            throw new PropertyNotFoundException();
         }
         return entityField;
     }
@@ -98,7 +100,7 @@ public class EntityFieldValueExpression extends ValueExpression {
             return value;
         } catch (IllegalArgumentException | IllegalAccessException | NoSuchFieldException | SecurityException ex) {
             LOGGER.error("error: " + ex.getMessage(), ex);
-            return null;
+            throw new PropertyNotFoundException();
         }
     }
 
@@ -113,7 +115,7 @@ public class EntityFieldValueExpression extends ValueExpression {
                     entity = entityField.getDeclaringClass().newInstance();
                 } catch (InstantiationException | IllegalAccessException ex) {
                     LOGGER.error("error: " + ex.getMessage(), ex);
-                    return null;
+                    throw new PropertyNotFoundException();
                 }
                 crudComponent.setNewEntity(entity);
             }
@@ -154,6 +156,7 @@ public class EntityFieldValueExpression extends ValueExpression {
             }
         } catch (IllegalArgumentException | IllegalAccessException | InstantiationException | NoSuchFieldException | SecurityException ex) {
             LOGGER.error("error: " + ex.getMessage(), ex);
+            throw new PropertyNotFoundException();
         }
     }
 

@@ -44,6 +44,7 @@ import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Join;
 import javax.persistence.criteria.Root;
+import javax.persistence.criteria.Subquery;
 import javax.persistence.metamodel.Attribute;
 import javax.persistence.metamodel.EmbeddableType;
 import javax.persistence.metamodel.EntityType;
@@ -103,46 +104,59 @@ public class PersistenceTest {
 
         entityTransaction.begin();
         {
-            CarEntity car1 = new CarEntity("1234");
-            this.entityManager.persist(car1);
+            CarEntity myCar = new CarEntity("My Car");
+            this.entityManager.persist(myCar);
 
-            CarEntity car2 = new CarEntity("5678");
-            this.entityManager.persist(car2);
+            CarEntity nobodyCar = new CarEntity("Nobody Car");
+            this.entityManager.persist(nobodyCar);
 
-            PersonEntity person = new PersonEntity("Alice");
-            person.setCars(new LinkedList<>());
-            person.getCars().add(car1);
-            Address address = new Address();
-            address.setZip("1234");
-            person.setAddress(address);
-            this.entityManager.persist(person);
+            CarEntity somebodyElseCar = new CarEntity("Somebody Else Car");
+            this.entityManager.persist(somebodyElseCar);
+
+            PersonEntity me = new PersonEntity("Me");
+            me.setCars(new LinkedList<>());
+            me.getCars().add(myCar);
+            Address myAddress = new Address();
+            myAddress.setZip("1234");
+            me.setAddress(myAddress);
+            this.entityManager.persist(me);
+
+            PersonEntity somebodyElse = new PersonEntity("Somebody Else");
+            somebodyElse.setCars(new LinkedList<>());
+            somebodyElse.getCars().add(somebodyElseCar);
+            Address somebodyElseAddress = new Address();
+            somebodyElseAddress.setZip("1234");
+            somebodyElse.setAddress(somebodyElseAddress);
+            this.entityManager.persist(somebodyElse);
         }
         entityTransaction.commit();
 
         entityTransaction.begin();
         {
+            PersonEntity personEntity = this.entityManager.find(PersonEntity.class, "Me");
+            Class<?> entityClass = CarEntity.class;
+            Class<?> refClass = PersonEntity.class;
             CriteriaBuilder criteriaBuilder = this.entityManager.getCriteriaBuilder();
-            CriteriaQuery<CarEntity> innerCriteriaQuery = criteriaBuilder.createQuery(CarEntity.class);
-            Root<PersonEntity> person = innerCriteriaQuery.from(PersonEntity.class); // FROM PersonEntity AS person
-            Join<PersonEntity, CarEntity> cars2 = person.join("cars"); // JOIN person.cars AS car2
-            innerCriteriaQuery.select(cars2); // SELECT DISTINCT car2
-            innerCriteriaQuery.distinct(true);
-
-            CriteriaQuery<CarEntity> criteriaQuery = criteriaBuilder.createQuery(CarEntity.class);
-            Root<CarEntity> car = criteriaQuery.from(CarEntity.class); // FROM CarEntity AS car
+            CriteriaQuery criteriaQuery = criteriaBuilder.createQuery(entityClass);
+            Root car = criteriaQuery.from(entityClass); // FROM CarEntity AS car
             criteriaQuery.select(car); // SELECT car
-            //criteriaQuery.where(criteriaBuilder.not(criteriaBuilder.in(cars2))); // WHERE car NOT IN
-            //criteriaQuery.where(criteriaBuilder.not(car.in(cars2))); // WHERE car NOT IN
 
-            Metamodel metamodel = this.entityManager.getMetamodel();
-            EntityType<CarEntity> entityType = metamodel.entity(CarEntity.class);
-            LOGGER.debug("car attributes: {}", entityType.getAttributes());
+            Subquery subqueryCriteriaQuery = criteriaQuery.subquery(entityClass);
+            Root person = subqueryCriteriaQuery.from(refClass); // FROM PersonEntity AS person
+            Join cars2 = person.join("cars"); // JOIN person.cars AS car2
+            subqueryCriteriaQuery.select(cars2); // SELECT DISTINCT car2
+            subqueryCriteriaQuery.distinct(true);
+
+            criteriaQuery.where(criteriaBuilder.not(car.in(subqueryCriteriaQuery))); // WHERE car NOT IN
 
             TypedQuery<CarEntity> query = this.entityManager.createQuery(criteriaQuery);
             List<CarEntity> cars = query.getResultList();
+            LOGGER.debug("result list: {}", cars);
 
+            //Query newEntityQuery = this.entityManager.createQuery("SELECT car FROM CarEntity AS car WHERE car NOT IN (SELECT DISTINCT car2 FROM PersonEntity AS person JOIN person.cars AS car2)");
             Query newEntityQuery = this.entityManager.createQuery("SELECT car FROM CarEntity AS car WHERE car NOT IN (SELECT DISTINCT car2 FROM PersonEntity AS person JOIN person.cars AS car2)");
-            LOGGER.debug("result list: {}", newEntityQuery.getResultList());
+            //newEntityQuery.setParameter("param", personEntity);
+            LOGGER.debug("expected result list: {}", newEntityQuery.getResultList());
         }
         entityTransaction.commit();
     }

@@ -23,6 +23,7 @@ import be.e_contract.crud.jsf.jpa.EntityInspector;
 import java.io.ByteArrayInputStream;
 import java.lang.reflect.Field;
 import javax.el.ELContext;
+import javax.el.PropertyNotFoundException;
 import javax.el.ValueExpression;
 import javax.persistence.EntityManager;
 import org.primefaces.model.DefaultStreamedContent;
@@ -54,10 +55,11 @@ public class FieldStreamedContentValueExpression extends ValueExpression {
             entityField = entityClass.getDeclaredField(this.entityFieldName);
         } catch (NoSuchFieldException | SecurityException ex) {
             LOGGER.error("error: " + ex.getMessage(), ex);
-            return null;
+            throw new PropertyNotFoundException();
         }
         if (null == entityField) {
             LOGGER.error("unknown entity field: {}", this.entityFieldName);
+            throw new PropertyNotFoundException();
         }
         return entityField;
     }
@@ -70,7 +72,7 @@ public class FieldStreamedContentValueExpression extends ValueExpression {
         Object entity = crudComponent.getSelection();
         if (null == entity) {
             LOGGER.warn("missing selection");
-            return null;
+            throw new PropertyNotFoundException();
         }
         byte[] value;
         try {
@@ -78,7 +80,7 @@ public class FieldStreamedContentValueExpression extends ValueExpression {
             value = (byte[]) entityField.get(entity);
         } catch (IllegalArgumentException | IllegalAccessException ex) {
             LOGGER.error("reflection error: " + ex.getMessage(), ex);
-            return null;
+            throw new PropertyNotFoundException();
         }
         if (null == value) {
             return null;
