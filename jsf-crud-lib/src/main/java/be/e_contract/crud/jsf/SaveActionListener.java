@@ -78,8 +78,6 @@ public class SaveActionListener extends AbstractCRUDComponentStateHolder impleme
         }
         crudComponent.resetCache();
         crudComponent.setSelection(null);
-        String entityHumanReadable = entityInspector.toHumanReadable(entity);
-        crudComponent.addMessage(FacesMessage.SEVERITY_INFO, "Updated " + entityHumanReadable);
         UpdateEvent updateEvent = new UpdateEvent(crudComponent, entity);
         updateEvent.queue();
     }

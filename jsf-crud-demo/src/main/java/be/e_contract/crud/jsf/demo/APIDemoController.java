@@ -66,6 +66,7 @@ public class APIDemoController implements CreateListener, UpdateListener, Delete
     public void init() {
         LOGGER.debug("init: {}", this);
         CRUD crud = (CRUD) this.binding;
+        // NPE on Open Liberty 20.0.0.5 here
         crud.addCreateListener(this);
         crud.addUpdateListener(this);
         crud.addDeleteListener(this);

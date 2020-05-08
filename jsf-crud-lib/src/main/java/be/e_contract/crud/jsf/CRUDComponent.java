@@ -284,6 +284,13 @@ public class CRUDComponent extends UINamingContainer implements SystemEventListe
         ExpressionFactory expressionFactory = application.getExpressionFactory();
         ELContext elContext = facesContext.getELContext();
 
+        try {
+            registerToHumanReadableFunction(elContext);
+        } catch (NoSuchMethodException | IllegalAccessException | IllegalArgumentException | InvocationTargetException ex) {
+            LOGGER.error("reflection error: " + ex.getMessage(), ex);
+            throw new AbortProcessingException();
+        }
+
         boolean showCreate = true;
         boolean showDelete = true;
         boolean showUpdate = true;
@@ -735,12 +742,6 @@ public class CRUDComponent extends UINamingContainer implements SystemEventListe
             entityComponent.setVar("entity");
             HtmlOutputText htmlOutputText = (HtmlOutputText) application.createComponent(HtmlOutputText.COMPONENT_TYPE);
 
-            try {
-                registerToHumanReadableFunction(elContext);
-            } catch (NoSuchMethodException | IllegalAccessException | IllegalArgumentException | InvocationTargetException ex) {
-                LOGGER.error("reflection error: " + ex.getMessage(), ex);
-                throw new AbortProcessingException();
-            }
             ValueExpression deleteOutputTextValueExpression = expressionFactory.createValueExpression(new CRUDELContext(elContext), "Do you want to delete #{crud:toHumanReadable(entity)} ?", String.class);
             htmlOutputText.setValueExpression("value", deleteOutputTextValueExpression);
             entityComponent.getChildren().add(htmlOutputText);
@@ -955,7 +956,7 @@ public class CRUDComponent extends UINamingContainer implements SystemEventListe
 
                 HtmlOutputText outputText = (HtmlOutputText) application.createComponent(HtmlOutputText.COMPONENT_TYPE);
                 dataList.getChildren().add(outputText);
-                ValueExpression outputTextValueExpression = expressionFactory.createValueExpression(elContext, "#{crud:toHumanReadable(entity)}", String.class);
+                ValueExpression outputTextValueExpression = expressionFactory.createValueExpression(new CRUDELContext(elContext), "#{crud:toHumanReadable(entity)}", String.class);
                 outputText.setValueExpression("value", outputTextValueExpression);
             } else if (entityField.getType().equals(byte[].class)) {
                 CommandButton downloadCommandButton = (CommandButton) application.createComponent(CommandButton.COMPONENT_TYPE);
@@ -980,7 +981,7 @@ public class CRUDComponent extends UINamingContainer implements SystemEventListe
 
         for (Field embeddedField : entityInspector.getEmbeddedFields()) {
             Fieldset fieldset = (Fieldset) application.createComponent(Fieldset.COMPONENT_TYPE);
-            htmlPanelGrid.getChildren().add(fieldset);
+            viewDialogHtmlForm.getChildren().add(fieldset);
             fieldset.setLegend(getFieldLabel(embeddedField, fields));
 
             HtmlPanelGrid embeddedHtmlPanelGrid = (HtmlPanelGrid) application.createComponent(HtmlPanelGrid.COMPONENT_TYPE);

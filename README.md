@@ -2,6 +2,8 @@ JSF CRUD Project
 ================
 
 The JSF CRUD Project delivers a JSF component, based on PrimeFaces, to perform simple CRUD operations on JPA entities.
+The JSF CRUD component is a perfect match for the construction of administrator portals where you basically want simple and fast CRUD operations on the JPA entities within your Java EE application.
+
 The component has been tested on the following application servers:
 * JBoss EAP 6.4.22
 * JBoss EAP 7.3.0
@@ -9,7 +11,7 @@ The component has been tested on the following application servers:
 * Payara 5.201
 * Oracle WebLogic Server 14.1.1
 * Apache TomEE 8.0.1
-* Open Liberty 20.0.0.4 (EL FunctionMapper not available)
+* Open Liberty 20.0.0.5
 
 The component has been tested with PrimeFaces versions:
 * 6.2.27
@@ -89,12 +91,12 @@ cd payara5/bin/
 Build the project via Maven:
 ```
 cd jsf-crud
-mvn clean install -Pglassfish
+mvn clean install
 ```
 
 Deploy the demo web application to the local running Payara via:
 ```
-./asadmin deploy ~/jsf-crud/jsf-crud-demo/target/jsf-crud-demo-1.0.0-SNAPSHOT.war
+./asadmin deploy ~/jsf-crud/jsf-crud-demo/target/jsf-crud-demo-x.y.z-SNAPSHOT.war
 ```
 
 Navigate your web browser to:
@@ -102,7 +104,7 @@ http://localhost:8080/jsf-crud-demo/
 
 Undeploy the demo web application via:
 ```
-./asadmin undeploy jsf-crud-demo-1.0.0-SNAPSHOT
+./asadmin undeploy jsf-crud-demo-x.y.z-SNAPSHOT
 ```
 
 List all deployed applications via:
@@ -136,7 +138,7 @@ Once you have your JPA entity defined, you can start with the most simple constr
 <crud:crud entity="YourEntity"/>
 ```
 This gives you a table with basic create, read, update, and delete functionality.
-The CRUD component uses reflection to construct a UI based on the JPA annotations.
+The JSF CRUD component uses reflection to construct a UI based on the JPA annotations.
 
 You can change the displayed name of a field via:
 ```xml
@@ -313,6 +315,20 @@ You can define listeners for different CRUD events:
     <crud:deleteListener action="#{yourController.deletedEventHandler}"/>
 </crud:crud>
 ```
+where you have the following event listeners defined in you backing bean:
+```java
+public void createdEventHandler(CreateEvent createEvent) {
+    // do something after the entity has been created
+}
+
+public void updatedEventHandler(UpdateEvent updateEvent) {
+    // do something after the entity has been updated
+}
+
+public void deletedEventHandler(DeleteEvent deleteEvent) {
+    // do something after the entity has been deleted
+}
+```
 
 The JSF CRUD component also fires CDI events, which you can observe as follows:
 ```java
@@ -351,7 +367,7 @@ You can customize this main query via:
 ```xml
 <crud:crud entity="YourEntity">
     <crud:query query="SELECT e FROM YourEntity AS e WHERE e.yourField = :yourParam">
-        <crud:queryParameter name="yourParam" value="..."/>
+        <crud:queryParameter name="yourParam" value="#{...}"/>
     </crud:query>
 </crud:crud>
 ```

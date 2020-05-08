@@ -18,6 +18,7 @@
 package be.e_contract.crud.jsf.demo;
 
 import java.io.Serializable;
+import java.math.BigInteger;
 import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.IdClass;
@@ -37,6 +38,8 @@ public class IdClassEntity implements Serializable {
     private DemoEntity demo;
 
     private String description;
+
+    private BigInteger bigInteger;
 
     public String getName() {
         return this.name;
@@ -60,6 +63,14 @@ public class IdClassEntity implements Serializable {
 
     public void setDescription(String description) {
         this.description = description;
+    }
+
+    public BigInteger getBigInteger() {
+        return this.bigInteger;
+    }
+
+    public void setBigInteger(BigInteger bigInteger) {
+        this.bigInteger = bigInteger;
     }
 
     @Override

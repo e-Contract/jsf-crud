@@ -215,30 +215,18 @@
     </dependencyManagement>
     <profiles>
         <profile>
-            <id>jboss</id>
+            <id>javaee7</id>
             <activation>
                 <activeByDefault>true</activeByDefault>
             </activation>
             <properties>
-                <jta-data-source>java:jboss/datasources/ExampleDS</jta-data-source>
-            </properties>
-        </profile>
-        <profile>
-            <id>glassfish</id>
-            <properties>
-                <jta-data-source>jdbc/__default</jta-data-source>
-            </properties>
-        </profile>
-        <profile>
-            <id>liberty</id>
-            <properties>
-                <jta-data-source>jdbc/h2</jta-data-source>
-            </properties>
-        </profile>
-        <profile>
-            <id>weblogic</id>
-            <properties>
                 <jta-data-source>java:comp/DefaultDataSource</jta-data-source>
+            </properties>
+        </profile>
+        <profile>
+            <id>jboss-as</id>
+            <properties>
+                <jta-data-source>java:jboss/datasources/ExampleDS</jta-data-source>
             </properties>
         </profile>
     </profiles>
