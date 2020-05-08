@@ -349,7 +349,7 @@ This can even be configured globally via the following `web.xml` context paramet
 Per default the JSF CRUD component will display all your entities within the main table.
 You can customize this main query via:
 ```xml
-<crud:crud entity="YourEntity" roleAllowed="administrator">
+<crud:crud entity="YourEntity">
     <crud:query query="SELECT e FROM YourEntity AS e WHERE e.yourField = :yourParam">
         <crud:queryParameter name="yourParam" value="..."/>
     </crud:query>

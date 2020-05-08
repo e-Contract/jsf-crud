@@ -78,6 +78,11 @@
             <component-type>crud.read</component-type>
         </component>
         <attribute>
+            <description>Set to true to disable the create operation.</description>
+            <name>disabled</name>
+            <type>java.lang.Boolean</type>
+        </attribute>
+        <attribute>
             <description>Icon of the button.</description>
             <name>icon</name>
             <type>java.lang.String</type>

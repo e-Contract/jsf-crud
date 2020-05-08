@@ -65,9 +65,4 @@ public class DemoIdClass implements Serializable {
                 .append(this.demo, rhs.demo)
                 .isEquals();
     }
-
-    @Override
-    public String toString() {
-        return this.name + "-" + this.demo;
-    }
 }

@@ -27,6 +27,7 @@ public class ReadComponent extends UIComponentBase {
 
     public enum PropertyKeys {
         icon,
+        disabled,
     }
 
     @Override
@@ -40,5 +41,17 @@ public class ReadComponent extends UIComponentBase {
 
     public void setIcon(String icon) {
         getStateHelper().put(PropertyKeys.icon, icon);
+    }
+
+    public boolean isDisabled() {
+        Boolean disabled = (Boolean) getStateHelper().get(PropertyKeys.disabled);
+        if (null == disabled) {
+            return false;
+        }
+        return disabled;
+    }
+
+    public void setDisabled(boolean disabled) {
+        getStateHelper().put(PropertyKeys.disabled, disabled);
     }
 }

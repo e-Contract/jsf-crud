@@ -84,4 +84,12 @@ public class IdClassEntity implements Serializable {
                 .append(this.demo, rhs.demo)
                 .isEquals();
     }
+
+    @Override
+    public String toString() {
+        if (null != this.demo) {
+            return this.name + "-" + this.demo.getName();
+        }
+        return "";
+    }
 }

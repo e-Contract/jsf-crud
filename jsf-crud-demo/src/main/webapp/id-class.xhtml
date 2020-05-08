@@ -10,7 +10,9 @@
 
     <h:body>
         <h1>JSF CRUD Demo</h1>
-        <crud:crud entity="IdClassEntity"/>
+        <crud:crud entity="IdClassEntity">
+            <crud:read/>
+        </crud:crud>
         <h:form>
             <p:commandLink action="/index?faces-redirect=true" value="Back"/>
         </h:form>

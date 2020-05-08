@@ -330,7 +330,7 @@ public class CRUDComponent extends UINamingContainer implements SystemEventListe
                 }
             } else if (child instanceof ReadComponent) {
                 readComponent = (ReadComponent) child;
-                showView = true;
+                showView = !readComponent.isDisabled();
             } else if (child instanceof FieldComponent) {
                 FieldComponent fieldComponent = (FieldComponent) child;
                 fields.put(fieldComponent.getName(), fieldComponent);
@@ -839,7 +839,7 @@ public class CRUDComponent extends UINamingContainer implements SystemEventListe
                 htmlPanelGrid.getChildren().add(idOutputLabel);
                 idOutputLabel.setValue(EntityInspector.toHumanReadable(idField));
 
-                HtmlOutputText identifierOutputText = (HtmlOutputText) application.createComponent(HtmlOutputText.COMPONENT_TYPE);
+                LimitingOutputText identifierOutputText = (LimitingOutputText) application.createComponent(LimitingOutputText.COMPONENT_TYPE);
                 htmlPanelGrid.getChildren().add(identifierOutputText);
                 identifierOutputText.setValueExpression("value", new EntityFieldValueExpression(getId(), idField, null, false));
 
