@@ -555,6 +555,12 @@ public class CRUDComponent extends UINamingContainer implements SystemEventListe
                 customActionDialog.setModal(true);
                 customActionDialog.setDynamic(true);
 
+                UIComponent actionDialogTitleComponent = action.getFacet("dialogTitle");
+                if (null != actionDialogTitleComponent) {
+                    String dialogTitle = actionDialogTitleComponent.toString().trim();
+                    customActionDialog.setHeader(dialogTitle);
+                }
+
                 customActionDialog.getChildren().add(actionDialogComponent);
 
                 commandButton.setOncomplete("PF('" + "ActionDialog" + actionIdx + "').show()");

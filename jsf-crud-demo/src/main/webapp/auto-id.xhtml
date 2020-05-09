@@ -73,6 +73,9 @@
                         </h:panelGrid>
                     </h:form>
                 </f:facet>
+                <f:facet name="dialogTitle">
+                    A nice dialog facet title
+                </f:facet>
             </crud:action>
             <crud:globalAction value="Custom Global Action" icon="fa fa-plus" action="#{demoController.globalAction}"/>
             <crud:globalAction value="Global Action Dialog" oncomplete="PF('globalActionDialog').show()"/>
