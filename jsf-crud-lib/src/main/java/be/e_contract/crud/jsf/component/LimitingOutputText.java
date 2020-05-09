@@ -24,18 +24,24 @@ import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.List;
 import javax.faces.component.FacesComponent;
-import javax.faces.component.html.HtmlOutputText;
+import javax.faces.component.UIOutput;
 import javax.faces.context.FacesContext;
+import javax.faces.context.ResponseWriter;
 import javax.persistence.Entity;
 import javax.persistence.EntityManager;
 
 @FacesComponent(LimitingOutputText.COMPONENT_TYPE)
-public class LimitingOutputText extends HtmlOutputText {
+public class LimitingOutputText extends UIOutput {
 
     public static final String COMPONENT_TYPE = "crud.limitingOutputText";
 
     public enum PropertyKeys {
         password,
+    }
+
+    @Override
+    public String getFamily() {
+        return "crud";
     }
 
     public boolean isPassword() {
@@ -48,45 +54,47 @@ public class LimitingOutputText extends HtmlOutputText {
 
     @Override
     public void encodeBegin(FacesContext context) throws IOException {
-        limitValue();
-        super.encodeBegin(context);
+        String limitedValue = getLimitedValue();
+        ResponseWriter responseWriter = context.getResponseWriter();
+
+        String id = super.getClientId(context);
+        responseWriter.startElement("span", this);
+        responseWriter.writeAttribute("id", id, "id");
+        responseWriter.writeText(limitedValue, "value");
+        responseWriter.endElement("span");
     }
 
-    private void limitValue() {
+    private String getLimitedValue() {
         Object value = getValue();
         if (null == value) {
-            return;
+            return "";
         }
         Entity entityAnnotation = value.getClass().getAnnotation(Entity.class);
         if (null != entityAnnotation) {
             CRUDController crudController = CRUDController.getCRUDController();
             EntityManager entityManager = crudController.getEntityManager();
             EntityInspector entityInspector = new EntityInspector(entityManager, value.getClass());
-            setValue(entityInspector.toHumanReadable(value));
-            return;
+            return entityInspector.toHumanReadable(value);
         }
         if (value instanceof Calendar) {
             SimpleDateFormat format = new SimpleDateFormat("dd/MM/yyyy");
             Calendar calendar = (Calendar) value;
-            setValue(format.format(calendar.getTime()));
-            return;
+            return format.format(calendar.getTime());
         }
         if (value instanceof List) {
             // avoid lazy loading issue
-            setValue("...");
-            return;
+            return "...";
         }
         if (value instanceof byte[]) {
-            setValue("[binary data]");
-            return;
+            return "[binary data]";
         }
         if (isPassword()) {
-            setValue("...");
-            return;
+            return "...";
         }
         String strValue = value.toString();
         if (strValue.length() > 40) {
-            setValue(strValue.substring(0, 40) + "...");
+            return strValue.substring(0, 40) + "...";
         }
+        return strValue;
     }
 }
