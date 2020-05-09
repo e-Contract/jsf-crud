@@ -494,6 +494,25 @@
             <type>java.lang.Object</type>
         </attribute>
     </tag>
+    
+    <tag>
+        <description>Attaches additional validator to the field input component.</description>
+        <tag-name>validator</tag-name>
+        <component>
+            <component-type>crud.validator</component-type>
+        </component>
+        <attribute>
+            <description>The validator identifier.</description>
+            <name>validatorId</name>
+            <required>true</required>
+            <type>java.lang.String</type>
+        </attribute>
+        <attribute>
+            <description>Set to true to disable the validator.</description>
+            <name>disabled</name>
+            <type>java.lang.Boolean</type>
+        </attribute>
+    </tag>
 
     <function>
         <function-name>toHumanReadable</function-name>

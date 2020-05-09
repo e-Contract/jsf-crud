@@ -18,7 +18,9 @@
 package be.e_contract.crud.jsf.component;
 
 import javax.faces.component.FacesComponent;
+import javax.faces.component.UIComponent;
 import javax.faces.component.UIComponentBase;
+import javax.faces.component.UIInput;
 
 @FacesComponent(FieldComponent.COMPONENT_TYPE)
 public class FieldComponent extends UIComponentBase {
@@ -101,5 +103,15 @@ public class FieldComponent extends UIComponentBase {
 
     public void setRequired(Boolean required) {
         getStateHelper().put(PropertyKeys.required, required);
+    }
+
+    public void addValidators(UIInput input) {
+        for (UIComponent child : getChildren()) {
+            if (!(child instanceof ValidatorComponent)) {
+                continue;
+            }
+            ValidatorComponent validatorComponent = (ValidatorComponent) child;
+            validatorComponent.applyValidator(input);
+        }
     }
 }

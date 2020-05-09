@@ -1508,6 +1508,7 @@ public class CRUDComponent extends UINamingContainer implements SystemEventListe
         }
         input.addValidator(new BeanValidationValidator());
         input.addValidator(new UniqueValidator());
+        addValidators(entityField, fields, input);
 
         Message inputTextMessage = (Message) application.createComponent(Message.COMPONENT_TYPE);
         htmlPanelGrid.getChildren().add(inputTextMessage);
@@ -1539,6 +1540,14 @@ public class CRUDComponent extends UINamingContainer implements SystemEventListe
             matchMessage.setFor(inputId + "Match");
         }
         return input;
+    }
+
+    private void addValidators(Field entityField, Map<String, FieldComponent> fields, UIInput input) {
+        FieldComponent fieldComponent = fields.get(entityField.getName());
+        if (null == fieldComponent) {
+            return;
+        }
+        fieldComponent.addValidators(input);
     }
 
     private void addColumn(DataTable dataTable, Field field, Map<String, FieldComponent> fields) {
