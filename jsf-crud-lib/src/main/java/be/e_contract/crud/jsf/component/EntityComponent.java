@@ -18,7 +18,6 @@
 package be.e_contract.crud.jsf.component;
 
 import be.e_contract.crud.jsf.CRUDComponent;
-import java.io.IOException;
 import java.util.Map;
 import javax.faces.component.FacesComponent;
 import javax.faces.component.UIComponent;
@@ -33,6 +32,8 @@ import org.slf4j.LoggerFactory;
 public class EntityComponent extends UIComponentBase {
 
     public static final String COMPONENT_TYPE = "crud.entity";
+
+    public static final String DEFAULT_RENDERER = "crud.entityRenderer";
 
     private static final Logger LOGGER = LoggerFactory.getLogger(EntityComponent.class);
 
@@ -72,7 +73,7 @@ public class EntityComponent extends UIComponentBase {
         return CRUDComponent.getCRUDComponent(getCrudComponentId());
     }
 
-    private Object setLocalVariable() {
+    Object setLocalVariable() {
         String var = getVar();
         FacesContext facesContext = FacesContext.getCurrentInstance();
         ExternalContext externalContext = facesContext.getExternalContext();
@@ -84,7 +85,7 @@ public class EntityComponent extends UIComponentBase {
         return oldVar;
     }
 
-    private void removeLocalVariable(Object oldVar) {
+    void removeLocalVariable(Object oldVar) {
         FacesContext facesContext = FacesContext.getCurrentInstance();
         ExternalContext externalContext = facesContext.getExternalContext();
         Map<String, Object> requestMap = externalContext.getRequestMap();
@@ -93,20 +94,6 @@ public class EntityComponent extends UIComponentBase {
         if (null != oldVar) {
             requestMap.put(var, oldVar);
         }
-    }
-
-    @Override
-    public void encodeChildren(FacesContext context) throws IOException {
-        LOGGER.debug("encodeChildren begin");
-        Object oldVar = setLocalVariable();
-        super.encodeChildren(context);
-        removeLocalVariable(oldVar);
-        LOGGER.debug("encodeChildren end");
-    }
-
-    @Override
-    public boolean getRendersChildren() {
-        return true;
     }
 
     @Override

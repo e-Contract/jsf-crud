@@ -80,21 +80,23 @@
         </crud:crud>
 
         <p:dialog id="customDialog" widgetVar="customDialog" header="Custom Dialog">
-            <crud:entity var="entity">
-                <h:form>
-                    <h:panelGrid columns="2">
+            <h:form>
+                <crud:entity var="entity">
+                    <h:panelGrid columns="3">
                         <h:outputText value="Entity"/>
                         <h:outputText value='#{entity.id}'/>
+                        <h:outputText/>
 
-                        <h:outputText value="Add amount"/>
-                        <p:inputText value="#{demoController.amount}"/>
+                        <p:outputLabel value="Add amount" for="amount"/>
+                        <p:inputText id="amount" value="#{demoController.amount}"/>
+                        <p:message for="amount"/>
                     </h:panelGrid>
                     <h:panelGrid columns="2">
                         <crud:saveButton action="#{demoController.addAmount}" value="Add amount"/>
                         <crud:dismissButton value="Close"/>
                     </h:panelGrid>
-                </h:form>
-            </crud:entity>
+                </crud:entity>
+            </h:form>
         </p:dialog>
 
         <p:dialog id='globalActionDialog' widgetVar='globalActionDialog' header='Global Action Dialog'>

@@ -269,6 +269,7 @@
         <tag-name>entity</tag-name>
         <component>
             <component-type>crud.entity</component-type>
+            <renderer-type>crud.entityRenderer</renderer-type>
         </component>
         <attribute>
             <description>The EL name used to access the entity.</description>
