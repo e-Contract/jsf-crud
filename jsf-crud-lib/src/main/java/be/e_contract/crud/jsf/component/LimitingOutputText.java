@@ -19,14 +19,11 @@ package be.e_contract.crud.jsf.component;
 
 import be.e_contract.crud.jsf.jpa.CRUDController;
 import be.e_contract.crud.jsf.jpa.EntityInspector;
-import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.List;
 import javax.faces.component.FacesComponent;
 import javax.faces.component.UIOutput;
-import javax.faces.context.FacesContext;
-import javax.faces.context.ResponseWriter;
 import javax.persistence.Entity;
 import javax.persistence.EntityManager;
 
@@ -37,6 +34,10 @@ public class LimitingOutputText extends UIOutput {
 
     public enum PropertyKeys {
         password,
+    }
+
+    public LimitingOutputText() {
+        setRendererType(LimitingOutputRenderer.RENDERER_TYPE);
     }
 
     @Override
@@ -52,19 +53,7 @@ public class LimitingOutputText extends UIOutput {
         getStateHelper().put(PropertyKeys.password, password);
     }
 
-    @Override
-    public void encodeBegin(FacesContext context) throws IOException {
-        String limitedValue = getLimitedValue();
-        ResponseWriter responseWriter = context.getResponseWriter();
-
-        String id = super.getClientId(context);
-        responseWriter.startElement("span", this);
-        responseWriter.writeAttribute("id", id, "id");
-        responseWriter.writeText(limitedValue, "value");
-        responseWriter.endElement("span");
-    }
-
-    private String getLimitedValue() {
+    String getLimitedValue() {
         Object value = getValue();
         if (null == value) {
             return "";

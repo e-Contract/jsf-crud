@@ -33,8 +33,6 @@ public class EntityComponent extends UIComponentBase {
 
     public static final String COMPONENT_TYPE = "crud.entity";
 
-    public static final String DEFAULT_RENDERER = "crud.entityRenderer";
-
     private static final Logger LOGGER = LoggerFactory.getLogger(EntityComponent.class);
 
     public enum PropertyKeys {

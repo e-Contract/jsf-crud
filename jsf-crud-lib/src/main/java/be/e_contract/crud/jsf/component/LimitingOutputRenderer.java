@@ -20,30 +20,25 @@ package be.e_contract.crud.jsf.component;
 import java.io.IOException;
 import javax.faces.component.UIComponent;
 import javax.faces.context.FacesContext;
+import javax.faces.context.ResponseWriter;
 import javax.faces.render.FacesRenderer;
 import javax.faces.render.Renderer;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
-@FacesRenderer(componentFamily = "crud", rendererType = EntityRenderer.RENDERER_TYPE)
-public class EntityRenderer extends Renderer {
+@FacesRenderer(componentFamily = "crud", rendererType = LimitingOutputRenderer.RENDERER_TYPE)
+public class LimitingOutputRenderer extends Renderer {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(EntityRenderer.class);
-
-    public static final String RENDERER_TYPE = "crud.entityRenderer";
+    public static final String RENDERER_TYPE = "crud.limitingOutputTextRenderer";
 
     @Override
-    public void encodeChildren(FacesContext context, UIComponent component) throws IOException {
-        LOGGER.debug("encodeChildren begin");
-        EntityComponent entityComponent = (EntityComponent) component;
-        Object oldVar = entityComponent.setLocalVariable();
-        super.encodeChildren(context, component);
-        entityComponent.removeLocalVariable(oldVar);
-        LOGGER.debug("encodeChildren end");
-    }
+    public void encodeBegin(FacesContext context, UIComponent component) throws IOException {
+        LimitingOutputText limitingOutputText = (LimitingOutputText) component;
+        String limitedValue = limitingOutputText.getLimitedValue();
+        ResponseWriter responseWriter = context.getResponseWriter();
 
-    @Override
-    public boolean getRendersChildren() {
-        return true;
+        String id = component.getClientId(context);
+        responseWriter.startElement("span", component);
+        responseWriter.writeAttribute("id", id, "id");
+        responseWriter.writeText(limitedValue, "value");
+        responseWriter.endElement("span");
     }
 }
