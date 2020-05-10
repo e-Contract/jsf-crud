@@ -476,6 +476,20 @@ public class CRUDComponent extends UINamingContainer implements SystemEventListe
         }
     }
 
+    private Dialog createDialog() {
+        FacesContext facesContext = getFacesContext();
+        Application application = facesContext.getApplication();
+        ExternalContext externalContext = facesContext.getExternalContext();
+        Dialog dialog = (Dialog) application.createComponent(Dialog.COMPONENT_TYPE);
+        dialog.setModal(true);
+        dialog.setDynamic(true);
+        String closable = externalContext.getInitParameter("crud.dialog.closable");
+        if (null != closable) {
+            dialog.setClosable(Boolean.parseBoolean(closable));
+        }
+        return dialog;
+    }
+
     private void addDeleteAllDialog(DeleteComponent deleteComponent, HtmlPanelGroup footerHtmlPanelGroup, Message message, DataTable dataTable) throws FacesException {
         if (null == deleteComponent) {
             return;
@@ -495,13 +509,11 @@ public class CRUDComponent extends UINamingContainer implements SystemEventListe
         commandButton.setUpdate(message.getClientId());
         commandButton.setIcon(deleteComponent.getIcon());
 
-        Dialog deleteAllDialog = (Dialog) application.createComponent(Dialog.COMPONENT_TYPE);
+        Dialog deleteAllDialog = createDialog();
         getChildren().add(deleteAllDialog);
         deleteAllDialog.setWidgetVar("deleteAllDialog");
         deleteAllDialog.setId("deleteAllDialog");
         deleteAllDialog.setHeader("Delete all?");
-        deleteAllDialog.setModal(true);
-        deleteAllDialog.setDynamic(true);
 
         HtmlOutputText htmlOutputText = (HtmlOutputText) application.createComponent(HtmlOutputText.COMPONENT_TYPE);
         deleteAllDialog.getChildren().add(htmlOutputText);
@@ -547,13 +559,11 @@ public class CRUDComponent extends UINamingContainer implements SystemEventListe
 
             UIComponent actionDialogComponent = action.getFacet("dialog");
             if (null != actionDialogComponent) {
-                Dialog customActionDialog = (Dialog) application.createComponent(Dialog.COMPONENT_TYPE);
+                Dialog customActionDialog = createDialog();
                 getChildren().add(customActionDialog);
                 customActionDialog.setId("ActionDialog" + actionIdx);
                 customActionDialog.setWidgetVar("ActionDialog" + actionIdx);
                 customActionDialog.setHeader(action.getValue());
-                customActionDialog.setModal(true);
-                customActionDialog.setDynamic(true);
 
                 UIComponent actionDialogTitleComponent = action.getFacet("dialogTitle");
                 if (null != actionDialogTitleComponent) {
@@ -630,13 +640,11 @@ public class CRUDComponent extends UINamingContainer implements SystemEventListe
             commandButton.setIcon(createComponent.getIcon());
         }
 
-        Dialog addDialog = (Dialog) application.createComponent(Dialog.COMPONENT_TYPE);
+        Dialog addDialog = createDialog();
         getChildren().add(addDialog);
         addDialog.setWidgetVar("addDialog");
         addDialog.setId("addDialog");
         addDialog.setHeader("Add " + entityName);
-        addDialog.setModal(true);
-        addDialog.setDynamic(true);
 
         HtmlForm addDialogHtmlForm = (HtmlForm) application.createComponent(HtmlForm.COMPONENT_TYPE);
         addDialog.getChildren().add(addDialogHtmlForm);
@@ -749,7 +757,7 @@ public class CRUDComponent extends UINamingContainer implements SystemEventListe
             commandButton.setIcon(deleteComponent.getIcon());
         }
 
-        Dialog deleteDialog = (Dialog) application.createComponent(Dialog.COMPONENT_TYPE);
+        Dialog deleteDialog = createDialog();
         getChildren().add(deleteDialog);
         deleteDialog.setWidgetVar("deleteDialog");
         String deleteDialogHeader = null;
@@ -761,8 +769,6 @@ public class CRUDComponent extends UINamingContainer implements SystemEventListe
         }
         deleteDialog.setHeader(deleteDialogHeader);
         deleteDialog.setId("deleteDialog");
-        deleteDialog.setModal(true);
-        deleteDialog.setDynamic(true);
 
         if (!relocateChildren(application, deleteComponent, deleteDialog)) {
             EntityComponent entityComponent = (EntityComponent) application.createComponent(EntityComponent.COMPONENT_TYPE);
@@ -845,13 +851,11 @@ public class CRUDComponent extends UINamingContainer implements SystemEventListe
             commandButton.setIcon(updateComponent.getIcon());
         }
 
-        Dialog updateDialog = (Dialog) application.createComponent(Dialog.COMPONENT_TYPE);
+        Dialog updateDialog = createDialog();
         getChildren().add(updateDialog);
         updateDialog.setWidgetVar("updateDialog");
         updateDialog.setId("updateDialog");
         updateDialog.setHeader("Update " + entityName);
-        updateDialog.setModal(true);
-        updateDialog.setDynamic(true);
 
         HtmlForm updateDialogHtmlForm = (HtmlForm) application.createComponent(HtmlForm.COMPONENT_TYPE);
         updateDialog.getChildren().add(updateDialogHtmlForm);
@@ -951,13 +955,11 @@ public class CRUDComponent extends UINamingContainer implements SystemEventListe
         commandButton.setId("viewButton");
         commandButton.setIcon(readComponent.getIcon());
 
-        Dialog viewDialog = (Dialog) application.createComponent(Dialog.COMPONENT_TYPE);
+        Dialog viewDialog = createDialog();
         getChildren().add(viewDialog);
         viewDialog.setWidgetVar("viewDialog");
         viewDialog.setId("viewDialog");
         viewDialog.setHeader("View " + entityName);
-        viewDialog.setModal(true);
-        viewDialog.setDynamic(true);
 
         HtmlForm viewDialogHtmlForm = (HtmlForm) application.createComponent(HtmlForm.COMPONENT_TYPE);
         viewDialog.getChildren().add(viewDialogHtmlForm);
