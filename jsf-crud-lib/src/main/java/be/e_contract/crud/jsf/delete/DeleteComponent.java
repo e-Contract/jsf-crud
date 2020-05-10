@@ -17,7 +17,6 @@
  */
 package be.e_contract.crud.jsf.delete;
 
-import be.e_contract.crud.jsf.update.UpdateComponent;
 import java.io.IOException;
 import javax.faces.component.FacesComponent;
 import javax.faces.component.UIComponentBase;

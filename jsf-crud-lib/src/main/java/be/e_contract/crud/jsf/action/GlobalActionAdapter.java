@@ -81,11 +81,11 @@ public class GlobalActionAdapter implements ActionListener, StateHolder {
 
     @Override
     public void processAction(ActionEvent event) throws AbortProcessingException {
-        FacesContext facesContext = FacesContext.getCurrentInstance();
-        ELContext elContext = facesContext.getELContext();
         if (null == this.methodExpression) {
             return;
         }
+        FacesContext facesContext = FacesContext.getCurrentInstance();
+        ELContext elContext = facesContext.getELContext();
         Object result = this.methodExpression.invoke(elContext, new Object[]{});
 
         UIComponent component = event.getComponent();
@@ -108,6 +108,7 @@ public class GlobalActionAdapter implements ActionListener, StateHolder {
             navigationHandler.handleNavigation(facesContext, null, outcome);
         } else {
             LOGGER.warn("unsupported return type: {}", result.getClass().getName());
+            throw new AbortProcessingException();
         }
     }
 

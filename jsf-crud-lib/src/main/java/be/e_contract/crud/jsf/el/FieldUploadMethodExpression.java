@@ -109,6 +109,7 @@ public class FieldUploadMethodExpression extends MethodExpression {
             entityField.set(getEntity(), fileContent);
         } catch (IllegalArgumentException | IllegalAccessException ex) {
             LOGGER.error("reflection error: " + ex.getMessage(), ex);
+            throw new PropertyNotFoundException();
         }
         return null;
     }

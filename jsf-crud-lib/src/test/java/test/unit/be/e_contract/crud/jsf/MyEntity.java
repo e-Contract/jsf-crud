@@ -17,11 +17,12 @@
  */
 package test.unit.be.e_contract.crud.jsf;
 
+import java.io.Serializable;
 import javax.persistence.Entity;
 import javax.persistence.Id;
 
 @Entity
-public class MyEntity {
+public class MyEntity implements Serializable {
 
     @Id
     String name;

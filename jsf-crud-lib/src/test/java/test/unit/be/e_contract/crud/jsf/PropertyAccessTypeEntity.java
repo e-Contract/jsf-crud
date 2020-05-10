@@ -17,13 +17,14 @@
  */
 package test.unit.be.e_contract.crud.jsf;
 
+import java.io.Serializable;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 
 @Entity
-public class PropertyAccessTypeEntity {
+public class PropertyAccessTypeEntity implements Serializable {
 
     private String name;
 

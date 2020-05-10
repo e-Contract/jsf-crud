@@ -101,7 +101,7 @@ public class ActionAdapter implements ActionListener, StateHolder {
 
     private void setEntity(Object entity, UIComponent component) {
         if (null == component) {
-            throw new IllegalArgumentException();
+            throw new AbortProcessingException();
         }
         if (component instanceof EntityComponent) {
             EntityComponent entityComponent = (EntityComponent) component;

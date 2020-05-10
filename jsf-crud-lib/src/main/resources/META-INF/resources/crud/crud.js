@@ -16,7 +16,9 @@
  * http://www.gnu.org/licenses/.
  */
 
-function crudDialogResponse(xhr, status, args, dialogWidgetVar) {
+"use strict";
+
+function crudDialogResponse(args, dialogWidgetVar) {
     if (args.validationFailed) {
         return;
     }

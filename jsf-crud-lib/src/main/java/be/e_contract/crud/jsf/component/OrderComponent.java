@@ -17,7 +17,10 @@
  */
 package be.e_contract.crud.jsf.component;
 
+import java.util.LinkedList;
+import java.util.List;
 import javax.faces.component.FacesComponent;
+import javax.faces.component.UIComponent;
 import javax.faces.component.UIComponentBase;
 
 @FacesComponent(OrderComponent.COMPONENT_TYPE)
@@ -28,5 +31,16 @@ public class OrderComponent extends UIComponentBase {
     @Override
     public String getFamily() {
         return "crud";
+    }
+
+    public List<FieldComponent> getOrder() {
+        List<FieldComponent> order = new LinkedList<>();
+        for (UIComponent child : getChildren()) {
+            if (child instanceof FieldComponent) {
+                FieldComponent orderFieldComponent = (FieldComponent) child;
+                order.add(orderFieldComponent);
+            }
+        }
+        return order;
     }
 }

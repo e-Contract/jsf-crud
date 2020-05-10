@@ -115,7 +115,7 @@ public class SaveButton extends UIComponentBase implements SystemEventListener {
         commandButton.addActionListener(new SaveActionListener(getAction()));
         Dialog dialog = getParentDialog();
         String dialogWidgetVar = dialog.getWidgetVar();
-        commandButton.setOncomplete("crudDialogResponse(xhr, status, args, '" + dialogWidgetVar + "')");
+        commandButton.setOncomplete("crudDialogResponse(args, '" + dialogWidgetVar + "')");
 
         HtmlForm htmlForm = getParentHtmlForm();
         String updateClientIds = htmlForm.getClientId();

@@ -25,7 +25,6 @@ import be.e_contract.crud.jsf.api.CRUD;
 import be.e_contract.crud.jsf.api.CreateListener;
 import be.e_contract.crud.jsf.api.DeleteListener;
 import be.e_contract.crud.jsf.api.UpdateListener;
-import be.e_contract.crud.jsf.component.BinaryComponent;
 import be.e_contract.crud.jsf.component.CRUDCommandButton;
 import be.e_contract.crud.jsf.component.ContainerComponent;
 import be.e_contract.crud.jsf.component.DismissButton;
@@ -33,7 +32,6 @@ import be.e_contract.crud.jsf.component.EntityComponent;
 import be.e_contract.crud.jsf.component.FieldComponent;
 import be.e_contract.crud.jsf.component.LimitingOutputText;
 import be.e_contract.crud.jsf.component.OrderComponent;
-import be.e_contract.crud.jsf.component.PasswordComponent;
 import be.e_contract.crud.jsf.component.PropertyComponent;
 import be.e_contract.crud.jsf.component.QueryComponent;
 import be.e_contract.crud.jsf.component.ReadComponent;
@@ -44,8 +42,8 @@ import be.e_contract.crud.jsf.create.CreateComponent;
 import be.e_contract.crud.jsf.delete.DeleteComponent;
 import be.e_contract.crud.jsf.el.CRUDELContext;
 import be.e_contract.crud.jsf.el.CRUDFunctions;
-import be.e_contract.crud.jsf.el.EntitySelectItemsValueExpression;
 import be.e_contract.crud.jsf.el.EntityFieldValueExpression;
+import be.e_contract.crud.jsf.el.EntitySelectItemsValueExpression;
 import be.e_contract.crud.jsf.el.EntityValueExpression;
 import be.e_contract.crud.jsf.el.FieldStreamedContentValueExpression;
 import be.e_contract.crud.jsf.el.FieldUploadMethodExpression;
@@ -62,6 +60,7 @@ import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
+import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.LinkedList;
@@ -174,6 +173,10 @@ public class CRUDComponent extends UINamingContainer implements SystemEventListe
         getStateHelper().put(PropertyKeys.entity, entity);
     }
 
+    private void updateEntityComponents(Object entity) {
+        updateEntityComponents(entity, this);
+    }
+
     private void updateEntityComponents(Object entity, UIComponent component) {
         if (component instanceof EntityComponent) {
             EntityComponent entityComponent = (EntityComponent) component;
@@ -209,7 +212,7 @@ public class CRUDComponent extends UINamingContainer implements SystemEventListe
         LOGGER.debug("setSelection: {}", entity);
         entity = eagerLoad(entity);
         getStateHelper().put(PropertyKeys.selection, entity);
-        updateEntityComponents(entity, this);
+        updateEntityComponents(entity);
     }
 
     public Object getSelection() {
@@ -278,14 +281,13 @@ public class CRUDComponent extends UINamingContainer implements SystemEventListe
             }
         }
 
-        FacesContext facesContext = FacesContext.getCurrentInstance();
+        FacesContext facesContext = getFacesContext();
         LOGGER.debug("constructing component");
         Application application = facesContext.getApplication();
-        ExpressionFactory expressionFactory = application.getExpressionFactory();
         ELContext elContext = facesContext.getELContext();
 
         try {
-            registerToHumanReadableFunction(elContext);
+            registerToHumanReadableFunction();
         } catch (NoSuchMethodException | IllegalAccessException | IllegalArgumentException | InvocationTargetException ex) {
             LOGGER.error("reflection error: " + ex.getMessage(), ex);
             throw new AbortProcessingException();
@@ -305,7 +307,7 @@ public class CRUDComponent extends UINamingContainer implements SystemEventListe
         List<ActionComponent> actions = new LinkedList<>();
         List<PropertyComponent> properties = new LinkedList<>();
         List<GlobalActionComponent> globalActions = new LinkedList<>();
-        List<FieldComponent> order = new LinkedList<>();
+        OrderComponent order = null;
         List<UIComponent> children = getChildren();
         for (UIComponent child : children) {
             if (child instanceof CreateComponent) {
@@ -351,14 +353,7 @@ public class CRUDComponent extends UINamingContainer implements SystemEventListe
                 GlobalActionComponent globalAction = (GlobalActionComponent) child;
                 globalActions.add(globalAction);
             } else if (child instanceof OrderComponent) {
-                order.clear();
-                List<UIComponent> orderChildren = child.getChildren();
-                for (UIComponent orderChild : orderChildren) {
-                    if (orderChild instanceof FieldComponent) {
-                        FieldComponent orderFieldComponent = (FieldComponent) orderChild;
-                        order.add(orderFieldComponent);
-                    }
-                }
+                order = (OrderComponent) child;
             }
         }
 
@@ -445,13 +440,13 @@ public class CRUDComponent extends UINamingContainer implements SystemEventListe
             dataTable.getChildren().add(column);
             column.setHeaderText("Actions");
 
-            addViewDialog(showView, readComponent, application, expressionFactory, elContext, column, entityName, message, entityInspector, idFields, fields);
+            addViewDialog(showView, readComponent, column, entityName, message, entityInspector, idFields, fields);
 
-            addUpdateDialog(showUpdate, updateComponent, application, column, entityName, message, expressionFactory, entityInspector, idFields, fields, updateFields);
+            addUpdateDialog(showUpdate, updateComponent, column, entityName, message, entityInspector, idFields, fields, updateFields);
 
-            addDeleteDialog(showDelete, application, column, deleteComponent, entityName, elContext, expressionFactory, message);
+            addDeleteDialog(showDelete, column, deleteComponent, entityName, message);
 
-            addCustomActions(actions, application, column, dataTable, message, facesContext);
+            addCustomActions(actions, column, dataTable, message);
         }
 
         boolean needFooter = false;
@@ -469,25 +464,28 @@ public class CRUDComponent extends UINamingContainer implements SystemEventListe
             dataTable.getFacets().put("footer", footerHtmlPanelGroup);
             footerHtmlPanelGroup.setStyle("display:block; text-align: left;");
 
-            addCreateDialog(showCreate, createComponent, application, footerHtmlPanelGroup, entityName, message, expressionFactory, idFields, entityInspector, fields, createFields);
+            addCreateDialog(showCreate, createComponent, footerHtmlPanelGroup, entityName, message, idFields, entityInspector, fields, createFields);
 
-            addDeleteAllDialog(deleteComponent, application, footerHtmlPanelGroup, message, dataTable, externalContext);
+            addDeleteAllDialog(deleteComponent, footerHtmlPanelGroup, message, dataTable);
 
             int globalActionIdx = 1;
             for (GlobalActionComponent globalAction : globalActions) {
-                addGlobalAction(globalAction, globalActionIdx, application, dataTable, message, facesContext, footerHtmlPanelGroup);
+                addGlobalAction(globalAction, globalActionIdx, dataTable, message, footerHtmlPanelGroup);
                 globalActionIdx++;
             }
         }
     }
 
-    private void addDeleteAllDialog(DeleteComponent deleteComponent, Application application, HtmlPanelGroup footerHtmlPanelGroup, Message message, DataTable dataTable, ExternalContext externalContext) throws FacesException {
+    private void addDeleteAllDialog(DeleteComponent deleteComponent, HtmlPanelGroup footerHtmlPanelGroup, Message message, DataTable dataTable) throws FacesException {
         if (null == deleteComponent) {
             return;
         }
         if (!deleteComponent.isDeleteAll()) {
             return;
         }
+        FacesContext facesContext = getFacesContext();
+        Application application = facesContext.getApplication();
+        ExternalContext externalContext = facesContext.getExternalContext();
 
         CommandButton commandButton = (CommandButton) application.createComponent(CommandButton.COMPONENT_TYPE);
         footerHtmlPanelGroup.getChildren().add(commandButton);
@@ -531,7 +529,9 @@ public class CRUDComponent extends UINamingContainer implements SystemEventListe
         htmlPanelGrid.getChildren().add(dismissCommandButton);
     }
 
-    private void addCustomActions(List<ActionComponent> actions, Application application, Column column, DataTable dataTable, Message message, FacesContext facesContext) throws FacesException {
+    private void addCustomActions(List<ActionComponent> actions, Column column, DataTable dataTable, Message message) throws FacesException {
+        FacesContext facesContext = getFacesContext();
+        Application application = facesContext.getApplication();
         int actionIdx = 0;
         for (ActionComponent action : actions) {
             CRUDCommandButton commandButton = (CRUDCommandButton) application.createComponent(CRUDCommandButton.COMPONENT_TYPE);
@@ -586,7 +586,9 @@ public class CRUDComponent extends UINamingContainer implements SystemEventListe
         }
     }
 
-    private void addGlobalAction(GlobalActionComponent globalAction, int globalActionIdx, Application application, DataTable dataTable, Message message, FacesContext facesContext, HtmlPanelGroup footerHtmlPanelGroup) {
+    private void addGlobalAction(GlobalActionComponent globalAction, int globalActionIdx, DataTable dataTable, Message message, HtmlPanelGroup footerHtmlPanelGroup) {
+        FacesContext facesContext = getFacesContext();
+        Application application = facesContext.getApplication();
         CommandButton commandButton = (CommandButton) application.createComponent(CommandButton.COMPONENT_TYPE);
         footerHtmlPanelGroup.getChildren().add(commandButton);
         commandButton.setId("GlobalAction" + globalActionIdx);
@@ -609,12 +611,16 @@ public class CRUDComponent extends UINamingContainer implements SystemEventListe
         }
     }
 
-    private void addCreateDialog(boolean showCreate, CreateComponent createComponent, Application application, HtmlPanelGroup footerHtmlPanelGroup, String entityName,
-            Message message, ExpressionFactory expressionFactory, List<Field> idFields, EntityInspector entityInspector,
+    private void addCreateDialog(boolean showCreate, CreateComponent createComponent, HtmlPanelGroup footerHtmlPanelGroup, String entityName,
+            Message message, List<Field> idFields, EntityInspector entityInspector,
             Map<String, FieldComponent> fields, Map<String, FieldComponent> createFields) throws FacesException {
         if (!showCreate) {
             return;
         }
+        FacesContext facesContext = getFacesContext();
+        Application application = facesContext.getApplication();
+        ExpressionFactory expressionFactory = application.getExpressionFactory();
+
         CommandButton commandButton = (CommandButton) application.createComponent(CommandButton.COMPONENT_TYPE);
         footerHtmlPanelGroup.getChildren().add(commandButton);
         commandButton.setValue("Add...");
@@ -704,10 +710,9 @@ public class CRUDComponent extends UINamingContainer implements SystemEventListe
         buttonHtmlPanelGrid.getChildren().add(addCommandButton);
         addCommandButton.setId("addButton");
         addCommandButton.setValue("Add");
-        addCommandButton.setOncomplete("crudDialogResponse(xhr, status, args, 'addDialog')");
+        addCommandButton.setOncomplete("crudDialogResponse(args, 'addDialog')");
         addCommandButton.addActionListener(new AddActionListener(getId()));
         addCommandButton.setUpdate(addDialogHtmlForm.getClientId());
-        FacesContext facesContext = getFacesContext();
         ExternalContext externalContext = facesContext.getExternalContext();
         String addButtonIcon = externalContext.getInitParameter("crud.dialog.createButton.icon");
         addCommandButton.setIcon(addButtonIcon);
@@ -716,12 +721,17 @@ public class CRUDComponent extends UINamingContainer implements SystemEventListe
         buttonHtmlPanelGrid.getChildren().add(dismissCommandButton);
     }
 
-    private void addDeleteDialog(boolean showDelete, Application application, Column column, DeleteComponent deleteComponent,
-            String entityName, ELContext elContext, ExpressionFactory expressionFactory,
+    private void addDeleteDialog(boolean showDelete, Column column, DeleteComponent deleteComponent,
+            String entityName,
             Message message) throws FacesException {
         if (!showDelete) {
             return;
         }
+        FacesContext facesContext = getFacesContext();
+        Application application = facesContext.getApplication();
+        ExpressionFactory expressionFactory = application.getExpressionFactory();
+        ELContext elContext = facesContext.getELContext();
+
         CommandButton commandButton = (CommandButton) application.createComponent(CommandButton.COMPONENT_TYPE);
         column.getChildren().add(commandButton);
         commandButton.setValue("Delete...");
@@ -771,7 +781,6 @@ public class CRUDComponent extends UINamingContainer implements SystemEventListe
         deleteCommandButton.setId("deleteButton");
         deleteCommandButton.addActionListener(new DeleteActionListener(getId()));
         deleteCommandButton.setOncomplete("PF('deleteDialog').hide()");
-        FacesContext facesContext = getFacesContext();
         ExternalContext externalContext = facesContext.getExternalContext();
         String deleteButtonIcon = externalContext.getInitParameter("crud.dialog.deleteButton.icon");
         deleteCommandButton.setIcon(deleteButtonIcon);
@@ -809,12 +818,15 @@ public class CRUDComponent extends UINamingContainer implements SystemEventListe
         }
     }
 
-    private void addUpdateDialog(boolean showUpdate, UpdateComponent updateComponent, Application application, Column column, String entityName, Message message,
-            ExpressionFactory expressionFactory, EntityInspector entityInspector, List<Field> idFields, Map<String, FieldComponent> fields,
+    private void addUpdateDialog(boolean showUpdate, UpdateComponent updateComponent, Column column, String entityName, Message message,
+            EntityInspector entityInspector, List<Field> idFields, Map<String, FieldComponent> fields,
             Map<String, FieldComponent> updateFields) throws FacesException {
         if (!showUpdate) {
             return;
         }
+        FacesContext facesContext = getFacesContext();
+        Application application = facesContext.getApplication();
+        ExpressionFactory expressionFactory = application.getExpressionFactory();
 
         CommandButton commandButton = (CommandButton) application.createComponent(CommandButton.COMPONENT_TYPE);
         column.getChildren().add(commandButton);
@@ -895,10 +907,9 @@ public class CRUDComponent extends UINamingContainer implements SystemEventListe
         buttonHtmlPanelGrid.getChildren().add(saveCommandButton);
         saveCommandButton.setId("saveButton");
         saveCommandButton.setValue("Save");
-        saveCommandButton.setOncomplete("crudDialogResponse(xhr, status, args, 'updateDialog')");
+        saveCommandButton.setOncomplete("crudDialogResponse(args, 'updateDialog')");
         saveCommandButton.addActionListener(new SaveActionListener(getId()));
         saveCommandButton.setUpdate(updateDialogHtmlForm.getClientId());
-        FacesContext facesContext = getFacesContext();
         ExternalContext externalContext = facesContext.getExternalContext();
         String saveButtonIcon = externalContext.getInitParameter("crud.dialog.updateButton.icon");
         saveCommandButton.setIcon(saveButtonIcon);
@@ -907,13 +918,16 @@ public class CRUDComponent extends UINamingContainer implements SystemEventListe
         buttonHtmlPanelGrid.getChildren().add(dismissCommandButton);
     }
 
-    private void addViewDialog(boolean showView, ReadComponent readComponent, Application application,
-            ExpressionFactory expressionFactory, ELContext elContext,
+    private void addViewDialog(boolean showView, ReadComponent readComponent,
             Column column, String entityName, Message message, EntityInspector entityInspector,
             List<Field> idFields, Map<String, FieldComponent> fields) throws FacesException {
         if (!showView) {
             return;
         }
+        FacesContext facesContext = getFacesContext();
+        Application application = facesContext.getApplication();
+        ExpressionFactory expressionFactory = application.getExpressionFactory();
+        ELContext elContext = facesContext.getELContext();
         CommandButton commandButton = (CommandButton) application.createComponent(CommandButton.COMPONENT_TYPE);
         column.getChildren().add(commandButton);
         commandButton.setValue("View...");
@@ -1033,7 +1047,9 @@ public class CRUDComponent extends UINamingContainer implements SystemEventListe
         buttonHtmlPanelGrid.getChildren().add(dismissCommandButton);
     }
 
-    private void registerToHumanReadableFunction(ELContext elContext) throws NoSuchMethodException, IllegalAccessException, IllegalArgumentException, InvocationTargetException {
+    private void registerToHumanReadableFunction() throws NoSuchMethodException, IllegalAccessException, IllegalArgumentException, InvocationTargetException {
+        FacesContext facesContext = getFacesContext();
+        ELContext elContext = facesContext.getELContext();
         FunctionMapper functionMapper = elContext.getFunctionMapper();
         if (null == functionMapper) {
             // open liberty
@@ -1060,7 +1076,11 @@ public class CRUDComponent extends UINamingContainer implements SystemEventListe
         mapFunctionMethod.invoke(functionMapper, "crud", "toHumanReadable", toHumanReadableMethod);
     }
 
-    private List<Field> order(List<Field> fields, List<FieldComponent> order) {
+    private List<Field> order(List<Field> fields, OrderComponent orderComponent) {
+        if (null == orderComponent) {
+            return fields;
+        }
+        List<FieldComponent> order = orderComponent.getOrder();
         if (order.isEmpty()) {
             return fields;
         }
@@ -1172,11 +1192,9 @@ public class CRUDComponent extends UINamingContainer implements SystemEventListe
         if (null == fieldComponent) {
             return defaultContentType;
         }
-        for (UIComponent fieldChild : fieldComponent.getChildren()) {
-            if (fieldChild instanceof BinaryComponent) {
-                BinaryComponent binaryComponent = (BinaryComponent) fieldChild;
-                return binaryComponent.getContentType();
-            }
+        String contentType = fieldComponent.getBinaryContentType();
+        if (null != contentType) {
+            return contentType;
         }
         return defaultContentType;
     }
@@ -1186,12 +1204,7 @@ public class CRUDComponent extends UINamingContainer implements SystemEventListe
         if (null == fieldComponent) {
             return false;
         }
-        for (UIComponent child : fieldComponent.getChildren()) {
-            if (child instanceof PasswordComponent) {
-                return true;
-            }
-        }
-        return false;
+        return fieldComponent.isPasswordField();
     }
 
     private boolean isFeedbackPassword(Field entityField, Map<String, FieldComponent> fields) {
@@ -1199,13 +1212,7 @@ public class CRUDComponent extends UINamingContainer implements SystemEventListe
         if (null == fieldComponent) {
             return false;
         }
-        for (UIComponent child : fieldComponent.getChildren()) {
-            if (child instanceof PasswordComponent) {
-                PasswordComponent passwordComponent = (PasswordComponent) child;
-                return passwordComponent.isFeedback();
-            }
-        }
-        return false;
+        return fieldComponent.isFeedbackPassword();
     }
 
     private boolean isMatchPassword(Field entityField, Map<String, FieldComponent> fields) {
@@ -1213,29 +1220,15 @@ public class CRUDComponent extends UINamingContainer implements SystemEventListe
         if (null == fieldComponent) {
             return false;
         }
-        for (UIComponent child : fieldComponent.getChildren()) {
-            if (child instanceof PasswordComponent) {
-                PasswordComponent passwordComponent = (PasswordComponent) child;
-                return passwordComponent.isMatch();
-            }
-        }
-        return false;
+        return fieldComponent.isMatchPassword();
     }
 
     private Map<String, FieldComponent> getEmbeddableFields(Field entityField, Map<String, FieldComponent> fields) {
-        Map<String, FieldComponent> embeddableFields = new HashMap<>();
         FieldComponent fieldComponent = fields.get(entityField.getName());
         if (null == fieldComponent) {
-            return embeddableFields;
+            return Collections.EMPTY_MAP;
         }
-        for (UIComponent fieldComponentChild : fieldComponent.getChildren()) {
-            if (!(fieldComponentChild instanceof FieldComponent)) {
-                continue;
-            }
-            FieldComponent childFieldComponent = (FieldComponent) fieldComponentChild;
-            embeddableFields.put(childFieldComponent.getName(), childFieldComponent);
-        }
-        return embeddableFields;
+        return fieldComponent.getEmbeddableFields();
     }
 
     private Integer getFieldSize(Field entityField, Map<String, FieldComponent> fields, Map<String, FieldComponent> overrideFields) {
@@ -1264,15 +1257,7 @@ public class CRUDComponent extends UINamingContainer implements SystemEventListe
         if (null == fieldComponent) {
             return null;
         }
-        UIComponent inputComponent = fieldComponent.getFacet("input");
-        if (null == inputComponent) {
-            return null;
-        }
-        if (!(inputComponent instanceof UIInput)) {
-            LOGGER.error("field input component not UIInput: {}", inputComponent);
-            return null;
-        }
-        return (UIInput) inputComponent;
+        return fieldComponent.getFieldInputComponent();
     }
 
     private UIInput addInputComponent(Field entityField, Field embeddableField, boolean addNotUpdate, EntityInspector entityInspector,
