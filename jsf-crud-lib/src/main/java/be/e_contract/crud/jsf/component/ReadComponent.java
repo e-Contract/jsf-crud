@@ -18,6 +18,7 @@
 package be.e_contract.crud.jsf.component;
 
 import javax.faces.component.FacesComponent;
+import javax.faces.component.UIComponent;
 import javax.faces.component.UIComponentBase;
 
 @FacesComponent(ReadComponent.COMPONENT_TYPE)
@@ -53,5 +54,14 @@ public class ReadComponent extends UIComponentBase {
 
     public void setDisabled(boolean disabled) {
         getStateHelper().put(PropertyKeys.disabled, disabled);
+    }
+
+    public OrderComponent findOrderComponent() {
+        for (UIComponent child : getChildren()) {
+            if (child instanceof OrderComponent) {
+                return (OrderComponent) child;
+            }
+        }
+        return null;
     }
 }

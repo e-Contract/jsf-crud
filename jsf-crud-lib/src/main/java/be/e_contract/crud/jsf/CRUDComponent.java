@@ -440,9 +440,9 @@ public class CRUDComponent extends UINamingContainer implements SystemEventListe
             dataTable.getChildren().add(column);
             column.setHeaderText("Actions");
 
-            addViewDialog(showView, readComponent, column, entityName, message, entityInspector, idFields, fields);
+            addViewDialog(showView, readComponent, column, entityName, message, entityInspector, idFields, fields, order);
 
-            addUpdateDialog(showUpdate, updateComponent, column, entityName, message, entityInspector, idFields, fields, updateFields);
+            addUpdateDialog(showUpdate, updateComponent, column, entityName, message, entityInspector, idFields, fields, updateFields, order);
 
             addDeleteDialog(showDelete, column, deleteComponent, entityName, message);
 
@@ -464,7 +464,7 @@ public class CRUDComponent extends UINamingContainer implements SystemEventListe
             dataTable.getFacets().put("footer", footerHtmlPanelGroup);
             footerHtmlPanelGroup.setStyle("display:block; text-align: left;");
 
-            addCreateDialog(showCreate, createComponent, footerHtmlPanelGroup, entityName, message, idFields, entityInspector, fields, createFields);
+            addCreateDialog(showCreate, createComponent, footerHtmlPanelGroup, entityName, message, idFields, entityInspector, fields, createFields, order);
 
             addDeleteAllDialog(deleteComponent, footerHtmlPanelGroup, message, dataTable);
 
@@ -613,7 +613,7 @@ public class CRUDComponent extends UINamingContainer implements SystemEventListe
 
     private void addCreateDialog(boolean showCreate, CreateComponent createComponent, HtmlPanelGroup footerHtmlPanelGroup, String entityName,
             Message message, List<Field> idFields, EntityInspector entityInspector,
-            Map<String, FieldComponent> fields, Map<String, FieldComponent> createFields) throws FacesException {
+            Map<String, FieldComponent> fields, Map<String, FieldComponent> createFields, OrderComponent order) throws FacesException {
         if (!showCreate) {
             return;
         }
@@ -675,7 +675,15 @@ public class CRUDComponent extends UINamingContainer implements SystemEventListe
             }
         }
 
-        for (Field entityField : entityInspector.getOtherFields()) {
+        List<Field> otherFields = entityInspector.getOtherFields();
+        OrderComponent overrideOrder;
+        if (null != createComponent) {
+            overrideOrder = createComponent.findOrderComponent();
+        } else {
+            overrideOrder = null;
+        }
+        otherFields = order(otherFields, order, overrideOrder);
+        for (Field entityField : otherFields) {
             addInputComponent(entityField, null, true, entityInspector, fields, createFields, htmlPanelGrid, false);
         }
 
@@ -820,7 +828,7 @@ public class CRUDComponent extends UINamingContainer implements SystemEventListe
 
     private void addUpdateDialog(boolean showUpdate, UpdateComponent updateComponent, Column column, String entityName, Message message,
             EntityInspector entityInspector, List<Field> idFields, Map<String, FieldComponent> fields,
-            Map<String, FieldComponent> updateFields) throws FacesException {
+            Map<String, FieldComponent> updateFields, OrderComponent order) throws FacesException {
         if (!showUpdate) {
             return;
         }
@@ -872,7 +880,15 @@ public class CRUDComponent extends UINamingContainer implements SystemEventListe
             }
         }
 
-        for (Field entityField : entityInspector.getOtherFields()) {
+        List<Field> otherFields = entityInspector.getOtherFields();
+        OrderComponent overrideOrder;
+        if (null != updateComponent) {
+            overrideOrder = updateComponent.findOrderComponent();
+        } else {
+            overrideOrder = null;
+        }
+        otherFields = order(otherFields, order, overrideOrder);
+        for (Field entityField : otherFields) {
             addInputComponent(entityField, null, false, entityInspector, fields, updateFields, htmlPanelGrid, false);
         }
 
@@ -920,7 +936,7 @@ public class CRUDComponent extends UINamingContainer implements SystemEventListe
 
     private void addViewDialog(boolean showView, ReadComponent readComponent,
             Column column, String entityName, Message message, EntityInspector entityInspector,
-            List<Field> idFields, Map<String, FieldComponent> fields) throws FacesException {
+            List<Field> idFields, Map<String, FieldComponent> fields, OrderComponent order) throws FacesException {
         if (!showView) {
             return;
         }
@@ -967,7 +983,10 @@ public class CRUDComponent extends UINamingContainer implements SystemEventListe
             }
         }
 
-        for (Field entityField : entityInspector.getOtherFields()) {
+        List<Field> otherFields = entityInspector.getOtherFields();
+        OrderComponent overrideOrder = readComponent.findOrderComponent();
+        otherFields = order(otherFields, order, overrideOrder);
+        for (Field entityField : otherFields) {
             String fieldLabel = getFieldLabel(entityField, fields);
             OutputLabel outputLabel = (OutputLabel) application.createComponent(OutputLabel.COMPONENT_TYPE);
             htmlPanelGrid.getChildren().add(outputLabel);
@@ -1074,6 +1093,13 @@ public class CRUDComponent extends UINamingContainer implements SystemEventListe
         Method toHumanReadableMethod = CRUDFunctions.class.getMethod("toHumanReadable", new Class[]{Object.class});
 
         mapFunctionMethod.invoke(functionMapper, "crud", "toHumanReadable", toHumanReadableMethod);
+    }
+
+    private List<Field> order(List<Field> fields, OrderComponent orderComponent, OrderComponent overrideOrderComponent) {
+        if (null == overrideOrderComponent) {
+            return order(fields, orderComponent);
+        }
+        return order(fields, overrideOrderComponent);
     }
 
     private List<Field> order(List<Field> fields, OrderComponent orderComponent) {

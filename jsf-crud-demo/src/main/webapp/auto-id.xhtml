@@ -15,6 +15,10 @@
         <crud:crud entity="AutoIdEntity" title="A fancy title!" orderBy="amount" ordering="DESC" id='crud'>
             <crud:create icon="fa fa-plus">
                 <crud:field name="amount" hide="true"/>
+                <crud:order>
+                    <crud:field name="myEnum"/>
+                    <crud:field name="demo"/>
+                </crud:order>
             </crud:create>
             <crud:read icon="fa fa-search"/>
             <crud:update disabled="false" icon="fa fa-save">

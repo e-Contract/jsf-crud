@@ -17,7 +17,9 @@
  */
 package be.e_contract.crud.jsf.create;
 
+import be.e_contract.crud.jsf.component.OrderComponent;
 import javax.faces.component.FacesComponent;
+import javax.faces.component.UIComponent;
 import javax.faces.component.UIComponentBase;
 
 @FacesComponent(CreateComponent.COMPONENT_TYPE)
@@ -53,5 +55,14 @@ public class CreateComponent extends UIComponentBase {
 
     public void setIcon(String icon) {
         getStateHelper().put(PropertyKeys.icon, icon);
+    }
+
+    public OrderComponent findOrderComponent() {
+        for (UIComponent child : getChildren()) {
+            if (child instanceof OrderComponent) {
+                return (OrderComponent) child;
+            }
+        }
+        return null;
     }
 }
