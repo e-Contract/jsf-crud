@@ -1457,6 +1457,9 @@ public class CRUDComponent extends UINamingContainer implements SystemEventListe
             } else {
                 LOGGER.error("FileUpload listener not set!");
             }
+            if (null != columnAnnotation) {
+                fileUpload.setSizeLimit(Long.valueOf(columnAnnotation.length()));
+            }
             input = fileUpload;
         } else if (isPasswordField(actualField, fields)) {
             input = (Password) application.createComponent(Password.COMPONENT_TYPE);
