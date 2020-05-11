@@ -2,12 +2,16 @@
 <server description="demo">
 
     <featureManager>
-        <feature>javaee-8.0</feature>
+        <feature>jpa-2.2</feature>
+        <feature>servlet-4.0</feature>
+        <feature>beanValidation-2.0</feature>
+        <feature>jsf-2.3</feature>
+        <feature>cdi-2.0</feature>
     </featureManager>
 
     <httpEndpoint id="defaultHttpEndpoint" httpPort="9080" httpsPort="9443"/>
 
-    <dataSource id="DefaultDataSource" jndiName="jdbc/h2">
+    <dataSource id="DefaultDataSource">
         <jdbcDriver libraryRef="h2-library"/>
         <properties URL="jdbc:h2:mem:demo"/>
     </dataSource>

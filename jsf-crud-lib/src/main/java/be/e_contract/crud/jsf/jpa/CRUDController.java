@@ -33,9 +33,13 @@ import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import javax.persistence.metamodel.Metamodel;
 import javax.transaction.UserTransaction;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 @Named("crudController")
 public class CRUDController {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(CRUDController.class);
 
     @PersistenceContext
     private EntityManager entityManager;
@@ -67,6 +71,10 @@ public class CRUDController {
         ELContext elContext = facesContext.getELContext();
         ValueExpression valueExpression = expressionFactory.createValueExpression(elContext, "#{crudController}", CRUDController.class);
         CRUDController crudController = (CRUDController) valueExpression.getValue(elContext);
+        if (null == crudController) {
+            LOGGER.error("CRUDController not found!");
+            throw new RuntimeException("CRUDController not found!");
+        }
         return crudController;
     }
 
