@@ -1333,10 +1333,12 @@ public class CRUDComponent extends UINamingContainer implements SystemEventListe
         input = getFieldInputComponent(entityField, overrideFields);
         if (null != input) {
             LOGGER.debug("custom input component {} for field {}", input, entityField.getName());
+            htmlPanelGrid.getChildren().add(input);
         } else if (null != elementCollectionAnnotation) {
             input = (Chips) application.createComponent(Chips.COMPONENT_TYPE);
             Chips chips = (Chips) input;
             chips.setDisabled(disabled);
+            htmlPanelGrid.getChildren().add(input);
         } else if (null != manyToManyAnnotation) {
             input = (SelectManyMenu) application.createComponent(SelectManyMenu.COMPONENT_TYPE);
             SelectManyMenu selectManyMenu = (SelectManyMenu) input;
@@ -1350,6 +1352,7 @@ public class CRUDComponent extends UINamingContainer implements SystemEventListe
             Class<?> listTypeClass = (Class<?>) parameterizedType.getActualTypeArguments()[0];
             selectManyMenu.setConverter(new EntityConverter());
             selectItems.setValueExpression("value", new EntitySelectItemsValueExpression(listTypeClass.getName()));
+            htmlPanelGrid.getChildren().add(input);
         } else if (null != manyToOneAnnotation || null != oneToOneAnnotation) {
             input = (SelectOneMenu) application.createComponent(SelectOneMenu.COMPONENT_TYPE);
             SelectOneMenu selectOneMenu = (SelectOneMenu) input;
@@ -1361,6 +1364,8 @@ public class CRUDComponent extends UINamingContainer implements SystemEventListe
             UISelectItems selectItems = (UISelectItems) application.createComponent(UISelectItems.COMPONENT_TYPE);
             input.getChildren().add(selectItems);
             selectItems.setValueExpression("value", new EntitySelectItemsValueExpression(actualField.getType().getName()));
+
+            htmlPanelGrid.getChildren().add(input);
         } else if (null != oneToManyAnnotation) {
             input = (SelectManyMenu) application.createComponent(SelectManyMenu.COMPONENT_TYPE);
             SelectManyMenu selectManyMenu = (SelectManyMenu) input;
@@ -1378,15 +1383,18 @@ public class CRUDComponent extends UINamingContainer implements SystemEventListe
             } else {
                 selectItems.setValueExpression("value", new EntitySelectItemsValueExpression(listTypeClass.getName(), entityField.getDeclaringClass().getName(), entityField.getName(), getId()));
             }
+            htmlPanelGrid.getChildren().add(input);
         } else if (actualField.getType() == Boolean.TYPE) {
             input = (SelectBooleanCheckbox) application.createComponent(SelectBooleanCheckbox.COMPONENT_TYPE);
             SelectBooleanCheckbox selectBooleanCheckbox = (SelectBooleanCheckbox) input;
             selectBooleanCheckbox.setDisabled(disabled);
+            htmlPanelGrid.getChildren().add(input);
         } else if (actualField.getType() == Boolean.class) {
             input = (TriStateCheckbox) application.createComponent(TriStateCheckbox.COMPONENT_TYPE);
             input.setConverter(new TriStateBooleanConverter());
             TriStateCheckbox triStateCheckbox = (TriStateCheckbox) input;
             triStateCheckbox.setDisabled(disabled);
+            htmlPanelGrid.getChildren().add(input);
         } else if (actualField.getType() == Date.class) {
             input = (Calendar) application.createComponent(Calendar.COMPONENT_TYPE);
             Calendar calendarComponent = (Calendar) input;
@@ -1411,6 +1419,7 @@ public class CRUDComponent extends UINamingContainer implements SystemEventListe
                     }
                 }
             }
+            htmlPanelGrid.getChildren().add(input);
         } else if (actualField.getType() == java.util.Calendar.class) {
             input = (Calendar) application.createComponent(Calendar.COMPONENT_TYPE);
             Calendar calendarComponent = (Calendar) input;
@@ -1418,6 +1427,7 @@ public class CRUDComponent extends UINamingContainer implements SystemEventListe
             input.setConverter(new CalendarConverter());
             Calendar calendar = (Calendar) input;
             calendar.setPattern("dd/MM/yyyy");
+            htmlPanelGrid.getChildren().add(input);
         } else if (actualField.getType().isEnum()) {
             input = (SelectOneMenu) application.createComponent(SelectOneMenu.COMPONENT_TYPE);
             SelectOneMenu selectOneMenu = (SelectOneMenu) input;
@@ -1431,9 +1441,11 @@ public class CRUDComponent extends UINamingContainer implements SystemEventListe
                 selectItem.setItemLabel(enumConstant.toString());
                 input.getChildren().add(selectItem);
             }
+            htmlPanelGrid.getChildren().add(input);
         } else if (actualField.getType() == byte[].class) {
             FileUpload fileUpload = (FileUpload) application.createComponent(FileUpload.COMPONENT_TYPE);
             fileUpload.setAuto(true);
+            fileUpload.setId(inputId);
             MethodExpression fileUploadListener = new FieldUploadMethodExpression(getId(), entityField.getName(), addNotUpdate);
             Method[] fileUploadMethods = FileUpload.class.getMethods();
             Method setFileUploadListenerMethod = null;
@@ -1461,6 +1473,15 @@ public class CRUDComponent extends UINamingContainer implements SystemEventListe
                 fileUpload.setSizeLimit(Long.valueOf(columnAnnotation.length()));
             }
             input = fileUpload;
+            htmlPanelGrid.getChildren().add(input);
+
+            CommandButton clearCommandButton = (CommandButton) application.createComponent(CommandButton.COMPONENT_TYPE);
+            fileUpload.getChildren().add(clearCommandButton);
+            clearCommandButton.setValue("Clear");
+            clearCommandButton.setId(inputId + "Clear");
+            clearCommandButton.addActionListener(new ClearFieldActionListener(getId(), entityField, addNotUpdate));
+            clearCommandButton.setImmediate(true);
+            clearCommandButton.setUpdate(fileUpload.getClientId() + "," + inputId + "Message");
         } else if (isPasswordField(actualField, fields)) {
             input = (Password) application.createComponent(Password.COMPONENT_TYPE);
             Password password = (Password) input;
@@ -1480,6 +1501,7 @@ public class CRUDComponent extends UINamingContainer implements SystemEventListe
                 length = columnAnnotation.length();
             }
             input.addValidator(new LengthValidator(length));
+            htmlPanelGrid.getChildren().add(input);
         } else {
             int length = 255;
             if (null != columnAnnotation) {
@@ -1502,8 +1524,8 @@ public class CRUDComponent extends UINamingContainer implements SystemEventListe
                 inputTextarea.setAutoResize(false);
             }
             input.addValidator(new LengthValidator(length));
+            htmlPanelGrid.getChildren().add(input);
         }
-        htmlPanelGrid.getChildren().add(input);
         input.setId(inputId);
         input.setValueExpression("value", new EntityFieldValueExpression(getId(), entityField, embeddableField, addNotUpdate));
         if (null != columnAnnotation) {
@@ -1534,6 +1556,7 @@ public class CRUDComponent extends UINamingContainer implements SystemEventListe
 
         Message inputTextMessage = (Message) application.createComponent(Message.COMPONENT_TYPE);
         htmlPanelGrid.getChildren().add(inputTextMessage);
+        inputTextMessage.setId(inputId + "Message");
         inputTextMessage.setFor(inputId);
 
         if (isMatchPassword(actualField, fields)) {
