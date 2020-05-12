@@ -23,6 +23,7 @@ import javax.faces.component.FacesComponent;
 import javax.faces.component.UIComponent;
 import javax.faces.component.UIComponentBase;
 import javax.faces.component.UIInput;
+import javax.faces.component.UIOutput;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -172,6 +173,18 @@ public class FieldComponent extends UIComponentBase {
             return null;
         }
         return (UIInput) inputComponent;
+    }
+
+    public UIOutput getFieldOutputComponent() {
+        UIComponent outputComponent = getFacet("output");
+        if (null == outputComponent) {
+            return null;
+        }
+        if (!(outputComponent instanceof UIOutput)) {
+            LOGGER.error("field output component is not UIOutput: {}", outputComponent);
+            return null;
+        }
+        return (UIOutput) outputComponent;
     }
 
     public String getBinaryContentType() {

@@ -80,6 +80,7 @@ import javax.faces.component.FacesComponent;
 import javax.faces.component.UIComponent;
 import javax.faces.component.UIInput;
 import javax.faces.component.UINamingContainer;
+import javax.faces.component.UIOutput;
 import javax.faces.component.UISelectItem;
 import javax.faces.component.UISelectItems;
 import javax.faces.component.UIViewRoot;
@@ -1618,12 +1619,26 @@ public class CRUDComponent extends UINamingContainer implements SystemEventListe
         String fieldLabel = getFieldLabel(field, fields);
         column.setHeaderText(fieldLabel);
 
-        LimitingOutputText outputText = (LimitingOutputText) application.createComponent(LimitingOutputText.COMPONENT_TYPE);
-        column.getChildren().add(outputText);
-        if (isPasswordField(field, fields)) {
-            outputText.setPassword(true);
+        UIOutput outputComponent = getFieldOutputComponent(field, fields);
+        if (null != outputComponent) {
+            column.getChildren().add(outputComponent);
+        } else {
+            LimitingOutputText outputText = (LimitingOutputText) application.createComponent(LimitingOutputText.COMPONENT_TYPE);
+            column.getChildren().add(outputText);
+            if (isPasswordField(field, fields)) {
+                outputText.setPassword(true);
+            }
+            outputComponent = outputText;
         }
-        outputText.setValueExpression("value", expressionFactory.createValueExpression(elContext, "#{row." + field.getName() + "}", field.getType()));
+        outputComponent.setValueExpression("value", expressionFactory.createValueExpression(elContext, "#{row." + field.getName() + "}", field.getType()));
+    }
+
+    private UIOutput getFieldOutputComponent(Field field, Map<String, FieldComponent> fields) {
+        FieldComponent fieldComponent = fields.get(field.getName());
+        if (null == fieldComponent) {
+            return null;
+        }
+        return fieldComponent.getFieldOutputComponent();
     }
 
     private void addColumn(DataTable dataTable, PropertyComponent property) {

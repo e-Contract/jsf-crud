@@ -37,7 +37,13 @@
             <crud:updateListener action="#{demoController.updated}"/>
             <crud:deleteListener action="#{demoController.deleted}"/>
             <crud:field name="id" sort="true"/>
-            <crud:field name="created" label="Creation Date"/>
+            <crud:field name="created" label="Creation Date">
+                <f:facet name="output">
+                    <h:outputText>
+                        <f:convertDateTime pattern="dd/MM/yyyy HH:mm:ss" />
+                    </h:outputText>
+                </f:facet>
+            </crud:field>
             <crud:field name="threeValuedLogic" hide="true"/>
             <crud:field name="description" filter="true" size="60">
                 <crud:validator validatorId="demoValidator"/>
