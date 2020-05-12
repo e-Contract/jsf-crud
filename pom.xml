@@ -139,6 +139,7 @@
         <slf4j.version>1.7.30</slf4j.version>
         <log4j.version>2.13.2</log4j.version>
         <hibernate.version>5.4.14.Final</hibernate.version>
+        <h2.version>1.4.200</h2.version>
     </properties>
     <scm>
         <connection>scm:git:e-contract.be:git/jsf-crud.git</connection>
@@ -204,7 +205,7 @@
             <dependency>
                 <groupId>com.h2database</groupId>
                 <artifactId>h2</artifactId>
-                <version>1.4.200</version>
+                <version>${h2.version}</version>
             </dependency>
             <dependency>
                 <groupId>commons-fileupload</groupId>

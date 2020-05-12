@@ -7,6 +7,7 @@
         <feature>beanValidation-2.0</feature>
         <feature>jsf-2.3</feature>
         <feature>cdi-2.0</feature>
+        <feature>ejbLite-3.2</feature>
     </featureManager>
 
     <httpEndpoint id="defaultHttpEndpoint" httpPort="9080" httpsPort="9443"/>
@@ -17,7 +18,7 @@
     </dataSource>
 
     <library id="h2-library">
-        <file name="${server.config.dir}/h2-1.4.200.jar"/>
+        <fileset dir="${server.config.dir}/" includes="h2-*.jar"/>
     </library>
 
 </server>
