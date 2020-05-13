@@ -2,6 +2,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml"
       xmlns:h="http://java.sun.com/jsf/html"
       xmlns:crud="urn:be:e-contract:crud:jsf"
+      xmlns:f="http://java.sun.com/jsf/core"
       xmlns:p="http://primefaces.org/ui">
 
     <h:head>
@@ -12,6 +13,19 @@
         <h1>JSF CRUD Demo</h1>
         <crud:crud entity="PropertyAccessTypeEntity">
             <crud:action value="Update Description" oncomplete="PF('customDialog').show()" update=":customDialog"/>
+            <crud:globalAction value="Custom Dialog Facet">
+                <f:facet name="dialog">
+                    <h:form>
+                        <h:outputText value="Custom Dialog"/>
+                        <h:panelGrid columns="1">
+                            <crud:dismissButton/>
+                        </h:panelGrid>
+                    </h:form>
+                </f:facet>
+                <f:facet name="dialogTitle">
+                    Custom Dialog Title
+                </f:facet>
+            </crud:globalAction>
         </crud:crud>
         <h:form>
             <p:commandLink action="/index?faces-redirect=true" value="Back"/>

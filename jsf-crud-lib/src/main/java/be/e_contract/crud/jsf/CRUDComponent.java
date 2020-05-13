@@ -621,6 +621,27 @@ public class CRUDComponent extends UINamingContainer implements SystemEventListe
         commandButton.setOncomplete(globalAction.getOncomplete());
         commandButton.setIcon(globalAction.getIcon());
         commandButton.setAjax(globalAction.isAjax());
+
+        UIComponent actionDialogComponent = globalAction.getFacet("dialog");
+        if (null != actionDialogComponent) {
+            Dialog customActionDialog = createDialog();
+            getChildren().add(customActionDialog);
+            customActionDialog.setId("GlobalActionDialog" + globalActionIdx);
+            customActionDialog.setWidgetVar("GlobalActionDialog" + globalActionIdx);
+            customActionDialog.setHeader(globalAction.getValue());
+
+            UIComponent actionDialogTitleComponent = globalAction.getFacet("dialogTitle");
+            if (null != actionDialogTitleComponent) {
+                String dialogTitle = actionDialogTitleComponent.toString().trim();
+                customActionDialog.setHeader(dialogTitle);
+            }
+
+            customActionDialog.getChildren().add(actionDialogComponent);
+
+            commandButton.setOncomplete("PF('" + "GlobalActionDialog" + globalActionIdx + "').show()");
+            commandButton.setUpdate(dataTable.getClientId() + "," + message.getClientId() + "," + actionDialogComponent.getClientId());
+        }
+
         String update = globalAction.getUpdate();
         if (null != update) {
             UIViewRoot view = facesContext.getViewRoot();
