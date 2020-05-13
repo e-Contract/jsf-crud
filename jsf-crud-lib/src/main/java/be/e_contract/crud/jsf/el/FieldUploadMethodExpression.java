@@ -40,8 +40,8 @@ public class FieldUploadMethodExpression extends MethodExpression {
 
     private final boolean create;
 
-    public FieldUploadMethodExpression(String crudComponentId, String entityFieldName, boolean create) {
-        this.crudComponentId = crudComponentId;
+    public FieldUploadMethodExpression(CRUDComponent crudComponent, String entityFieldName, boolean create) {
+        this.crudComponentId = crudComponent.getId();
         this.entityFieldName = entityFieldName;
         this.create = create;
     }

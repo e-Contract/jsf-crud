@@ -196,4 +196,13 @@ public class FieldComponent extends UIComponentBase {
         }
         return null;
     }
+
+    public QueryComponent getQueryComponent() {
+        for (UIComponent fieldChild : getChildren()) {
+            if (fieldChild instanceof QueryComponent) {
+                return (QueryComponent) fieldChild;
+            }
+        }
+        return null;
+    }
 }

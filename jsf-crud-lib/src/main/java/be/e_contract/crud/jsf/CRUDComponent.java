@@ -409,12 +409,12 @@ public class CRUDComponent extends UINamingContainer implements SystemEventListe
         htmlForm.getChildren().add(dataTable);
         dataTable.setId("table");
 
-        AjaxUpdateListener ajaxUpdateCreateListener = new AjaxUpdateListener(getId());
+        AjaxUpdateListener ajaxUpdateCreateListener = new AjaxUpdateListener(this);
         ajaxUpdateCreateListener.addClientId(message.getClientId());
         ajaxUpdateCreateListener.addClientId(dataTable.getClientId());
         addFacesListener(ajaxUpdateCreateListener);
 
-        ValueExpression valueExpression = new EntityValueExpression(getId());
+        ValueExpression valueExpression = new EntityValueExpression(this);
         dataTable.setValueExpression("value", valueExpression);
         dataTable.setVar("row");
         dataTable.setResizableColumns(true);
@@ -545,7 +545,7 @@ public class CRUDComponent extends UINamingContainer implements SystemEventListe
         htmlPanelGrid.getChildren().add(deleteCommandButton);
         deleteCommandButton.setValue("Delete All");
         deleteCommandButton.setId("deleteAllButton");
-        deleteCommandButton.addActionListener(new DeleteAllActionListener(getId()));
+        deleteCommandButton.addActionListener(new DeleteAllActionListener(this));
         deleteCommandButton.setOncomplete("PF('deleteAllDialog').hide()");
         deleteCommandButton.setUpdate(dataTable.getClientId() + "," + message.getClientId());
         String deleteButtonIcon = externalContext.getInitParameter("crud.dialog.deleteButton.icon");
@@ -566,7 +566,7 @@ public class CRUDComponent extends UINamingContainer implements SystemEventListe
             commandButton.setId("Action" + actionIdx);
             actionIdx++;
             commandButton.setUpdate(dataTable.getClientId() + "," + message.getClientId());
-            commandButton.addActionListener(new ActionAdapter(action.getAction(), action.getUpdate(), getId()));
+            commandButton.addActionListener(new ActionAdapter(action.getAction(), action.getUpdate(), this));
             commandButton.setOncomplete(action.getOncomplete());
             commandButton.setIcon(action.getIcon());
             commandButton.setAjax(action.isAjax());
@@ -589,7 +589,7 @@ public class CRUDComponent extends UINamingContainer implements SystemEventListe
 
                 commandButton.setOncomplete("PF('" + "ActionDialog" + actionIdx + "').show()");
                 commandButton.setUpdate(dataTable.getClientId() + "," + message.getClientId() + "," + actionDialogComponent.getClientId());
-                commandButton.addActionListener(new SelectRowActionListener(getId()));
+                commandButton.addActionListener(new SelectRowActionListener(this));
             }
 
             ValueExpression renderedValueExpression = action.getRenderedValueExpression();
@@ -699,7 +699,7 @@ public class CRUDComponent extends UINamingContainer implements SystemEventListe
                     UIInput input = addInputComponent(idField, null, true, entityInspector, fields, createFields, htmlPanelGrid, true);
                     if (idFields.size() == 1) {
                         // TODO: validate multiple ID fields together
-                        input.addValidator(new NonExistingIdentifierValidator(getId()));
+                        input.addValidator(new NonExistingIdentifierValidator(this));
                     }
                 }
             } else {
@@ -762,7 +762,7 @@ public class CRUDComponent extends UINamingContainer implements SystemEventListe
         addCommandButton.setId("addButton");
         addCommandButton.setValue("Add");
         addCommandButton.setOncomplete("crudDialogResponse(args, 'addDialog')");
-        addCommandButton.addActionListener(new AddActionListener(getId()));
+        addCommandButton.addActionListener(new AddActionListener(this));
         addCommandButton.setUpdate(addDialogHtmlForm.getClientId());
         ExternalContext externalContext = facesContext.getExternalContext();
         String addButtonIcon = externalContext.getInitParameter("crud.dialog.createButton.icon");
@@ -828,7 +828,7 @@ public class CRUDComponent extends UINamingContainer implements SystemEventListe
         htmlPanelGrid.getChildren().add(deleteCommandButton);
         deleteCommandButton.setValue("Delete");
         deleteCommandButton.setId("deleteButton");
-        deleteCommandButton.addActionListener(new DeleteActionListener(getId()));
+        deleteCommandButton.addActionListener(new DeleteActionListener(this));
         deleteCommandButton.setOncomplete("PF('deleteDialog').hide()");
         ExternalContext externalContext = facesContext.getExternalContext();
         String deleteButtonIcon = externalContext.getInitParameter("crud.dialog.deleteButton.icon");
@@ -838,7 +838,7 @@ public class CRUDComponent extends UINamingContainer implements SystemEventListe
         htmlPanelGrid.getChildren().add(dismissCommandButton);
 
         commandButton.setUpdate(deleteDialog.getClientId() + "," + message.getClientId());
-        commandButton.addActionListener(new SelectRowActionListener(getId()));
+        commandButton.addActionListener(new SelectRowActionListener(this));
     }
 
     private boolean relocateChildren(Application application, UIComponent oldParent, UIComponent newParent) {
@@ -897,7 +897,7 @@ public class CRUDComponent extends UINamingContainer implements SystemEventListe
         updateDialogHtmlForm.setId("updateForm");
 
         commandButton.setUpdate(updateDialog.getClientId() + "," + message.getClientId());
-        commandButton.addActionListener(new SelectRowActionListener(getId()));
+        commandButton.addActionListener(new SelectRowActionListener(this));
         commandButton.addActionListener(new ResetInputActionListener(expressionFactory.createValueExpression(updateDialogHtmlForm.getClientId(), String.class), null));
 
         HtmlPanelGrid htmlPanelGrid = (HtmlPanelGrid) application.createComponent(HtmlPanelGrid.COMPONENT_TYPE);
@@ -912,7 +912,7 @@ public class CRUDComponent extends UINamingContainer implements SystemEventListe
 
                 LimitingOutputText identifierOutputText = (LimitingOutputText) application.createComponent(LimitingOutputText.COMPONENT_TYPE);
                 htmlPanelGrid.getChildren().add(identifierOutputText);
-                identifierOutputText.setValueExpression("value", new EntityFieldValueExpression(getId(), idField, null, false));
+                identifierOutputText.setValueExpression("value", new EntityFieldValueExpression(this, idField, null, false));
 
                 HtmlOutputText voidOutputText = (HtmlOutputText) application.createComponent(HtmlOutputText.COMPONENT_TYPE);
                 htmlPanelGrid.getChildren().add(voidOutputText);
@@ -963,7 +963,7 @@ public class CRUDComponent extends UINamingContainer implements SystemEventListe
         saveCommandButton.setId("saveButton");
         saveCommandButton.setValue("Save");
         saveCommandButton.setOncomplete("crudDialogResponse(args, 'updateDialog')");
-        saveCommandButton.addActionListener(new SaveActionListener(getId()));
+        saveCommandButton.addActionListener(new SaveActionListener(this));
         saveCommandButton.setUpdate(updateDialogHtmlForm.getClientId());
         ExternalContext externalContext = facesContext.getExternalContext();
         String saveButtonIcon = externalContext.getInitParameter("crud.dialog.updateButton.icon");
@@ -1001,7 +1001,7 @@ public class CRUDComponent extends UINamingContainer implements SystemEventListe
         viewDialogHtmlForm.setId("viewForm");
 
         commandButton.setUpdate(viewDialog.getClientId() + "," + message.getClientId());
-        commandButton.addActionListener(new SelectRowActionListener(getId()));
+        commandButton.addActionListener(new SelectRowActionListener(this));
 
         HtmlPanelGrid htmlPanelGrid = (HtmlPanelGrid) application.createComponent(HtmlPanelGrid.COMPONENT_TYPE);
         viewDialogHtmlForm.getChildren().add(htmlPanelGrid);
@@ -1014,7 +1014,7 @@ public class CRUDComponent extends UINamingContainer implements SystemEventListe
 
             LimitingOutputText identifierOutputText = (LimitingOutputText) application.createComponent(LimitingOutputText.COMPONENT_TYPE);
             htmlPanelGrid.getChildren().add(identifierOutputText);
-            identifierOutputText.setValueExpression("value", new EntityFieldValueExpression(getId(), idField, null, false));
+            identifierOutputText.setValueExpression("value", new EntityFieldValueExpression(this, idField, null, false));
             if (isPasswordField(idField, fields)) {
                 identifierOutputText.setPassword(true);
             }
@@ -1032,7 +1032,7 @@ public class CRUDComponent extends UINamingContainer implements SystemEventListe
             if (entityField.getType().isAssignableFrom(List.class)) {
                 DataList dataList = (DataList) application.createComponent(DataList.COMPONENT_TYPE);
                 htmlPanelGrid.getChildren().add(dataList);
-                dataList.setValueExpression("value", new EntityFieldValueExpression(getId(), entityField, null, false));
+                dataList.setValueExpression("value", new EntityFieldValueExpression(this, entityField, null, false));
                 dataList.setVar("entity");
                 dataList.setStyleClass("crudDataList");
 
@@ -1048,13 +1048,13 @@ public class CRUDComponent extends UINamingContainer implements SystemEventListe
                 downloadCommandButton.setUpdate(viewDialogHtmlForm.getClientId());
                 downloadCommandButton.setAjax(false);
                 String contentType = getContentType(entityField, fields);
-                ValueExpression fieldStreamedContentValueExpression = new FieldStreamedContentValueExpression(getId(), entityField.getName(), contentType);
+                ValueExpression fieldStreamedContentValueExpression = new FieldStreamedContentValueExpression(this, entityField.getName(), contentType);
                 FileDownloadActionListener fileDownloadActionListener = new FileDownloadActionListener(fieldStreamedContentValueExpression, null, null);
                 downloadCommandButton.addActionListener(fileDownloadActionListener);
             } else {
                 LimitingOutputText outputText = (LimitingOutputText) application.createComponent(LimitingOutputText.COMPONENT_TYPE);
                 htmlPanelGrid.getChildren().add(outputText);
-                outputText.setValueExpression("value", new EntityFieldValueExpression(getId(), entityField, null, false));
+                outputText.setValueExpression("value", new EntityFieldValueExpression(this, entityField, null, false));
                 if (isPasswordField(entityField, fields)) {
                     outputText.setPassword(true);
                 }
@@ -1088,7 +1088,7 @@ public class CRUDComponent extends UINamingContainer implements SystemEventListe
 
                 LimitingOutputText outputText = (LimitingOutputText) application.createComponent(LimitingOutputText.COMPONENT_TYPE);
                 embeddedHtmlPanelGrid.getChildren().add(outputText);
-                outputText.setValueExpression("value", new EntityFieldValueExpression(getId(), embeddedField, embeddableField, false));
+                outputText.setValueExpression("value", new EntityFieldValueExpression(this, embeddedField, embeddableField, false));
                 if (isPasswordField(embeddableField, fields)) {
                     outputText.setPassword(true);
                 }
@@ -1320,6 +1320,23 @@ public class CRUDComponent extends UINamingContainer implements SystemEventListe
         return size;
     }
 
+    private QueryComponent getFieldQueryComponent(Field entityField, Map<String, FieldComponent> fields, Map<String, FieldComponent> overrideFields) {
+        if (null != overrideFields) {
+            FieldComponent fieldComponent = overrideFields.get(entityField.getName());
+            if (null != fieldComponent) {
+                QueryComponent queryComponent = fieldComponent.getQueryComponent();
+                if (null != queryComponent) {
+                    return queryComponent;
+                }
+            }
+        }
+        FieldComponent fieldComponent = fields.get(entityField.getName());
+        if (null == fieldComponent) {
+            return null;
+        }
+        return fieldComponent.getQueryComponent();
+    }
+
     private UIInput getFieldInputComponent(Field entityField, Map<String, FieldComponent> fields) {
         if (fields == null) {
             return null;
@@ -1394,7 +1411,12 @@ public class CRUDComponent extends UINamingContainer implements SystemEventListe
             ParameterizedType parameterizedType = (ParameterizedType) type;
             Class<?> listTypeClass = (Class<?>) parameterizedType.getActualTypeArguments()[0];
             selectManyMenu.setConverter(new EntityConverter());
-            selectItems.setValueExpression("value", new EntitySelectItemsValueExpression(listTypeClass.getName()));
+            QueryComponent queryComponent = getFieldQueryComponent(actualField, fields, overrideFields);
+            if (null != queryComponent) {
+                selectItems.setValueExpression("value", new EntitySelectItemsValueExpression(this, queryComponent));
+            } else {
+                selectItems.setValueExpression("value", new EntitySelectItemsValueExpression(listTypeClass));
+            }
             htmlPanelGrid.getChildren().add(input);
         } else if (null != manyToOneAnnotation || null != oneToOneAnnotation) {
             input = (SelectOneMenu) application.createComponent(SelectOneMenu.COMPONENT_TYPE);
@@ -1406,7 +1428,12 @@ public class CRUDComponent extends UINamingContainer implements SystemEventListe
 
             UISelectItems selectItems = (UISelectItems) application.createComponent(UISelectItems.COMPONENT_TYPE);
             input.getChildren().add(selectItems);
-            selectItems.setValueExpression("value", new EntitySelectItemsValueExpression(actualField.getType().getName()));
+            QueryComponent queryComponent = getFieldQueryComponent(actualField, fields, overrideFields);
+            if (null != queryComponent) {
+                selectItems.setValueExpression("value", new EntitySelectItemsValueExpression(this, queryComponent));
+            } else {
+                selectItems.setValueExpression("value", new EntitySelectItemsValueExpression(actualField.getType()));
+            }
 
             htmlPanelGrid.getChildren().add(input);
         } else if (null != oneToManyAnnotation) {
@@ -1421,10 +1448,13 @@ public class CRUDComponent extends UINamingContainer implements SystemEventListe
             ParameterizedType parameterizedType = (ParameterizedType) type;
             Class<?> listTypeClass = (Class<?>) parameterizedType.getActualTypeArguments()[0];
             selectManyMenu.setConverter(new EntityConverter());
-            if (addNotUpdate) {
-                selectItems.setValueExpression("value", new EntitySelectItemsValueExpression(listTypeClass.getName(), entityField.getDeclaringClass().getName(), entityField.getName(), null));
+            QueryComponent queryComponent = getFieldQueryComponent(actualField, fields, overrideFields);
+            if (null != queryComponent) {
+                selectItems.setValueExpression("value", new EntitySelectItemsValueExpression(this, queryComponent));
+            } else if (addNotUpdate) {
+                selectItems.setValueExpression("value", new EntitySelectItemsValueExpression(listTypeClass, entityField.getDeclaringClass(), entityField.getName(), null));
             } else {
-                selectItems.setValueExpression("value", new EntitySelectItemsValueExpression(listTypeClass.getName(), entityField.getDeclaringClass().getName(), entityField.getName(), getId()));
+                selectItems.setValueExpression("value", new EntitySelectItemsValueExpression(listTypeClass, entityField.getDeclaringClass(), entityField.getName(), this));
             }
             htmlPanelGrid.getChildren().add(input);
         } else if (actualField.getType() == Boolean.TYPE) {
@@ -1489,7 +1519,7 @@ public class CRUDComponent extends UINamingContainer implements SystemEventListe
             FileUpload fileUpload = (FileUpload) application.createComponent(FileUpload.COMPONENT_TYPE);
             fileUpload.setAuto(true);
             fileUpload.setId(inputId);
-            MethodExpression fileUploadListener = new FieldUploadMethodExpression(getId(), entityField.getName(), addNotUpdate);
+            MethodExpression fileUploadListener = new FieldUploadMethodExpression(this, entityField.getName(), addNotUpdate);
             Method[] fileUploadMethods = FileUpload.class.getMethods();
             Method setFileUploadListenerMethod = null;
             for (Method fileUploadMethod : fileUploadMethods) {
@@ -1522,7 +1552,7 @@ public class CRUDComponent extends UINamingContainer implements SystemEventListe
             fileUpload.getChildren().add(clearCommandButton);
             clearCommandButton.setValue("Clear");
             clearCommandButton.setId(inputId + "Clear");
-            clearCommandButton.addActionListener(new ClearFieldActionListener(getId(), entityField, addNotUpdate));
+            clearCommandButton.addActionListener(new ClearFieldActionListener(this, entityField, addNotUpdate));
             clearCommandButton.setImmediate(true);
             clearCommandButton.setUpdate(fileUpload.getClientId() + "," + inputId + "Message");
         } else if (isPasswordField(actualField, fields)) {
@@ -1570,7 +1600,7 @@ public class CRUDComponent extends UINamingContainer implements SystemEventListe
             htmlPanelGrid.getChildren().add(input);
         }
         input.setId(inputId);
-        input.setValueExpression("value", new EntityFieldValueExpression(getId(), entityField, embeddableField, addNotUpdate));
+        input.setValueExpression("value", new EntityFieldValueExpression(this, entityField, embeddableField, addNotUpdate));
         if (null != columnAnnotation) {
             if (!columnAnnotation.nullable()) {
                 input.setRequired(true);
@@ -1621,7 +1651,7 @@ public class CRUDComponent extends UINamingContainer implements SystemEventListe
                 length = columnAnnotation.length();
             }
             matchPassword.addValidator(new LengthValidator(length));
-            matchPassword.setValueExpression("value", new EntityFieldValueExpression(getId(), entityField, embeddableField, addNotUpdate));
+            matchPassword.setValueExpression("value", new EntityFieldValueExpression(this, entityField, embeddableField, addNotUpdate));
 
             Message matchMessage = (Message) application.createComponent(Message.COMPONENT_TYPE);
             htmlPanelGrid.getChildren().add(matchMessage);

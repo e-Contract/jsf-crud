@@ -56,8 +56,8 @@ public class EntityValueExpression extends ValueExpression {
         LOGGER.debug("default constructor");
     }
 
-    public EntityValueExpression(String crudComponentId) {
-        this.crudComponentId = crudComponentId;
+    public EntityValueExpression(CRUDComponent crudComponent) {
+        this.crudComponentId = crudComponent.getId();
     }
 
     @Override

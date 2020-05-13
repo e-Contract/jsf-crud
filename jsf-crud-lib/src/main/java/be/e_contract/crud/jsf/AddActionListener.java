@@ -44,8 +44,8 @@ public class AddActionListener extends AbstractCRUDComponentStateHolder implemen
         super();
     }
 
-    public AddActionListener(String crudComponentId) {
-        super(crudComponentId);
+    public AddActionListener(CRUDComponent crudComponent) {
+        super(crudComponent);
     }
 
     @Override

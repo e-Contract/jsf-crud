@@ -30,8 +30,8 @@ public abstract class AbstractCRUDComponentStateHolder implements StateHolder {
         super();
     }
 
-    protected AbstractCRUDComponentStateHolder(String crudComponentId) {
-        this.crudComponentId = crudComponentId;
+    protected AbstractCRUDComponentStateHolder(CRUDComponent crudComponent) {
+        this.crudComponentId = crudComponent.getId();
     }
 
     @Override

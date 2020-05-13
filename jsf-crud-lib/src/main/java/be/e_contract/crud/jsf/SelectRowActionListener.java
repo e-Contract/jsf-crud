@@ -34,8 +34,8 @@ public class SelectRowActionListener extends AbstractCRUDComponentStateHolder im
         super();
     }
 
-    public SelectRowActionListener(String crudComponentId) {
-        super(crudComponentId);
+    public SelectRowActionListener(CRUDComponent crudComponent) {
+        super(crudComponent);
     }
 
     @Override

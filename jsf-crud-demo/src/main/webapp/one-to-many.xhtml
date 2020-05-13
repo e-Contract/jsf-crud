@@ -11,6 +11,9 @@
     <h:body>
         <h1>JSF CRUD Demo</h1>
         <crud:crud entity="CarEntity" title="Cars">
+            <crud:field name="drivers">
+                <crud:query query="SELECT person FROM PersonEntity AS person"/>
+            </crud:field>
             <crud:read/>
         </crud:crud>
         <crud:crud entity="PersonEntity" title="Persons">

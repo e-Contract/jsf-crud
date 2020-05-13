@@ -45,8 +45,8 @@ public class ClearFieldActionListener implements ActionListener, StateHolder {
         super();
     }
 
-    public ClearFieldActionListener(String crudComponentId, Field entityField, boolean addNotUpdate) {
-        this.crudComponentId = crudComponentId;
+    public ClearFieldActionListener(CRUDComponent crudComponent, Field entityField, boolean addNotUpdate) {
+        this.crudComponentId = crudComponent.getId();
         this.entityFieldName = entityField.getName();
         this.addNotUpdate = addNotUpdate;
     }

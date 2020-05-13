@@ -41,8 +41,8 @@ public class FieldStreamedContentValueExpression extends ValueExpression {
 
     private final String contentType;
 
-    public FieldStreamedContentValueExpression(String crudComponentId, String entityFieldName, String contentType) {
-        this.crudComponentId = crudComponentId;
+    public FieldStreamedContentValueExpression(CRUDComponent crudComponent, String entityFieldName, String contentType) {
+        this.crudComponentId = crudComponent.getId();
         this.entityFieldName = entityFieldName;
         this.contentType = contentType;
     }

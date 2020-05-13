@@ -42,8 +42,8 @@ public class SaveActionListener extends AbstractCRUDComponentStateHolder impleme
         super();
     }
 
-    public SaveActionListener(String crudComponentId) {
-        super(crudComponentId);
+    public SaveActionListener(CRUDComponent crudComponent) {
+        super(crudComponent);
     }
 
     @Override

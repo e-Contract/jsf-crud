@@ -18,6 +18,7 @@
 package be.e_contract.crud.jsf.el;
 
 import be.e_contract.crud.jsf.CRUDComponent;
+import be.e_contract.crud.jsf.component.QueryComponent;
 import be.e_contract.crud.jsf.jpa.CRUDController;
 import be.e_contract.crud.jsf.jpa.EntityInspector;
 import java.lang.reflect.Field;
@@ -28,6 +29,7 @@ import javax.el.PropertyNotFoundException;
 import javax.el.ValueExpression;
 import javax.faces.model.SelectItem;
 import javax.persistence.EntityManager;
+import javax.persistence.Query;
 import javax.persistence.TypedQuery;
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
@@ -49,18 +51,42 @@ public class EntitySelectItemsValueExpression extends ValueExpression {
 
     private final String crudComponentId;
 
-    public EntitySelectItemsValueExpression(String entityClassName) {
-        this.entityClassName = entityClassName;
-        this.notReferencedByClassName = null;
-        this.entityAttribute = null;
-        this.crudComponentId = null;
+    private final String queryComponentId;
+
+    public EntitySelectItemsValueExpression(CRUDComponent crudComponent, QueryComponent queryComponent) {
+        this(null, null, null, crudComponent, queryComponent);
     }
 
-    public EntitySelectItemsValueExpression(String entityClassName, String notReferencedByClassName, String entityAttribute, String crudComponentId) {
-        this.entityClassName = entityClassName;
-        this.notReferencedByClassName = notReferencedByClassName;
+    public EntitySelectItemsValueExpression(Class<?> entityClass) {
+        this(entityClass, null, null, null);
+    }
+
+    public EntitySelectItemsValueExpression(Class<?> entityClass, Class<?> notReferencedByClass, String entityAttribute, CRUDComponent crudComponent) {
+        this(entityClass, notReferencedByClass, entityAttribute, crudComponent, null);
+    }
+
+    public EntitySelectItemsValueExpression(Class<?> entityClass, Class<?> notReferencedByClass, String entityAttribute, CRUDComponent crudComponent, QueryComponent queryComponent) {
+        if (null != entityClass) {
+            this.entityClassName = entityClass.getName();
+        } else {
+            this.entityClassName = null;
+        }
+        if (null != notReferencedByClass) {
+            this.notReferencedByClassName = notReferencedByClass.getName();
+        } else {
+            this.notReferencedByClassName = null;
+        }
         this.entityAttribute = entityAttribute;
-        this.crudComponentId = crudComponentId;
+        if (null != crudComponent) {
+            this.crudComponentId = crudComponent.getId();
+        } else {
+            this.crudComponentId = null;
+        }
+        if (null != queryComponent) {
+            this.queryComponentId = queryComponent.getId();
+        } else {
+            this.queryComponentId = null;
+        }
     }
 
     @Override
@@ -68,13 +94,18 @@ public class EntitySelectItemsValueExpression extends ValueExpression {
         LOGGER.debug("getValue");
         CRUDController crudController = CRUDController.getCRUDController();
         EntityManager entityManager = crudController.getEntityManager();
-        EntityInspector entityInspector = new EntityInspector(entityManager, this.entityClassName);
-        Class<?> entityClass = entityInspector.getEntityClass();
 
-        CriteriaBuilder criteriaBuilder = entityManager.getCriteriaBuilder();
-
+        EntityInspector entityInspector = null;
         List entities;
-        if (null == this.notReferencedByClassName) {
+        if (null != this.queryComponentId) {
+            CRUDComponent crudComponent = CRUDComponent.getCRUDComponent(this.crudComponentId);
+            QueryComponent queryComponent = (QueryComponent) crudComponent.findComponent(this.queryComponentId);
+            Query query = queryComponent.getQuery(entityManager, context);
+            entities = query.getResultList();
+        } else if (null == this.notReferencedByClassName) {
+            entityInspector = new EntityInspector(entityManager, this.entityClassName);
+            Class<?> entityClass = entityInspector.getEntityClass();
+            CriteriaBuilder criteriaBuilder = entityManager.getCriteriaBuilder();
             CriteriaQuery criteriaQuery = criteriaBuilder.createQuery(entityClass);
             Root<? extends Object> entity = criteriaQuery.from(entityClass);
             criteriaQuery.select(entity);
@@ -110,6 +141,9 @@ public class EntitySelectItemsValueExpression extends ValueExpression {
                     }
                 }
             }
+            entityInspector = new EntityInspector(entityManager, this.entityClassName);
+            Class<?> entityClass = entityInspector.getEntityClass();
+            CriteriaBuilder criteriaBuilder = entityManager.getCriteriaBuilder();
             CriteriaQuery criteriaQuery = criteriaBuilder.createQuery(entityClass);
             Root root = criteriaQuery.from(entityClass);
             criteriaQuery.select(root);
@@ -133,6 +167,9 @@ public class EntitySelectItemsValueExpression extends ValueExpression {
 
         List<SelectItem> selectItems = new LinkedList<>();
         for (Object entityObject : entities) {
+            if (null == entityInspector) {
+                entityInspector = new EntityInspector(entityManager, entityObject);
+            }
             SelectItem selectItem = new SelectItem(entityObject, entityInspector.toHumanReadable(entityObject));
             selectItems.add(selectItem);
         }

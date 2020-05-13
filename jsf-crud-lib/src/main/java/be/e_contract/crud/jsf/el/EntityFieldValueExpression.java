@@ -45,8 +45,8 @@ public class EntityFieldValueExpression extends ValueExpression {
         LOGGER.debug("default constructor");
     }
 
-    public EntityFieldValueExpression(String crudComponentId, Field entityField, Field embeddableField, boolean create) {
-        this.crudComponentId = crudComponentId;
+    public EntityFieldValueExpression(CRUDComponent crudComponent, Field entityField, Field embeddableField, boolean create) {
+        this.crudComponentId = crudComponent.getId();
         this.entityFieldName = entityField.getName();
         this.create = create;
         if (null != embeddableField) {

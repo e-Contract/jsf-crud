@@ -44,8 +44,8 @@ public class NonExistingIdentifierValidator extends AbstractCRUDComponentStateHo
         LOGGER.debug("default constructor");
     }
 
-    public NonExistingIdentifierValidator(String crudComponentId) {
-        super(crudComponentId);
+    public NonExistingIdentifierValidator(CRUDComponent crudComponent) {
+        super(crudComponent);
     }
 
     private Class<?> getEntityClass() {

@@ -50,8 +50,8 @@ public class AjaxUpdateListener implements CreateListener, UpdateListener, Delet
         this.clientIds = new LinkedList<>();
     }
 
-    public AjaxUpdateListener(String crudComponentId) {
-        this.crudComponentId = crudComponentId;
+    public AjaxUpdateListener(CRUDComponent crudComponent) {
+        this.crudComponentId = crudComponent.getId();
         this.clientIds = new LinkedList<>();
     }
 

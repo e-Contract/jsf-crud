@@ -43,8 +43,8 @@ public class DeleteActionListener extends AbstractCRUDComponentStateHolder imple
         super();
     }
 
-    public DeleteActionListener(String crudComponentId) {
-        super(crudComponentId);
+    public DeleteActionListener(CRUDComponent crudComponent) {
+        super(crudComponent);
     }
 
     @Override

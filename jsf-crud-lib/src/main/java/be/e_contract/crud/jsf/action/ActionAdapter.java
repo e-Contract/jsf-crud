@@ -62,10 +62,10 @@ public class ActionAdapter implements ActionListener, StateHolder {
         super();
     }
 
-    public ActionAdapter(MethodExpression methodExpression, String update, String crudComponentId) {
+    public ActionAdapter(MethodExpression methodExpression, String update, CRUDComponent crudComponent) {
         this.methodExpression = methodExpression;
         this.update = update;
-        this.crudComponentId = crudComponentId;
+        this.crudComponentId = crudComponent.getId();
     }
 
     @Override
