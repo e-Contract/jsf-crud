@@ -19,6 +19,8 @@ package be.e_contract.crud.jsf.component;
 
 import java.util.LinkedList;
 import java.util.List;
+import javax.el.ELContext;
+import javax.el.ValueExpression;
 import javax.faces.component.FacesComponent;
 import javax.faces.component.UIComponent;
 import javax.faces.component.UIComponentBase;
@@ -74,6 +76,17 @@ public class QueryComponent extends UIComponentBase {
             return entityManager.createNamedQuery(namedQuery);
         }
         return entityManager.createQuery(getQuery());
+    }
+
+    public Query getQuery(EntityManager entityManager, ELContext context) {
+        Query query = getQuery(entityManager);
+        List<QueryParameterComponent> queryParameters = getQueryParameters();
+        for (QueryParameterComponent queryParameter : queryParameters) {
+            ValueExpression valueExpression = (ValueExpression) queryParameter.getValue();
+            Object value = valueExpression.getValue(context);
+            query.setParameter(queryParameter.getName(), value);
+        }
+        return query;
     }
 
     public Class<?> getQueryParameterType(EntityManager entityManager, String parameterName) {

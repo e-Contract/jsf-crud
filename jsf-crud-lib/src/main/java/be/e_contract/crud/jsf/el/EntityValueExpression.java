@@ -19,7 +19,6 @@ package be.e_contract.crud.jsf.el;
 
 import be.e_contract.crud.jsf.CRUDComponent;
 import be.e_contract.crud.jsf.component.QueryComponent;
-import be.e_contract.crud.jsf.component.QueryParameterComponent;
 import be.e_contract.crud.jsf.jpa.CRUDController;
 import java.util.HashMap;
 import java.util.List;
@@ -95,13 +94,7 @@ public class EntityValueExpression extends ValueExpression {
         List resultList;
         QueryComponent queryComponent = crudComponent.findQueryComponent();
         if (null != queryComponent) {
-            Query query = queryComponent.getQuery(entityManager);
-            List<QueryParameterComponent> queryParameters = queryComponent.getQueryParameters();
-            for (QueryParameterComponent queryParameter : queryParameters) {
-                ValueExpression valueExpression = (ValueExpression) queryParameter.getValue();
-                Object value = valueExpression.getValue(context);
-                query.setParameter(queryParameter.getName(), value);
-            }
+            Query query = queryComponent.getQuery(entityManager, context);
             resultList = query.getResultList();
         } else {
             CriteriaBuilder criteriaBuilder = entityManager.getCriteriaBuilder();
