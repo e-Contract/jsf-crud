@@ -1324,10 +1324,7 @@ public class CRUDComponent extends UINamingContainer implements SystemEventListe
         if (null != overrideFields) {
             FieldComponent fieldComponent = overrideFields.get(entityField.getName());
             if (null != fieldComponent) {
-                QueryComponent queryComponent = fieldComponent.getQueryComponent();
-                if (null != queryComponent) {
-                    return queryComponent;
-                }
+                return fieldComponent.getQueryComponent();
             }
         }
         FieldComponent fieldComponent = fields.get(entityField.getName());
