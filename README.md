@@ -236,6 +236,16 @@ For example, to change the input component of a field on the update dialog, you 
     </crud:update>
 </crud:crud>
 ```
+Similarly, you can change the output component of a field within the main table via:
+```xml
+<crud:crud entity="YourEntity">
+    <crud:field name="yourField">
+        <f:facet name="output">
+            <h:outputText/>
+        </f:facet>
+    </crud:field>
+</crud:crud>
+```
 
 ## Custom Actions
 

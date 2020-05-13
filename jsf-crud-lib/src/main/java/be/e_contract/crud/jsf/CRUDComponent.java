@@ -167,6 +167,7 @@ public class CRUDComponent extends UINamingContainer implements SystemEventListe
         ordering,
         sort,
         roleAllowed,
+        filter,
     }
 
     public void setEntity(String entity) {
@@ -262,6 +263,18 @@ public class CRUDComponent extends UINamingContainer implements SystemEventListe
 
     public void setSort(boolean sort) {
         getStateHelper().put(PropertyKeys.sort, sort);
+    }
+
+    public boolean isFilter() {
+        Boolean filter = (Boolean) getStateHelper().get(PropertyKeys.filter);
+        if (null == filter) {
+            return false;
+        }
+        return filter;
+    }
+
+    public void setFilter(boolean filter) {
+        getStateHelper().put(PropertyKeys.filter, filter);
     }
 
     public void setRoleAllowed(String roleAllowed) {
@@ -1207,10 +1220,18 @@ public class CRUDComponent extends UINamingContainer implements SystemEventListe
         return sort;
     }
 
+    private boolean isFilterProperty(PropertyComponent property) {
+        Boolean filter = property.isFilter();
+        if (null == filter) {
+            return isFilter();
+        }
+        return filter;
+    }
+
     private boolean isFilterField(Field entityField, Map<String, FieldComponent> fields) {
         FieldComponent fieldComponent = fields.get(entityField.getName());
         if (null == fieldComponent) {
-            return false;
+            return isFilter();
         }
         return fieldComponent.isFilter();
     }
@@ -1659,7 +1680,7 @@ public class CRUDComponent extends UINamingContainer implements SystemEventListe
         if (isSortProperty(property)) {
             column.setValueExpression("sortBy", expressionFactory.createValueExpression(elContext, "#{row." + property.getName() + "}", String.class));
         }
-        if (property.isFilter()) {
+        if (isFilterProperty(property)) {
             column.setValueExpression("filterBy", expressionFactory.createValueExpression(elContext, "#{row." + property.getName() + "}", String.class));
             column.setFilterMatchMode("contains");
         }

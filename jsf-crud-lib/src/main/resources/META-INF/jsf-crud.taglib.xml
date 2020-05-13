@@ -51,6 +51,11 @@
             <required>false</required>
             <type>javax.faces.component.UIComponent</type>
         </attribute>
+        <attribute>
+            <description>Sets the default filter for all fields/properties within the CRUD table. Override via field/property.</description>
+            <name>filter</name>
+            <type>java.lang.Boolean</type>
+        </attribute>
     </tag>
 
     <tag>
