@@ -1778,6 +1778,7 @@ public class CRUDComponent extends UINamingContainer implements SystemEventListe
         UIOutput outputComponent = getFieldOutputComponent(field, fields);
         if (null != outputComponent) {
             column.getChildren().add(outputComponent);
+            reloadId(outputComponent);
         } else {
             LimitingOutputText outputText = (LimitingOutputText) application.createComponent(LimitingOutputText.COMPONENT_TYPE);
             column.getChildren().add(outputText);
@@ -1849,11 +1850,7 @@ public class CRUDComponent extends UINamingContainer implements SystemEventListe
     }
 
     public void resetCache() {
-        resetCache(this);
-    }
-
-    public void resetCache(UIComponent component) {
-        for (UIComponent child : component.getChildren()) {
+        for (UIComponent child : getChildren()) {
             if (child instanceof DataTable) {
                 ValueExpression valueExpression = child.getValueExpression("value");
                 EntityValueExpression entityValueExpression = (EntityValueExpression) valueExpression;
@@ -1864,8 +1861,8 @@ public class CRUDComponent extends UINamingContainer implements SystemEventListe
                 if (primeFaces.isAjaxRequest()) {
                     primeFaces.ajax().update(dataTableClientId);
                 }
+                return;
             }
-            resetCache(child);
         }
     }
 
