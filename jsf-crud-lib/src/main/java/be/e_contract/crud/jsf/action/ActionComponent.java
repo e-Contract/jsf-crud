@@ -40,6 +40,7 @@ public class ActionComponent extends UIComponentBase {
         renderedValueExpression,
         icon,
         ajax,
+        tooltip,
     }
 
     @Override
@@ -101,6 +102,14 @@ public class ActionComponent extends UIComponentBase {
 
     public void setAjax(boolean ajax) {
         getStateHelper().put(PropertyKeys.ajax, ajax);
+    }
+
+    public String getTooltip() {
+        return (String) getStateHelper().eval(PropertyKeys.tooltip, null);
+    }
+
+    public void setTooltip(String tooltip) {
+        getStateHelper().put(PropertyKeys.tooltip, tooltip);
     }
 
     public ValueExpression findDownloadValueExpression() {

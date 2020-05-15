@@ -64,8 +64,8 @@
             <crud:action value="Action 2" action="#{demoController.messagingAction}"
                          oncomplete="PF('growl').renderMessage({'summary':'hello world'})"/>
             <crud:action value="Increase amount" action="#{demoController.increaseAmount}" rendered="#{row.amount lt 500}"/>
-            <crud:action value="Custom Dialog" oncomplete="PF('customDialog').show()"
-                         update=":customDialog" icon="fa fa-plus"/>
+            <crud:action oncomplete="PF('customDialog').show()"
+                         update=":customDialog" icon="fa fa-plus" tooltip="Custom Dialog Action"/>
             <crud:action value="Download text file">
                 <crud:fileDownload value="#{demoController.downloadTextFile}"/>
             </crud:action>

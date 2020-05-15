@@ -239,7 +239,6 @@
         <attribute>
             <description>The action button text.</description>
             <name>value</name>
-            <required>true</required>
             <type>java.lang.String</type>
         </attribute>
         <attribute>
@@ -266,6 +265,11 @@
             <description>Specifies the submit mode, when set to true (default), submit would be made with Ajax.</description>
             <name>ajax</name>
             <type>java.lang.Boolean</type>
+        </attribute>
+        <attribute>
+            <description>The action button tooltip text.</description>
+            <name>tooltip</name>
+            <type>java.lang.String</type>
         </attribute>
     </tag>
     

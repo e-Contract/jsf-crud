@@ -132,6 +132,7 @@ import org.primefaces.component.selectbooleancheckbox.SelectBooleanCheckbox;
 import org.primefaces.component.selectmanymenu.SelectManyMenu;
 import org.primefaces.component.selectonemenu.SelectOneMenu;
 import org.primefaces.component.spacer.Spacer;
+import org.primefaces.component.tooltip.Tooltip;
 import org.primefaces.component.tristatecheckbox.TriStateCheckbox;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -564,7 +565,6 @@ public class CRUDComponent extends UINamingContainer implements SystemEventListe
             column.getChildren().add(commandButton);
             commandButton.setValue(action.getValue());
             commandButton.setId("Action" + actionIdx);
-            actionIdx++;
             commandButton.setUpdate(dataTable.getClientId() + "," + message.getClientId());
             commandButton.addActionListener(new ActionAdapter(action.getAction(), action.getUpdate(), this));
             commandButton.setOncomplete(action.getOncomplete());
@@ -607,6 +607,14 @@ public class CRUDComponent extends UINamingContainer implements SystemEventListe
                 commandButton.addActionListener(new FileDownloadActionListener(fileDownloadValueExpression, null, null));
                 commandButton.setAjax(false);
             }
+
+            if (!UIInput.isEmpty(action.getTooltip())) {
+                Tooltip tooltip = (Tooltip) application.createComponent(Tooltip.COMPONENT_TYPE);
+                column.getChildren().add(tooltip);
+                tooltip.setFor("Action" + actionIdx);
+                tooltip.setValue(action.getTooltip());
+            }
+            actionIdx++;
         }
     }
 
