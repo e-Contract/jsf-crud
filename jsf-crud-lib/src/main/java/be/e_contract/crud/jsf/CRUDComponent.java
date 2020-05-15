@@ -1850,7 +1850,11 @@ public class CRUDComponent extends UINamingContainer implements SystemEventListe
     }
 
     public void resetCache() {
-        for (UIComponent child : getChildren()) {
+        resetCache(this);
+    }
+
+    private void resetCache(UIComponent component) {
+        for (UIComponent child : component.getChildren()) {
             if (child instanceof DataTable) {
                 ValueExpression valueExpression = child.getValueExpression("value");
                 EntityValueExpression entityValueExpression = (EntityValueExpression) valueExpression;
@@ -1863,6 +1867,7 @@ public class CRUDComponent extends UINamingContainer implements SystemEventListe
                 }
                 return;
             }
+            resetCache(child); // because DataTable can sit deeper
         }
     }
 
