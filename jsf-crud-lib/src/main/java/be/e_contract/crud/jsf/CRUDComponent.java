@@ -662,6 +662,13 @@ public class CRUDComponent extends UINamingContainer implements SystemEventListe
             commandButton.addActionListener(new FileDownloadActionListener(fileDownloadValueExpression, null, null));
             commandButton.setAjax(false);
         }
+
+        if (!UIInput.isEmpty(globalAction.getTooltip())) {
+            Tooltip tooltip = (Tooltip) application.createComponent(Tooltip.COMPONENT_TYPE);
+            footerHtmlPanelGroup.getChildren().add(tooltip);
+            tooltip.setFor("GlobalAction" + globalActionIdx);
+            tooltip.setValue(globalAction.getTooltip());
+        }
     }
 
     private void addCreateDialog(boolean showCreate, CreateComponent createComponent, HtmlPanelGroup footerHtmlPanelGroup, String entityName,
