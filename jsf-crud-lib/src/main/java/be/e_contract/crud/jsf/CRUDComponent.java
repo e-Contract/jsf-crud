@@ -1038,10 +1038,24 @@ public class CRUDComponent extends UINamingContainer implements SystemEventListe
         ELContext elContext = facesContext.getELContext();
         CommandButton commandButton = (CommandButton) application.createComponent(CommandButton.COMPONENT_TYPE);
         column.getChildren().add(commandButton);
-        commandButton.setValue("View...");
+
+        String value = readComponent.getValue();
+        if (null == value) {
+            value = "View...";
+        } else if ("".equals(value)) {
+            value = null;
+        }
+        commandButton.setValue(value);
+
         commandButton.setOncomplete("PF('viewDialog').show()");
         commandButton.setId("viewButton");
         commandButton.setIcon(readComponent.getIcon());
+        if (!UIInput.isEmpty(readComponent.getTooltip())) {
+            Tooltip tooltip = (Tooltip) application.createComponent(Tooltip.COMPONENT_TYPE);
+            column.getChildren().add(tooltip);
+            tooltip.setFor("viewButton");
+            tooltip.setValue(readComponent.getTooltip());
+        }
 
         Dialog viewDialog = createDialog();
         getChildren().add(viewDialog);

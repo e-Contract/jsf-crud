@@ -29,6 +29,8 @@ public class ReadComponent extends UIComponentBase {
     public enum PropertyKeys {
         icon,
         disabled,
+        value,
+        tooltip,
     }
 
     @Override
@@ -54,6 +56,22 @@ public class ReadComponent extends UIComponentBase {
 
     public void setDisabled(boolean disabled) {
         getStateHelper().put(PropertyKeys.disabled, disabled);
+    }
+
+    public void setValue(String value) {
+        getStateHelper().put(PropertyKeys.value, value);
+    }
+
+    public String getValue() {
+        return (String) getStateHelper().eval(PropertyKeys.value);
+    }
+
+    public String getTooltip() {
+        return (String) getStateHelper().eval(PropertyKeys.tooltip, null);
+    }
+
+    public void setTooltip(String tooltip) {
+        getStateHelper().put(PropertyKeys.tooltip, tooltip);
     }
 
     public OrderComponent findOrderComponent() {
