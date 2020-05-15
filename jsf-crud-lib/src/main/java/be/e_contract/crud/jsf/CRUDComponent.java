@@ -683,7 +683,7 @@ public class CRUDComponent extends UINamingContainer implements SystemEventListe
 
         CommandButton commandButton = (CommandButton) application.createComponent(CommandButton.COMPONENT_TYPE);
         footerHtmlPanelGroup.getChildren().add(commandButton);
-        String value = null;
+        String value;
         if (null != createComponent) {
             value = createComponent.getValue();
             if (null == value) {
@@ -818,11 +818,31 @@ public class CRUDComponent extends UINamingContainer implements SystemEventListe
 
         CommandButton commandButton = (CommandButton) application.createComponent(CommandButton.COMPONENT_TYPE);
         column.getChildren().add(commandButton);
-        commandButton.setValue("Delete...");
+
+        String value;
+        if (null != deleteComponent) {
+            value = deleteComponent.getValue();
+            if (null == value) {
+                value = "Delete...";
+            } else if ("".equals(value)) {
+                value = null;
+            }
+        } else {
+            value = "Delete...";
+        }
+        commandButton.setValue(value);
+
         commandButton.setId("deleteButton");
         commandButton.setOncomplete("PF('deleteDialog').show()");
         if (null != deleteComponent) {
             commandButton.setIcon(deleteComponent.getIcon());
+
+            if (!UIInput.isEmpty(deleteComponent.getTooltip())) {
+                Tooltip tooltip = (Tooltip) application.createComponent(Tooltip.COMPONENT_TYPE);
+                column.getChildren().add(tooltip);
+                tooltip.setFor("deleteButton");
+                tooltip.setValue(deleteComponent.getTooltip());
+            }
         }
 
         Dialog deleteDialog = createDialog();
@@ -913,7 +933,7 @@ public class CRUDComponent extends UINamingContainer implements SystemEventListe
         CommandButton commandButton = (CommandButton) application.createComponent(CommandButton.COMPONENT_TYPE);
         column.getChildren().add(commandButton);
 
-        String value = null;
+        String value;
         if (null != updateComponent) {
             value = updateComponent.getValue();
             if (null == value) {

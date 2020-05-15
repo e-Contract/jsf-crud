@@ -28,7 +28,7 @@
                     </f:facet>
                 </crud:field>
             </crud:update>
-            <crud:delete deleteAll="true" title="Custom delete title" icon="fa fa-remove">
+            <crud:delete deleteAll="true" title="Custom delete title" icon="fa fa-remove" value="" tooltip="Delete tooltip">
                 <crud:entity var="entity">
                     <h:outputText value="Custom delete message for #{crud:toHumanReadable(entity)}"/>
                 </crud:entity>
