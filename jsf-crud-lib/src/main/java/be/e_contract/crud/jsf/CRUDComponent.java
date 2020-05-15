@@ -912,11 +912,31 @@ public class CRUDComponent extends UINamingContainer implements SystemEventListe
 
         CommandButton commandButton = (CommandButton) application.createComponent(CommandButton.COMPONENT_TYPE);
         column.getChildren().add(commandButton);
-        commandButton.setValue("Update...");
+
+        String value = null;
+        if (null != updateComponent) {
+            value = updateComponent.getValue();
+            if (null == value) {
+                value = "Update...";
+            } else if ("".equals(value)) {
+                value = null;
+            }
+        } else {
+            value = "Update...";
+        }
+        commandButton.setValue(value);
+
         commandButton.setOncomplete("PF('updateDialog').show()");
         commandButton.setId("updateButton");
         if (null != updateComponent) {
             commandButton.setIcon(updateComponent.getIcon());
+
+            if (!UIInput.isEmpty(updateComponent.getTooltip())) {
+                Tooltip tooltip = (Tooltip) application.createComponent(Tooltip.COMPONENT_TYPE);
+                column.getChildren().add(tooltip);
+                tooltip.setFor("updateButton");
+                tooltip.setValue(updateComponent.getTooltip());
+            }
         }
 
         Dialog updateDialog = createDialog();

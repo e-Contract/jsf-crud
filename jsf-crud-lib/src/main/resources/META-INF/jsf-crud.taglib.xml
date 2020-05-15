@@ -120,6 +120,16 @@
             <name>icon</name>
             <type>java.lang.String</type>
         </attribute>
+        <attribute>
+            <description>The optional button text.</description>
+            <name>value</name>
+            <type>java.lang.String</type>
+        </attribute>
+        <attribute>
+            <description>The optional button tooltip text.</description>
+            <name>tooltip</name>
+            <type>java.lang.String</type>
+        </attribute>
     </tag>
 
     <tag>

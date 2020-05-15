@@ -30,6 +30,8 @@ public class UpdateComponent extends UIComponentBase {
     public enum PropertyKeys {
         disabled,
         icon,
+        value,
+        tooltip,
     }
 
     @Override
@@ -55,6 +57,22 @@ public class UpdateComponent extends UIComponentBase {
 
     public void setIcon(String icon) {
         getStateHelper().put(PropertyKeys.icon, icon);
+    }
+
+    public void setValue(String value) {
+        getStateHelper().put(PropertyKeys.value, value);
+    }
+
+    public String getValue() {
+        return (String) getStateHelper().eval(PropertyKeys.value);
+    }
+
+    public String getTooltip() {
+        return (String) getStateHelper().eval(PropertyKeys.tooltip, null);
+    }
+
+    public void setTooltip(String tooltip) {
+        getStateHelper().put(PropertyKeys.tooltip, tooltip);
     }
 
     public OrderComponent findOrderComponent() {
