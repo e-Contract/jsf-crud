@@ -21,7 +21,7 @@ import be.e_contract.crud.jsf.jpa.CRUDController;
 import be.e_contract.crud.jsf.jpa.EntityInspector;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
-import java.util.List;
+import java.util.Collection;
 import javax.faces.component.FacesComponent;
 import javax.faces.component.UIOutput;
 import javax.persistence.Entity;
@@ -70,7 +70,7 @@ public class LimitingOutputText extends UIOutput {
             Calendar calendar = (Calendar) value;
             return format.format(calendar.getTime());
         }
-        if (value instanceof List) {
+        if (value instanceof Collection) {
             // avoid lazy loading issue
             return "...";
         }

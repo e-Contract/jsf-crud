@@ -60,6 +60,7 @@ import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
@@ -1972,18 +1973,18 @@ public class CRUDComponent extends UINamingContainer implements SystemEventListe
                 if (null == oneToManyAnnotation && null == manyToManyAnnotation && null == elementCollectionAnnotation) {
                     continue;
                 }
-                if (!List.class.equals(field.getType())) {
+                if (!Collection.class.isAssignableFrom(field.getType())) {
                     continue;
                 }
-                List listValue;
+                Collection collectionValue;
                 try {
                     field.setAccessible(true);
-                    listValue = (List) field.get(loadedEntity);
+                    collectionValue = (Collection) field.get(loadedEntity);
                 } catch (IllegalArgumentException | IllegalAccessException ex) {
                     LOGGER.error("reflection error: " + ex.getMessage(), ex);
                     return loadedEntity;
                 }
-                int size = listValue.size(); // eager loading
+                int size = collectionValue.size(); // eager loading
                 LOGGER.debug("eager loading {} of size {}", field.getName(), size);
             }
             return loadedEntity;

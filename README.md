@@ -398,3 +398,5 @@ It is possible to override the default available selection list on a relationshi
     </crud:field>
 </crud:crud>
 ```
+
+The entities on the other side of a relationship are also visualized in a smart way. If the entity implements its own `toString` method, this method is being used. If not, the entity is visualized based on its primary key.

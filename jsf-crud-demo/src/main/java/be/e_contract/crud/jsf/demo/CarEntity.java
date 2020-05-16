@@ -18,7 +18,7 @@
 package be.e_contract.crud.jsf.demo;
 
 import java.io.Serializable;
-import java.util.List;
+import java.util.Collection;
 import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.ManyToMany;
@@ -32,7 +32,7 @@ public class CarEntity implements Serializable {
     private String numberPlate;
 
     @ManyToMany
-    private List<PersonEntity> drivers;
+    private Collection<PersonEntity> drivers;
 
     public CarEntity() {
         super();
@@ -42,11 +42,11 @@ public class CarEntity implements Serializable {
         this.numberPlate = numberPlate;
     }
 
-    public List<PersonEntity> getDrivers() {
+    public Collection<PersonEntity> getDrivers() {
         return this.drivers;
     }
 
-    public void setDrivers(List<PersonEntity> drivers) {
+    public void setDrivers(Collection<PersonEntity> drivers) {
         this.drivers = drivers;
     }
 

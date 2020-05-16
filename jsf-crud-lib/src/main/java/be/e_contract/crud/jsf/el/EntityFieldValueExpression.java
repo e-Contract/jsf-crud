@@ -19,8 +19,8 @@ package be.e_contract.crud.jsf.el;
 
 import be.e_contract.crud.jsf.CRUDComponent;
 import java.lang.reflect.Field;
+import java.util.Collection;
 import java.util.LinkedList;
-import java.util.List;
 import javax.el.ELContext;
 import javax.el.PropertyNotFoundException;
 import javax.el.ValueExpression;
@@ -81,11 +81,11 @@ public class EntityFieldValueExpression extends ValueExpression {
         try {
             entityField.setAccessible(true);
             Object value = entityField.get(entity);
-            if (value instanceof List) {
+            if (value instanceof Collection) {
                 LOGGER.debug("list class: {}", value.getClass().getName());
                 // avoid passing org.hibernate.collection.internal.PersistentBag that later on can yield 
                 // org.hibernate.LazyInitializationException exceptions
-                LinkedList newList = new LinkedList((List) value);
+                LinkedList newList = new LinkedList((Collection) value);
                 return newList;
             }
             if (null == value) {

@@ -20,8 +20,6 @@ package be.e_contract.crud.jsf;
 import be.e_contract.crud.jsf.api.CreateEvent;
 import be.e_contract.crud.jsf.jpa.CRUDController;
 import be.e_contract.crud.jsf.jpa.EntityInspector;
-import java.lang.reflect.Field;
-import java.util.List;
 import javax.faces.application.FacesMessage;
 import javax.faces.event.AbortProcessingException;
 import javax.faces.event.ActionEvent;
@@ -57,25 +55,6 @@ public class AddActionListener extends AbstractCRUDComponentStateHolder implemen
         UserTransaction userTransaction = crudController.getUserTransaction();
         Object entity = crudComponent.getNewEntity();
         EntityInspector entityInspector = new EntityInspector(entityManager, entity);
-        Field[] fields = entity.getClass().getDeclaredFields();
-        for (Field field : fields) {
-            if (field.getType().equals(List.class)) {
-                field.setAccessible(true);
-                try {
-                    List listValue = (List) field.get(entity);
-                    int listSize;
-                    if (null == listValue) {
-                        listSize = 0;
-                    } else {
-                        listSize = listValue.size();
-                    }
-                    LOGGER.debug("field {} list size {}", field.getName(), listSize);
-                } catch (IllegalArgumentException | IllegalAccessException ex) {
-                    LOGGER.error("reflection error: " + ex.getMessage(), ex);
-                    return;
-                }
-            }
-        }
         try {
             userTransaction.begin();
         } catch (NotSupportedException | SystemException ex) {

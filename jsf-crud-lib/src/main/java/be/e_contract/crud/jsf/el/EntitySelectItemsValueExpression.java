@@ -22,6 +22,7 @@ import be.e_contract.crud.jsf.component.QueryComponent;
 import be.e_contract.crud.jsf.jpa.CRUDController;
 import be.e_contract.crud.jsf.jpa.EntityInspector;
 import java.lang.reflect.Field;
+import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
 import javax.el.ELContext;
@@ -132,9 +133,9 @@ public class EntitySelectItemsValueExpression extends ValueExpression {
                     }
                     LOGGER.debug("existing value: {}", value);
                     if (value != null) {
-                        if (value instanceof List) {
-                            List listValue = (List) value;
-                            entities.addAll(listValue);
+                        if (value instanceof Collection) {
+                            Collection collectionValue = (Collection) value;
+                            entities.addAll(collectionValue);
                         } else {
                             entities.add(value);
                         }
