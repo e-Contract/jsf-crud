@@ -381,3 +381,20 @@ You can customize this main query via:
     </crud:query>
 </crud:crud>
 ```
+
+## Relationships
+
+The JSF CRUD component can handle various types of JPA relationships.
+`@ManyToOne` and `@OneToOne` relationships are editable via a `SelectOneMenu` JSF component.
+`@OneToMany` and `@ManyToMany` relationships are editable via a `SelectManyMenu` JSF component.
+
+For `@OneToMany` relationships the available options are automatically limited to prevent transactions errors for entities that are not on the owning side of the relationships.
+
+It is possible to override the default available selection list on a relationship field using a custom field query as follows:
+```xml
+<crud:crud entity="YourEntity">
+    <crud:field name="yourField">
+        <crud:query query="SELECT e FROM OtherEntity AS e WHERE ..."/>
+    </crud:field>
+</crud:crud>
+```
