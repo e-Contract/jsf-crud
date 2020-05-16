@@ -1850,24 +1850,23 @@ public class CRUDComponent extends UINamingContainer implements SystemEventListe
     }
 
     public void resetCache() {
-        resetCache(this);
-    }
+        for (UIComponent child : getChildren()) {
+            if (child instanceof HtmlForm) {
+                for (UIComponent htmlFormChild : child.getChildren()) {
+                    if (htmlFormChild instanceof DataTable) {
+                        ValueExpression valueExpression = htmlFormChild.getValueExpression("value");
+                        EntityValueExpression entityValueExpression = (EntityValueExpression) valueExpression;
+                        entityValueExpression.resetCache();
 
-    private void resetCache(UIComponent component) {
-        for (UIComponent child : component.getChildren()) {
-            if (child instanceof DataTable) {
-                ValueExpression valueExpression = child.getValueExpression("value");
-                EntityValueExpression entityValueExpression = (EntityValueExpression) valueExpression;
-                entityValueExpression.resetCache();
-
-                String dataTableClientId = child.getClientId();
-                PrimeFaces primeFaces = PrimeFaces.current();
-                if (primeFaces.isAjaxRequest()) {
-                    primeFaces.ajax().update(dataTableClientId);
+                        String dataTableClientId = htmlFormChild.getClientId();
+                        PrimeFaces primeFaces = PrimeFaces.current();
+                        if (primeFaces.isAjaxRequest()) {
+                            primeFaces.ajax().update(dataTableClientId);
+                        }
+                        return;
+                    }
                 }
-                return;
             }
-            resetCache(child); // because DataTable can sit deeper
         }
     }
 
