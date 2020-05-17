@@ -62,15 +62,12 @@ public class PropertyComponent extends UIComponentBase {
         getStateHelper().put(PropertyKeys.sort, sort);
     }
 
-    public boolean isFilter() {
+    public Boolean isFilter() {
         Boolean filter = (Boolean) getStateHelper().get(PropertyKeys.filter);
-        if (null == filter) {
-            return false;
-        }
         return filter;
     }
 
-    public void setFilter(boolean filter) {
+    public void setFilter(Boolean filter) {
         getStateHelper().put(PropertyKeys.filter, filter);
     }
 }
