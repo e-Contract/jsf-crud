@@ -100,6 +100,7 @@ import javax.faces.validator.LengthValidator;
 import javax.persistence.Basic;
 import javax.persistence.ElementCollection;
 import javax.persistence.EntityManager;
+import javax.persistence.JoinColumn;
 import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
@@ -1438,6 +1439,14 @@ public class CRUDComponent extends UINamingContainer implements SystemEventListe
         if (isHideField(entityField, fields, overrideFields) && !forceRender) {
             return null;
         }
+        JoinColumn joinColumnAnnotation = entityInspector.getAnnotation(entityField, embeddableField, JoinColumn.class);
+        if (addNotUpdate) {
+            if (null != joinColumnAnnotation) {
+                if (!joinColumnAnnotation.insertable()) {
+                    return null;
+                }
+            }
+        }
         FacesContext facesContext = FacesContext.getCurrentInstance();
         Application application = facesContext.getApplication();
 
@@ -1458,8 +1467,17 @@ public class CRUDComponent extends UINamingContainer implements SystemEventListe
 
         boolean disabled = false;
         javax.persistence.Column columnAnnotation = entityInspector.getAnnotation(entityField, embeddableField, javax.persistence.Column.class);
-        if (null != columnAnnotation && !addNotUpdate) {
-            disabled = !columnAnnotation.updatable();
+        if (!addNotUpdate) {
+            if (null != columnAnnotation) {
+                if (!columnAnnotation.updatable()) {
+                    disabled = true;
+                }
+            }
+            if (null != joinColumnAnnotation) {
+                if (!joinColumnAnnotation.updatable()) {
+                    disabled = true;
+                }
+            }
         }
 
         Field actualField;
@@ -1703,6 +1721,9 @@ public class CRUDComponent extends UINamingContainer implements SystemEventListe
             }
         }
         if (isRequiredField(entityField, fields, overrideFields)) {
+            input.setRequired(true);
+        }
+        if (null != joinColumnAnnotation && !joinColumnAnnotation.nullable()) {
             input.setRequired(true);
         }
         if (forceRender) {

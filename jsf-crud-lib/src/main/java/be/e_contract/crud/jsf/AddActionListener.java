@@ -61,12 +61,12 @@ public class AddActionListener extends AbstractCRUDComponentStateHolder implemen
             LOGGER.error("error: " + ex.getMessage(), ex);
             return;
         }
+        String entityHumanReadable = entityInspector.toHumanReadable(entity);
         crudController.firePreCreateEvent(entity);
         try {
             entityManager.merge(entity);
         } catch (Exception ex) {
             LOGGER.error("error: " + ex.getMessage(), ex);
-            String entityHumanReadable = entityInspector.toHumanReadable(entity);
             crudComponent.addMessage(FacesMessage.SEVERITY_ERROR, "Could not add " + entityHumanReadable);
             crudComponent.setNewEntity(null);
             try {
@@ -83,12 +83,11 @@ public class AddActionListener extends AbstractCRUDComponentStateHolder implemen
             userTransaction.commit();
         } catch (RollbackException | HeuristicMixedException | HeuristicRollbackException | SecurityException | IllegalStateException | SystemException ex) {
             LOGGER.error("error: " + ex.getMessage(), ex);
-            crudComponent.addMessage(FacesMessage.SEVERITY_ERROR, "Could not add " + entity);
+            crudComponent.addMessage(FacesMessage.SEVERITY_ERROR, "Could not add " + entityHumanReadable);
             crudComponent.setNewEntity(null);
             return;
         }
         crudComponent.setNewEntity(null);
-        String entityHumanReadable = entityInspector.toHumanReadable(entity);
         crudComponent.addMessage(FacesMessage.SEVERITY_INFO, "Added " + entityHumanReadable);
         CreateEvent createEvent = new CreateEvent(crudComponent, entity);
         createEvent.queue();
