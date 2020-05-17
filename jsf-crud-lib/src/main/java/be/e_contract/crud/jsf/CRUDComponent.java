@@ -85,6 +85,8 @@ import javax.faces.component.UIOutput;
 import javax.faces.component.UISelectItem;
 import javax.faces.component.UISelectItems;
 import javax.faces.component.UIViewRoot;
+import javax.faces.component.behavior.ClientBehavior;
+import javax.faces.component.behavior.ClientBehaviorHolder;
 import javax.faces.component.html.HtmlForm;
 import javax.faces.component.html.HtmlOutputText;
 import javax.faces.component.html.HtmlPanelGrid;
@@ -144,7 +146,7 @@ import org.slf4j.LoggerFactory;
     @ResourceDependency(library = "crud", name = "crud.js"),
     @ResourceDependency(library = "crud", name = "crud.css")
 })
-public class CRUDComponent extends UINamingContainer implements SystemEventListener, CRUD, Serializable {
+public class CRUDComponent extends UINamingContainer implements SystemEventListener, CRUD, Serializable, ClientBehaviorHolder {
 
     public static final String COMPONENT_TYPE = "crud.crud";
 
@@ -2052,5 +2054,20 @@ public class CRUDComponent extends UINamingContainer implements SystemEventListe
             }
         }
         return null;
+    }
+
+    @Override
+    public Collection<String> getEventNames() {
+        List<String> eventNames = new LinkedList<>();
+        eventNames.add("oncreate");
+        eventNames.add("onupdate");
+        eventNames.add("ondelete");
+        return eventNames;
+    }
+
+    @Override
+    public void addClientBehavior(String eventName, ClientBehavior behavior) {
+        LOGGER.debug("addClientBehavior: {} {}", eventName, behavior);
+        super.addClientBehavior(eventName, behavior);
     }
 }

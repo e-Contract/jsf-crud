@@ -92,6 +92,9 @@
             <crud:globalAction value="Download">
                 <crud:fileDownload value="#{demoController.download()}"/>
             </crud:globalAction>
+            <f:ajax event="oncreate" onevent="PF('growl').renderMessage({'summary':'oncreate'})"/>
+            <p:ajax event="onupdate" oncomplete="PF('growl').renderMessage({'summary':'onupdate'})"/>
+            <p:ajax event="ondelete" oncomplete="PF('growl').renderMessage({'summary':'ondelete'})"/>
         </crud:crud>
 
         <p:dialog id="customDialog" widgetVar="customDialog" header="Custom Dialog">
