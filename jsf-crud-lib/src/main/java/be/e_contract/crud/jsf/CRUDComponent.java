@@ -1720,6 +1720,9 @@ public class CRUDComponent extends UINamingContainer implements SystemEventListe
                 input.setRequired(true);
             }
         }
+        if (null != oneToOneAnnotation && !oneToOneAnnotation.optional()) {
+            input.setRequired(true);
+        }
         if (isRequiredField(entityField, fields, overrideFields)) {
             input.setRequired(true);
         }
