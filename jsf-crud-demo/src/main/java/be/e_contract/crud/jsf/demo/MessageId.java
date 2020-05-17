@@ -25,16 +25,16 @@ import org.apache.commons.lang3.builder.HashCodeBuilder;
 @Embeddable
 public class MessageId implements Serializable {
 
-    private String name;
+    private long id;
 
     private String language;
 
-    public String getName() {
-        return this.name;
+    public long getId() {
+        return this.id;
     }
 
-    public void setName(String name) {
-        this.name = name;
+    public void setId(long id) {
+        this.id = id;
     }
 
     public String getLanguage() {
@@ -47,7 +47,7 @@ public class MessageId implements Serializable {
 
     @Override
     public int hashCode() {
-        return new HashCodeBuilder().append(this.name).append(this.language).toHashCode();
+        return new HashCodeBuilder().append(this.id).append(this.language).toHashCode();
     }
 
     @Override
@@ -63,13 +63,13 @@ public class MessageId implements Serializable {
         }
         MessageId rhs = (MessageId) obj;
         return new EqualsBuilder()
-                .append(this.name, rhs.name)
+                .append(this.id, rhs.id)
                 .append(this.language, rhs.language)
                 .isEquals();
     }
 
     @Override
     public String toString() {
-        return this.name + " " + this.language;
+        return this.id + " " + this.language;
     }
 }

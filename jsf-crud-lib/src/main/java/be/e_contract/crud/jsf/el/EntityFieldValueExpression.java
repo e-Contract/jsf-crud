@@ -170,7 +170,16 @@ public class EntityFieldValueExpression extends ValueExpression {
     public Class<?> getType(ELContext context) {
         //LOGGER.debug("getType");
         Field entityField = getEntityField();
-        return entityField.getType();
+        if (null == this.embeddableFieldname) {
+            return entityField.getType();
+        }
+        try {
+            Field embeddableField = entityField.getType().getDeclaredField(this.embeddableFieldname);
+            return embeddableField.getType();
+        } catch (IllegalArgumentException | NoSuchFieldException | SecurityException ex) {
+            LOGGER.error("error: " + ex.getMessage(), ex);
+            throw new PropertyNotFoundException();
+        }
     }
 
     @Override
