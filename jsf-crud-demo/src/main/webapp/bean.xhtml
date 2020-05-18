@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="http://java.sun.com/jsf/html"
+      xmlns:crud="urn:be:e-contract:crud:jsf"
+      xmlns:p="http://primefaces.org/ui">
+
+    <h:head>
+        <title>JSF CRUD Demo</title>
+    </h:head>
+
+    <h:body>
+        <h1>JSF CRUD Demo</h1>
+        <crud:bean name="demoBean"/>
+        <h:form>
+            <p:commandLink action="/index?faces-redirect=true" value="Back"/>
+        </h:form>
+    </h:body>
+
+</html>
