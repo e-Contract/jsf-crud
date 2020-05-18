@@ -112,7 +112,7 @@ public class BeanComponent extends UINamingContainer implements SystemEventListe
                 InputText inputText = (InputText) application.createComponent(InputText.COMPONENT_TYPE);
                 htmlPanelGrid.getChildren().add(inputText);
                 inputText.setId(property);
-                ValueExpression valueExpression = expressionFactory.createValueExpression(elContext, "#{" + getName() + "." + property.substring(0, 1).toLowerCase() + property.substring(1) + "}", Object.class);
+                ValueExpression valueExpression = expressionFactory.createValueExpression(elContext, "#{" + getName() + "." + property.substring(0, 1).toLowerCase() + property.substring(1) + "}", method.getParameters()[0].getType());
                 inputText.setValueExpression("value", valueExpression);
 
                 Message message = (Message) application.createComponent(Message.COMPONENT_TYPE);
@@ -136,6 +136,7 @@ public class BeanComponent extends UINamingContainer implements SystemEventListe
             commandButton.setId(actionMethod.getName());
             MethodExpression methodExpression = expressionFactory.createMethodExpression(elContext, "#{" + getName() + "." + actionMethod.getName() + "}", void.class, new Class[]{});
             commandButton.setActionExpression(methodExpression);
+            commandButton.setUpdate(htmlForm.getClientId());
         }
     }
 

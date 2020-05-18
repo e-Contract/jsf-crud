@@ -30,6 +30,8 @@ public class DemoBean {
 
     private String name;
 
+    private int amount;
+
     public String getName() {
         return this.name;
     }
@@ -38,7 +40,15 @@ public class DemoBean {
         this.name = name;
     }
 
+    public int getAmount() {
+        return this.amount;
+    }
+
+    public void setAmount(int amount) {
+        this.amount = amount;
+    }
+
     public void action() {
-        LOGGER.debug("action: {}", this.name);
+        LOGGER.debug("action: {} {}", this.name, this.amount);
     }
 }
