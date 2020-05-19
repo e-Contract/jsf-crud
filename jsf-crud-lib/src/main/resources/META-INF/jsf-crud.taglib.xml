@@ -56,6 +56,11 @@
             <name>filter</name>
             <type>java.lang.Boolean</type>
         </attribute>
+        <attribute>
+            <description>Sets the default hide setting for all fields within the CRUD table. Override via field.</description>
+            <name>hide</name>
+            <type>java.lang.Boolean</type>
+        </attribute>
     </tag>
 
     <tag>

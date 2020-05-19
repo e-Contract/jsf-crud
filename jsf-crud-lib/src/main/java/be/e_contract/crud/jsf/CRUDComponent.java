@@ -173,6 +173,7 @@ public class CRUDComponent extends UINamingContainer implements SystemEventListe
         sort,
         roleAllowed,
         filter,
+        hide,
     }
 
     public void setEntity(String entity) {
@@ -280,6 +281,18 @@ public class CRUDComponent extends UINamingContainer implements SystemEventListe
 
     public void setFilter(boolean filter) {
         getStateHelper().put(PropertyKeys.filter, filter);
+    }
+
+    public boolean isHide() {
+        Boolean hide = (Boolean) getStateHelper().get(PropertyKeys.hide);
+        if (null == hide) {
+            return false;
+        }
+        return hide;
+    }
+
+    public void setHide(boolean hide) {
+        getStateHelper().put(PropertyKeys.hide, hide);
     }
 
     public void setRoleAllowed(String roleAllowed) {
@@ -1282,11 +1295,11 @@ public class CRUDComponent extends UINamingContainer implements SystemEventListe
         }
         FieldComponent fieldComponent = fields.get(entityField.getName());
         if (null == fieldComponent) {
-            return false;
+            return isHide();
         }
         Boolean hide = fieldComponent.isHide();
         if (null == hide) {
-            return false;
+            return isHide();
         }
         return hide;
     }
