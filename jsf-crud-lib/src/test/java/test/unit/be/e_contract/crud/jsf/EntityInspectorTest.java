@@ -25,11 +25,11 @@ import javax.persistence.Persistence;
 import javax.persistence.metamodel.EntityType;
 import javax.persistence.metamodel.Metamodel;
 import javax.persistence.metamodel.SingularAttribute;
-import org.junit.After;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -41,7 +41,7 @@ public class EntityInspectorTest {
 
     private Metamodel metamodel;
 
-    @Before
+    @BeforeEach
     public void setUp() throws Exception {
         EntityManagerFactory entityManagerFactory = Persistence
                 .createEntityManagerFactory("test");
@@ -49,7 +49,7 @@ public class EntityInspectorTest {
         this.metamodel = this.entityManager.getMetamodel();
     }
 
-    @After
+    @AfterEach
     public void tearDown() throws Exception {
         this.entityManager.close();
     }
