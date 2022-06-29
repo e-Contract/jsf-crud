@@ -6,7 +6,7 @@ The JSF CRUD component is a perfect match for the construction of administrator 
 
 The component has been tested on the following application servers:
 * JBoss EAP 6.4.22
-* JBoss EAP 7.3.0
+* JBoss EAP 7.4.0
 * WildFly 19.1.0
 * Payara 5.201
 * Oracle WebLogic Server 14.1.1
@@ -14,11 +14,8 @@ The component has been tested on the following application servers:
 * Open Liberty 20.0.0.5
 
 The component has been tested with PrimeFaces versions:
-* 6.2.27
-* 7.0
-* 7.0.13
-* 8.0
-* 8.0.1
+* 11.0.0
+
 
 # Usage
 

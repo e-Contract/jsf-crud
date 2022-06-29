@@ -8,32 +8,23 @@
 
     <context-param>
         <param-name>crud.dialog.dismissButton.icon</param-name>
-        <param-value>fa fa-remove</param-value>
+        <param-value>pi pi-trash</param-value>
     </context-param>
     <context-param>
         <param-name>crud.dialog.createButton.icon</param-name>
-        <param-value>fa fa-save</param-value>
+        <param-value>pi pi-save</param-value>
     </context-param>
     <context-param>
         <param-name>crud.dialog.updateButton.icon</param-name>
-        <param-value>fa fa-save</param-value>
+        <param-value>pi pi-save</param-value>
     </context-param>
     <context-param>
         <param-name>crud.dialog.deleteButton.icon</param-name>
-        <param-value>fa fa-remove</param-value>
+        <param-value>pi pi-trash</param-value>
     </context-param>
     <context-param>
         <param-name>crud.dialog.closable</param-name>
         <param-value>false</param-value>
-    </context-param>
-
-    <context-param>
-        <param-name>primefaces.THEME</param-name>
-        <param-value>omega</param-value>
-    </context-param>
-    <context-param>
-        <param-name>primefaces.FONT_AWESOME</param-name>
-        <param-value>true</param-value>
     </context-param>
 
     <mime-mapping>

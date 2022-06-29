@@ -1,6 +1,6 @@
 /*
  * JSF CRUD project.
- * Copyright (C) 2020 e-Contract.be BV.
+ * Copyright (C) 2020-2022 e-Contract.be BV.
  *
  * This is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License version
@@ -90,7 +90,11 @@ public class FieldStreamedContentValueExpression extends ValueExpression {
         EntityManager entityManager = crudController.getEntityManager();
         EntityInspector entityInspector = new EntityInspector(entityManager, entity);
         String name = entityInspector.toHumanReadable(entity) + "-" + entityField.getName();
-        StreamedContent streamedContent = new DefaultStreamedContent(new ByteArrayInputStream(value), this.contentType, name);
+        StreamedContent streamedContent = DefaultStreamedContent.builder()
+                .stream(() -> new ByteArrayInputStream(value))
+                .contentType(this.contentType)
+                .name(name)
+                .build();
         return streamedContent;
     }
 

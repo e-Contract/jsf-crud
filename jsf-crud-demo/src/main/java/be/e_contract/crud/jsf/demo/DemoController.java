@@ -1,6 +1,6 @@
 /*
  * JSF CRUD project.
- * Copyright (C) 2020 e-Contract.be BV.
+ * Copyright (C) 2020-2022 e-Contract.be BV.
  *
  * This is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License version
@@ -138,7 +138,12 @@ public class DemoController implements Serializable {
 
     public StreamedContent download() {
         LOGGER.debug("download");
-        StreamedContent streamedContent = new DefaultStreamedContent(new ByteArrayInputStream("hello world".getBytes()), "text/plain", "filename.txt");
+        StreamedContent streamedContent
+                = DefaultStreamedContent.builder()
+                        .stream(() -> new ByteArrayInputStream("hello world".getBytes()))
+                        .contentType("text/plain")
+                        .name("filename.txt")
+                        .build();
         return streamedContent;
     }
 
@@ -148,7 +153,12 @@ public class DemoController implements Serializable {
         if (null == textFile) {
             return null;
         }
-        StreamedContent streamedContent = new DefaultStreamedContent(new ByteArrayInputStream(textFile), "text/plain", "filename.txt");
+        StreamedContent streamedContent
+                = DefaultStreamedContent.builder()
+                        .stream(() -> new ByteArrayInputStream(textFile))
+                        .contentType("text/plain")
+                        .name("filename.txt")
+                        .build();
         return streamedContent;
     }
 

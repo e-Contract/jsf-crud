@@ -13,22 +13,22 @@
         <h1>JSF CRUD Demo</h1>
         <p:growl widgetVar="growl"/>
         <crud:crud entity="AutoIdEntity" title="A fancy title!" orderBy="amount" ordering="DESC" id='crud'>
-            <crud:create icon="fa fa-plus" value="" tooltip="Create tooltip">
+            <crud:create icon="pi pi-plus" value="" tooltip="Create tooltip">
                 <crud:field name="amount" hide="true"/>
                 <crud:order>
                     <crud:field name="myEnum"/>
                     <crud:field name="demo"/>
                 </crud:order>
             </crud:create>
-            <crud:read icon="fa fa-search"  value="" tooltip="Read tooltip"/>
-            <crud:update disabled="false" icon="fa fa-save" value="" tooltip="Update tooltip">
+            <crud:read icon="pi pi-search"  value="" tooltip="Read tooltip"/>
+            <crud:update disabled="false" icon="pi pi-save" value="" tooltip="Update tooltip">
                 <crud:field name="amount" hide="false">
                     <f:facet name="input">
                         <p:spinner/>
                     </f:facet>
                 </crud:field>
             </crud:update>
-            <crud:delete deleteAll="true" title="Custom delete title" icon="fa fa-remove" value="" tooltip="Delete tooltip">
+            <crud:delete deleteAll="true" title="Custom delete title" icon="pi pi-trash" value="" tooltip="Delete tooltip">
                 <crud:entity var="entity">
                     <h:outputText value="Custom delete message for #{crud:toHumanReadable(entity)}"/>
                 </crud:entity>
@@ -65,7 +65,7 @@
                          oncomplete="PF('growl').renderMessage({'summary':'hello world'})"/>
             <crud:action value="Increase amount" action="#{demoController.increaseAmount}" rendered="#{row.amount lt 500}"/>
             <crud:action oncomplete="PF('customDialog').show()"
-                         update=":customDialog" icon="fa fa-plus" tooltip="Custom Dialog Action"/>
+                         update=":customDialog" icon="pi pi-plus" tooltip="Custom Dialog Action"/>
             <crud:action value="Download text file">
                 <crud:fileDownload value="#{demoController.downloadTextFile}"/>
             </crud:action>
@@ -87,7 +87,7 @@
                     A nice dialog facet title
                 </f:facet>
             </crud:action>
-            <crud:globalAction icon="fa fa-plus" action="#{demoController.globalAction}" tooltip="Custom Global Action"/>
+            <crud:globalAction icon="pi pi-plus" action="#{demoController.globalAction}" tooltip="Custom Global Action"/>
             <crud:globalAction value="Global Action Dialog" oncomplete="PF('globalActionDialog').show()"/>
             <crud:globalAction value="Download">
                 <crud:fileDownload value="#{demoController.download()}"/>
